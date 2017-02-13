@@ -4,3 +4,5 @@ dist/
 .cproject.bak
 .project.bak
 output.map
+STM32L152RE/Debug/*
+STM32L152RE/Release/*

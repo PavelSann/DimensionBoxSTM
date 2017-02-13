@@ -156,7 +156,7 @@
         <linkerTool>
           <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/stm32l1</output>
           <commandlineTool>arm-none-eabi-gcc</commandlineTool>
-          <commandLine>-mcpu=cortex-m3 -mthumb -mfloat-abi=soft -specs=nosys.specs -specs=nano.specs -TSTM32L152RE_FLASH.ld -Wl,-Map=output.map -Wl,--gc-sections -lm</commandLine>
+          <commandLine>-mcpu=cortex-m3 -mthumb -mfloat-abi=soft -specs=nosys.specs -specs=nano.specs -TSTM32L152RETx_FLASH.ld -Wl,-Map=output.map -Wl,--gc-sections -lm</commandLine>
         </linkerTool>
       </compileType>
       <item path="Drivers/CMSIS/Device/ST/STM32L1xx/Include/stm32l152xe.h"
@@ -429,7 +429,7 @@
         <linkerTool>
           <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/stm32l1</output>
           <commandlineTool>arm-none-eabi-gcc</commandlineTool>
-          <commandLine>-mcpu=cortex-m3 -mthumb -mfloat-abi=soft -specs=nosys.specs -specs=nano.specs -TSTM32L152RE_FLASH.ld -Wl,-Map=output.map -Wl,--gc-sections -lm</commandLine>
+          <commandLine>-mcpu=cortex-m3 -mthumb -mfloat-abi=soft -specs=nosys.specs -specs=nano.specs -TSTM32L152RETx_FLASH.ld -Wl,-Map=output.map -Wl,--gc-sections -lm</commandLine>
         </linkerTool>
       </compileType>
       <item path="Drivers/CMSIS/Device/ST/STM32L1xx/Include/stm32l152xe.h"
