@@ -1,3 +1,6 @@
 build/
 dist/
 */nbproject/private/
+.cproject.bak
+.project.bak
+output.map
