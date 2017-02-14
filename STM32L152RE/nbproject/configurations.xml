@@ -83,6 +83,7 @@
         </logicalFolder>
       </logicalFolder>
       <itemPath>Src/main.c</itemPath>
+      <itemPath>Src/processor.c</itemPath>
       <itemPath>startup/startup_stm32l152xe.s</itemPath>
       <itemPath>Src/stm32l1xx_hal_msp.c</itemPath>
       <itemPath>Src/stm32l1xx_it.c</itemPath>
@@ -92,6 +93,7 @@
                    displayName="Файлы заголовков"
                    projectFiles="true">
       <itemPath>Inc/main.h</itemPath>
+      <itemPath>Src/processor.h</itemPath>
       <itemPath>Inc/stm32l1xx_hal_conf.h</itemPath>
       <itemPath>Inc/stm32l1xx_it.h</itemPath>
     </logicalFolder>
@@ -383,6 +385,10 @@
       </item>
       <item path="Src/main.c" ex="false" tool="0" flavor2="0">
       </item>
+      <item path="Src/processor.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="Src/processor.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="Src/stm32l1xx_hal_msp.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="Src/stm32l1xx_it.c" ex="false" tool="0" flavor2="0">
@@ -655,6 +661,10 @@
       <item path="Inc/stm32l1xx_it.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Src/main.c" ex="false" tool="0" flavor2="3">
+      </item>
+      <item path="Src/processor.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="Src/processor.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Src/stm32l1xx_hal_msp.c" ex="false" tool="0" flavor2="3">
       </item>

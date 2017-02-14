@@ -49,6 +49,7 @@ OBJECTFILES= \
 	${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_tim.o \
 	${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_tim_ex.o \
 	${OBJECTDIR}/Src/main.o \
+	${OBJECTDIR}/Src/processor.o \
 	${OBJECTDIR}/Src/stm32l1xx_hal_msp.o \
 	${OBJECTDIR}/Src/stm32l1xx_it.o \
 	${OBJECTDIR}/Src/system_stm32l1xx.o \
@@ -148,6 +149,11 @@ ${OBJECTDIR}/Src/main.o: Src/main.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/Src
 	${RM} "$@.d"
 	$(COMPILE.c) -g -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -std=c99 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Src/main.o Src/main.c
+
+${OBJECTDIR}/Src/processor.o: Src/processor.c nbproject/Makefile-${CND_CONF}.mk
+	${MKDIR} -p ${OBJECTDIR}/Src
+	${RM} "$@.d"
+	$(COMPILE.c) -g -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -std=c99 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Src/processor.o Src/processor.c
 
 ${OBJECTDIR}/Src/stm32l1xx_hal_msp.o: Src/stm32l1xx_hal_msp.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/Src
