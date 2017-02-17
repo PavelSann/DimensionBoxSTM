@@ -64,6 +64,7 @@
             <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_rcc_ex.h</itemPath>
             <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_tim.h</itemPath>
             <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_tim_ex.h</itemPath>
+            <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_uart.h</itemPath>
           </logicalFolder>
           <logicalFolder name="Src" displayName="Src" projectFiles="true">
             <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal.c</itemPath>
@@ -79,6 +80,7 @@
             <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc_ex.c</itemPath>
             <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_tim.c</itemPath>
             <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_tim_ex.c</itemPath>
+            <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_uart.c</itemPath>
           </logicalFolder>
         </logicalFolder>
       </logicalFolder>
@@ -312,6 +314,11 @@
             tool="3"
             flavor2="0">
       </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_uart.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
       <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal.c"
             ex="false"
             tool="0"
@@ -373,6 +380,11 @@
             flavor2="0">
       </item>
       <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_tim_ex.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_uart.c"
             ex="false"
             tool="0"
             flavor2="0">
@@ -589,70 +601,80 @@
             tool="3"
             flavor2="0">
       </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_uart.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
       <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal.c"
             ex="false"
             tool="0"
-            flavor2="3">
+            flavor2="0">
       </item>
       <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_cortex.c"
             ex="false"
             tool="0"
-            flavor2="3">
+            flavor2="0">
       </item>
       <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_dma.c"
             ex="false"
             tool="0"
-            flavor2="3">
+            flavor2="0">
       </item>
       <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash.c"
             ex="false"
             tool="0"
-            flavor2="3">
+            flavor2="0">
       </item>
       <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ex.c"
             ex="false"
             tool="0"
-            flavor2="3">
+            flavor2="0">
       </item>
       <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ramfunc.c"
             ex="false"
             tool="0"
-            flavor2="3">
+            flavor2="0">
       </item>
       <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_gpio.c"
             ex="false"
             tool="0"
-            flavor2="3">
+            flavor2="0">
       </item>
       <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr.c"
             ex="false"
             tool="0"
-            flavor2="3">
+            flavor2="0">
       </item>
       <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr_ex.c"
             ex="false"
             tool="0"
-            flavor2="3">
+            flavor2="0">
       </item>
       <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc.c"
             ex="false"
             tool="0"
-            flavor2="3">
+            flavor2="0">
       </item>
       <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc_ex.c"
             ex="false"
             tool="0"
-            flavor2="3">
+            flavor2="0">
       </item>
       <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_tim.c"
             ex="false"
             tool="0"
-            flavor2="3">
+            flavor2="0">
       </item>
       <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_tim_ex.c"
             ex="false"
             tool="0"
-            flavor2="3">
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_uart.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
       </item>
       <item path="Inc/main.h" ex="false" tool="3" flavor2="0">
       </item>
