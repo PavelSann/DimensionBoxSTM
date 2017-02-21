@@ -37,6 +37,7 @@
 /* USER CODE BEGIN Includes */
 #include "processor.h"
 #include "stm32l1xx_hal_uart.h"
+#include "tcp_connector.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -62,9 +63,9 @@ static void MX_UART4_Init(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-#define UART_DT_SIZE 10
-uint8_t transmitData[UART_DT_SIZE];
-uint8_t receiveData[UART_DT_SIZE];
+//#define UART_DT_SIZE 10
+//uint8_t transmitData[UART_DT_SIZE];
+//uint8_t receiveData[UART_DT_SIZE];
 
 /* USER CODE END 0 */
 
@@ -90,15 +91,12 @@ int main(void) {
 	/* USER CODE BEGIN 2 */
 	//запускаем таймер 1
 	//HAL_TIM_Base_Start_IT(&htim2);
-	for (int i = 0; i < UART_DT_SIZE; i++) {
-		transmitData[i] = i + 1;
-		receiveData[i] = 0;
-	}
+	TCP_Init(&huart4);
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
-	HAL_StatusTypeDef rStatus = HAL_UART_Receive_IT(&huart4, receiveData, UART_DT_SIZE);
+	//HAL_StatusTypeDef rStatus = HAL_UART_Receive_IT(&huart4, receiveData, UART_DT_SIZE);
 	while (1) {
 		/* USER CODE END WHILE */
 
@@ -107,25 +105,13 @@ int main(void) {
 		if (buttonState == GPIO_PIN_RESET) {
 			HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_RESET);
 
-			HAL_StatusTypeDef tStatus = HAL_UART_Transmit(&huart4, transmitData, UART_DT_SIZE,1000);
-			if (tStatus == HAL_OK) {
+			//HAL_StatusTypeDef tStatus = HAL_UART_Transmit(&huart4, transmitData, UART_DT_SIZE, 1000);
+			TCP_Status status = TCP_Ping();
+			if (status == TCP_OK) {
 				HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_SET);
 			}
 
 		}
-		//		GPIO_PinState buttonState = HAL_GPIO_ReadPin(ButtonBlue_GPIO_Port, ButtonBlue_Pin);
-		//		if (buttonState == GPIO_PIN_SET) {
-		//			HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_RESET);
-		//		} else {
-		//			HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_SET);
-		//		}
-		//		HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_SET);
-		//		HAL_Delay(1000);
-		//		HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_RESET);
-		//		HAL_Delay(500);
-
-		//		HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-		//		HAL_Delay(1000);
 
 
 	}
@@ -279,8 +265,7 @@ static void MX_GPIO_Init(void) {
 /* USER CODE BEGIN 4 */
 
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef* huart) {
-	uint8_t tmp = receiveData;
-	uint8_t tmp2 = tmp;
+
 
 }
 
