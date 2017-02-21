@@ -90,6 +90,7 @@
       <itemPath>Src/stm32l1xx_hal_msp.c</itemPath>
       <itemPath>Src/stm32l1xx_it.c</itemPath>
       <itemPath>Src/system_stm32l1xx.c</itemPath>
+      <itemPath>Src/tcp_connector.c</itemPath>
     </logicalFolder>
     <logicalFolder name="HeaderFiles"
                    displayName="Файлы заголовков"
@@ -98,6 +99,7 @@
       <itemPath>Src/processor.h</itemPath>
       <itemPath>Inc/stm32l1xx_hal_conf.h</itemPath>
       <itemPath>Inc/stm32l1xx_it.h</itemPath>
+      <itemPath>Src/tcp_connector.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
                    displayName="Файлы ресурсов"
@@ -407,6 +409,10 @@
       </item>
       <item path="Src/system_stm32l1xx.c" ex="false" tool="0" flavor2="0">
       </item>
+      <item path="Src/tcp_connector.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="Src/tcp_connector.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="startup/startup_stm32l152xe.s" ex="false" tool="4" flavor2="0">
       </item>
     </conf>
@@ -418,7 +424,6 @@
       </toolsSet>
       <compileType>
         <cTool>
-          <standard>3</standard>
           <incDir>
             <pElem>Inc</pElem>
             <pElem>Drivers/STM32L1xx_HAL_Driver/Inc</pElem>
@@ -693,6 +698,10 @@
       <item path="Src/stm32l1xx_it.c" ex="false" tool="0" flavor2="3">
       </item>
       <item path="Src/system_stm32l1xx.c" ex="false" tool="0" flavor2="3">
+      </item>
+      <item path="Src/tcp_connector.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="Src/tcp_connector.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="startup/startup_stm32l152xe.s" ex="false" tool="4" flavor2="0">
       </item>
