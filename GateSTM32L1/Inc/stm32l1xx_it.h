@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
-  * File Name          : main.h
-  * Description        : This file contains the common defines of the application
+  * @file    stm32l1xx_it.h
+  * @brief   This file contains the headers of the interrupt handlers.
   ******************************************************************************
   *
   * COPYRIGHT(c) 2017 STMicroelectronics
@@ -30,44 +30,32 @@
   *
   ******************************************************************************
   */
+
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __MAIN_H
-#define __MAIN_H
-  /* Includes ------------------------------------------------------------------*/
+#ifndef __STM32L1xx_IT_H
+#define __STM32L1xx_IT_H
 
-/* USER CODE BEGIN Includes */
+#ifdef __cplusplus
+ extern "C" {
+#endif 
 
-/* USER CODE END Includes */
+/* Includes ------------------------------------------------------------------*/
+/* Exported types ------------------------------------------------------------*/
+/* Exported constants --------------------------------------------------------*/
+/* Exported macro ------------------------------------------------------------*/
+/* Exported functions ------------------------------------------------------- */
 
-/* Private define ------------------------------------------------------------*/
+void SVC_Handler(void);
+void PendSV_Handler(void);
+void SysTick_Handler(void);
+void TIM2_IRQHandler(void);
+void EXTI15_10_IRQHandler(void);
+void UART4_IRQHandler(void);
 
-#define ButtonBlue_Pin GPIO_PIN_13
-#define ButtonBlue_GPIO_Port GPIOC
-#define USART_TX_Pin GPIO_PIN_2
-#define USART_TX_GPIO_Port GPIOA
-#define USART_RX_Pin GPIO_PIN_3
-#define USART_RX_GPIO_Port GPIOA
-#define LedGreen_Pin GPIO_PIN_5
-#define LedGreen_GPIO_Port GPIOA
-#define Counter_Pin GPIO_PIN_2
-#define Counter_GPIO_Port GPIOB
-#define TMS_Pin GPIO_PIN_13
-#define TMS_GPIO_Port GPIOA
-#define TCK_Pin GPIO_PIN_14
-#define TCK_GPIO_Port GPIOA
-#define SWO_Pin GPIO_PIN_3
-#define SWO_GPIO_Port GPIOB
-/* USER CODE BEGIN Private defines */
+#ifdef __cplusplus
+}
+#endif
 
-/* USER CODE END Private defines */
+#endif /* __STM32L1xx_IT_H */
 
-/**
-  * @}
-  */ 
-
-/**
-  * @}
-*/ 
-
-#endif /* __MAIN_H */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
