@@ -84,6 +84,10 @@
           </logicalFolder>
         </logicalFolder>
       </logicalFolder>
+      <logicalFolder name="Library" displayName="Library" projectFiles="true">
+        <itemPath>../Library/sp1ml.c</itemPath>
+        <itemPath>../Library/sp1ml.h</itemPath>
+      </logicalFolder>
       <itemPath>Src/main.c</itemPath>
       <itemPath>Src/processor.c</itemPath>
       <itemPath>startup/startup_stm32l152xe.s</itemPath>
@@ -96,10 +100,10 @@
                    displayName="Файлы заголовков"
                    projectFiles="true">
       <itemPath>Inc/main.h</itemPath>
-      <itemPath>Src/processor.h</itemPath>
+      <itemPath>Inc/processor.h</itemPath>
       <itemPath>Inc/stm32l1xx_hal_conf.h</itemPath>
       <itemPath>Inc/stm32l1xx_it.h</itemPath>
-      <itemPath>Src/tcp_connector.h</itemPath>
+      <itemPath>Inc/tcp_connector.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
                    displayName="Файлы ресурсов"
@@ -121,6 +125,7 @@
     <Elem>Src</Elem>
     <Elem>Inc</Elem>
     <Elem>Drivers</Elem>
+    <Elem>../Library</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -165,6 +170,10 @@
           <commandLine>-mcpu=cortex-m3 -mthumb -mfloat-abi=soft -specs=nosys.specs -specs=nano.specs -TSTM32L152RETx_FLASH.ld -Wl,-Map=output.map -Wl,--gc-sections -lm</commandLine>
         </linkerTool>
       </compileType>
+      <item path="../Library/sp1ml.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../Library/sp1ml.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="Drivers/CMSIS/Device/ST/STM32L1xx/Include/stm32l152xe.h"
             ex="false"
             tool="3"
@@ -393,15 +402,17 @@
       </item>
       <item path="Inc/main.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="Inc/processor.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="Inc/stm32l1xx_hal_conf.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Inc/stm32l1xx_it.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="Inc/tcp_connector.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="Src/main.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="Src/processor.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="Src/processor.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Src/stm32l1xx_hal_msp.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -410,8 +421,6 @@
       <item path="Src/system_stm32l1xx.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="Src/tcp_connector.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="Src/tcp_connector.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="startup/startup_stm32l152xe.s" ex="false" tool="4" flavor2="0">
       </item>
@@ -430,6 +439,7 @@
             <pElem>Drivers/STM32L1xx_HAL_Driver/Inc/Legacy</pElem>
             <pElem>Drivers/CMSIS/Device/ST/STM32L1xx/Include</pElem>
             <pElem>Drivers/CMSIS/Include</pElem>
+            <pElem>../Library</pElem>
           </incDir>
           <commandLine>-mcpu=cortex-m3 -mthumb -mfloat-abi=soft -Os -g3 -fmessage-length=0 -ffunction-sections -c -fmessage-length=0 -MMD -MP</commandLine>
           <preprocessorList>
@@ -455,6 +465,10 @@
           <commandLine>-mcpu=cortex-m3 -mthumb -mfloat-abi=soft -specs=nosys.specs -specs=nano.specs -TSTM32L152RETx_FLASH.ld -Wl,-Map=output.map -Wl,--gc-sections -lm</commandLine>
         </linkerTool>
       </compileType>
+      <item path="../Library/sp1ml.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../Library/sp1ml.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="Drivers/CMSIS/Device/ST/STM32L1xx/Include/stm32l152xe.h"
             ex="false"
             tool="3"
@@ -683,15 +697,17 @@
       </item>
       <item path="Inc/main.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="Inc/processor.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="Inc/stm32l1xx_hal_conf.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Inc/stm32l1xx_it.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="Inc/tcp_connector.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="Src/main.c" ex="false" tool="0" flavor2="3">
       </item>
       <item path="Src/processor.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="Src/processor.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Src/stm32l1xx_hal_msp.c" ex="false" tool="0" flavor2="3">
       </item>
@@ -700,8 +716,6 @@
       <item path="Src/system_stm32l1xx.c" ex="false" tool="0" flavor2="3">
       </item>
       <item path="Src/tcp_connector.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="Src/tcp_connector.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="startup/startup_stm32l152xe.s" ex="false" tool="4" flavor2="0">
       </item>

@@ -182,7 +182,7 @@
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders" />
 	<storageModule moduleId="refreshScope" versionNumber="2">
 		<configuration configurationName="Debug">
-			<resource resourceType="PROJECT" workspacePath="STM32L152RE" />
+			<resource resourceType="PROJECT" workspacePath="GateSTM32L1" />
 		</configuration>
 		<configuration configurationName="Release" />
 	</storageModule>

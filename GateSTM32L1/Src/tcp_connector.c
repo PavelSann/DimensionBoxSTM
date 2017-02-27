@@ -1,7 +1,7 @@
 
 #include "tcp_connector.h"
 
-#define UART_DT_SIZE 10
+//#define UART_DT_SIZE 10
 #define SEND_TIMEOUT 1000
 #define TCP_MAGIC_MARK 0xCAFEBABE
 
@@ -22,8 +22,8 @@ typedef union {
 	uint8_t bytes[TCP_HEADER_SIZE];
 } TCP_PACKAGE_BYTES;
 
-uint8_t transmitData[UART_DT_SIZE];
-uint8_t receiveData[UART_DT_SIZE];
+//uint8_t transmitData[UART_DT_SIZE];
+//uint8_t receiveData[UART_DT_SIZE];
 UART_HandleTypeDef *hUART;
 
 void fillPackage(TCP_PACKAGE *pPackage, DATA *pData, DATA_SIZE dataSize) {

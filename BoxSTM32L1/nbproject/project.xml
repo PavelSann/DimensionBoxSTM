@@ -13,6 +13,7 @@
                 <sourceRootElem>Src</sourceRootElem>
                 <sourceRootElem>Inc</sourceRootElem>
                 <sourceRootElem>Drivers</sourceRootElem>
+                <sourceRootElem>../Library</sourceRootElem>
             </sourceRootList>
             <confList>
                 <confElem>

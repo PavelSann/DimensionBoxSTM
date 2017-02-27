@@ -38,12 +38,14 @@
 #include "processor.h"
 #include "stm32l1xx_hal_uart.h"
 #include "tcp_connector.h"
+#include "sp1ml.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
 TIM_HandleTypeDef htim2;
 
 UART_HandleTypeDef huart4;
+UART_HandleTypeDef huart5;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
@@ -56,6 +58,7 @@ void Error_Handler(void);
 static void MX_GPIO_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_UART4_Init(void);
+static void MX_UART5_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -66,6 +69,7 @@ static void MX_UART4_Init(void);
 //#define UART_DT_SIZE 10
 //uint8_t transmitData[UART_DT_SIZE];
 //uint8_t receiveData[UART_DT_SIZE];
+uint8_t enabled = 0;
 
 /* USER CODE END 0 */
 
@@ -87,11 +91,13 @@ int main(void) {
 	MX_GPIO_Init();
 	MX_TIM2_Init();
 	MX_UART4_Init();
+	MX_UART5_Init();
 
 	/* USER CODE BEGIN 2 */
 	//запускаем таймер 1
-	//HAL_TIM_Base_Start_IT(&htim2);
+	HAL_TIM_Base_Start_IT(&htim2);
 	TCP_Init(&huart4);
+	SP1ML_Init(&huart5);
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
@@ -101,17 +107,17 @@ int main(void) {
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
-		GPIO_PinState buttonState = HAL_GPIO_ReadPin(ButtonBlue_GPIO_Port, ButtonBlue_Pin);
-		if (buttonState == GPIO_PIN_RESET) {
-			HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_RESET);
-
-			//HAL_StatusTypeDef tStatus = HAL_UART_Transmit(&huart4, transmitData, UART_DT_SIZE, 1000);
-			TCP_Status status = TCP_Ping();
-			if (status == TCP_OK) {
-				HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_SET);
-			}
-
-		}
+		//		GPIO_PinState buttonState = HAL_GPIO_ReadPin(ButtonBlue_GPIO_Port, ButtonBlue_Pin);
+		//		if (buttonState == GPIO_PIN_RESET) {
+		//			HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_RESET);
+		//
+		//			//HAL_StatusTypeDef tStatus = HAL_UART_Transmit(&huart4, transmitData, UART_DT_SIZE, 1000);
+		//			TCP_Status status = TCP_Ping();
+		//			if (status == TCP_OK) {
+		//				HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_SET);
+		//			}
+		//
+		//		}
 
 
 	}
@@ -213,6 +219,23 @@ static void MX_UART4_Init(void) {
 
 }
 
+/* UART5 init function */
+static void MX_UART5_Init(void) {
+
+	huart5.Instance = UART5;
+	huart5.Init.BaudRate = 115200;
+	huart5.Init.WordLength = UART_WORDLENGTH_8B;
+	huart5.Init.StopBits = UART_STOPBITS_1;
+	huart5.Init.Parity = UART_PARITY_NONE;
+	huart5.Init.Mode = UART_MODE_TX_RX;
+	huart5.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+	huart5.Init.OverSampling = UART_OVERSAMPLING_16;
+	if (HAL_UART_Init(&huart5) != HAL_OK) {
+		Error_Handler();
+	}
+
+}
+
 /** Configure pins as 
  * Analog
  * Input
@@ -230,6 +253,7 @@ static void MX_GPIO_Init(void) {
 	__HAL_RCC_GPIOC_CLK_ENABLE();
 	__HAL_RCC_GPIOH_CLK_ENABLE();
 	__HAL_RCC_GPIOA_CLK_ENABLE();
+	__HAL_RCC_GPIOD_CLK_ENABLE();
 	__HAL_RCC_GPIOB_CLK_ENABLE();
 
 	/*Configure GPIO pin Output Level */
@@ -269,22 +293,33 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef* huart) {
 
 }
 
-//void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-//	if (htim == &htim2) {
-//		//onTimer();
-//	}
-//}
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+	if (htim == &htim2) {
+		if (enabled) {
+			SP1ML_Ping();
+		}
+	}
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
+	SP1ML_OnReceiveCallback(huart);
+}
+
+void SP1ML_OnPing(uint8_t data[], uint16_t size) {
+	HAL_GPIO_TogglePin(LedGreen_GPIO_Port, LedGreen_Pin);
+}
 //
-//void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-//
-//	if (GPIO_Pin == Counter_Pin) {
-//		//incCount();
-//	}
-//
-//	if (GPIO_Pin == ButtonBlue_Pin) {
-//		//doShow();
-//	}
-//}
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+
+	if (GPIO_Pin == ButtonBlue_Pin) {
+		if (enabled) {
+			enabled = 0;
+		} else {
+			enabled = 1;
+		}
+	}
+}
 
 /* USER CODE END 4 */
 

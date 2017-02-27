@@ -88,6 +88,10 @@
           </logicalFolder>
         </logicalFolder>
       </logicalFolder>
+      <logicalFolder name="Library" displayName="Library" projectFiles="true">
+        <itemPath>../Library/sp1ml.c</itemPath>
+        <itemPath>../Library/sp1ml.h</itemPath>
+      </logicalFolder>
       <itemPath>Src/adc.c</itemPath>
       <itemPath>Src/main.c</itemPath>
       <itemPath>Src/processor.c</itemPath>
@@ -125,6 +129,7 @@
     <Elem>Src</Elem>
     <Elem>Inc</Elem>
     <Elem>Drivers</Elem>
+    <Elem>../Library</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -169,6 +174,10 @@
           <commandLine>-mcpu=cortex-m3 -mthumb -mfloat-abi=soft -specs=nosys.specs -specs=nano.specs -TSTM32L152RETx_FLASH.ld -Wl,-Map=output.map -Wl,--gc-sections -lm</commandLine>
         </linkerTool>
       </compileType>
+      <item path="../Library/sp1ml.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../Library/sp1ml.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="Drivers/CMSIS/Device/ST/STM32L1xx/Include/stm32l152xe.h"
             ex="false"
             tool="3"
@@ -454,6 +463,7 @@
             <pElem>Drivers/STM32L1xx_HAL_Driver/Inc/Legacy</pElem>
             <pElem>Drivers/CMSIS/Device/ST/STM32L1xx/Include</pElem>
             <pElem>Drivers/CMSIS/Include</pElem>
+            <pElem>../Library</pElem>
           </incDir>
           <commandLine>-mcpu=cortex-m3 -mthumb -mfloat-abi=soft -Os -g3 -fmessage-length=0 -ffunction-sections -c -fmessage-length=0 -MMD -MP</commandLine>
           <preprocessorList>
@@ -479,6 +489,10 @@
           <commandLine>-mcpu=cortex-m3 -mthumb -mfloat-abi=soft -specs=nosys.specs -specs=nano.specs -TSTM32L152RETx_FLASH.ld -Wl,-Map=output.map -Wl,--gc-sections -lm</commandLine>
         </linkerTool>
       </compileType>
+      <item path="../Library/sp1ml.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../Library/sp1ml.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="Drivers/CMSIS/Device/ST/STM32L1xx/Include/stm32l152xe.h"
             ex="false"
             tool="3"
