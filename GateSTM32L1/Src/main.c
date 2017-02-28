@@ -66,10 +66,8 @@ static void MX_UART5_Init(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-//#define UART_DT_SIZE 10
-//uint8_t transmitData[UART_DT_SIZE];
-//uint8_t receiveData[UART_DT_SIZE];
-uint8_t enabled = 0;
+
+static uint8_t enabledPing = 0;
 
 /* USER CODE END 0 */
 
@@ -96,8 +94,8 @@ int main(void) {
 	/* USER CODE BEGIN 2 */
 	//запускаем таймер 1
 	HAL_TIM_Base_Start_IT(&htim2);
-	TCP_Init(&huart4);
-	SP1ML_Init(&huart5);
+	SP1ML_Init(&huart4);
+	TCP_Init(&huart5);
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
@@ -295,7 +293,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef* huart) {
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	if (htim == &htim2) {
-		if (enabled) {
+		if (enabledPing) {
 			SP1ML_Ping();
 		}
 	}
@@ -306,17 +304,19 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
 }
 
 void SP1ML_OnPing(uint8_t data[], uint16_t size) {
-	HAL_GPIO_TogglePin(LedGreen_GPIO_Port, LedGreen_Pin);
+	//HAL_GPIO_TogglePin(LedGreen_GPIO_Port, LedGreen_Pin);
 }
 //
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 	if (GPIO_Pin == ButtonBlue_Pin) {
-		if (enabled) {
-			enabled = 0;
+		if (enabledPing) {
+			enabledPing = 0;
+			HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_RESET);
 		} else {
-			enabled = 1;
+			enabledPing = 1;
+			HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_SET);
 		}
 	}
 }

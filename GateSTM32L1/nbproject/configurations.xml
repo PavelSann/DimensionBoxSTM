@@ -145,6 +145,7 @@
             <pElem>Drivers/STM32L1xx_HAL_Driver/Inc/Legacy</pElem>
             <pElem>Drivers/CMSIS/Device/ST/STM32L1xx/Include</pElem>
             <pElem>Drivers/CMSIS/Include</pElem>
+            <pElem>../Library</pElem>
           </incDir>
           <commandLine>-mcpu=cortex-m3 -mthumb -mfloat-abi=soft -Os -g3 -fmessage-length=0 -ffunction-sections -c -fmessage-length=0 -MMD -MP</commandLine>
           <preprocessorList>

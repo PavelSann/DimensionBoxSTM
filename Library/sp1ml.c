@@ -3,8 +3,8 @@
 #define SEND_TIMEOUT 500
 #define PACKAGE_SIZE 4
 //typedef void (*CALLBACK)(uint8_t data[PACKAGE_SIZE]);
-UART_HandleTypeDef *hUART;
-uint8_t packageReceive[PACKAGE_SIZE];
+static UART_HandleTypeDef *hUART;
+static uint8_t packageReceive[PACKAGE_SIZE];
 //CALLBACK onPing;
 
 void SP1ML_Init(UART_HandleTypeDef *UARTHandle) {

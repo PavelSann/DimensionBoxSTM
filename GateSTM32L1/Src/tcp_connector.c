@@ -24,7 +24,7 @@ typedef union {
 
 //uint8_t transmitData[UART_DT_SIZE];
 //uint8_t receiveData[UART_DT_SIZE];
-UART_HandleTypeDef *hUART;
+static UART_HandleTypeDef *hUART;
 
 void fillPackage(TCP_PACKAGE *pPackage, DATA *pData, DATA_SIZE dataSize) {
 	pPackage->magicMark = TCP_MAGIC_MARK;

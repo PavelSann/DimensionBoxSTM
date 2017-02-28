@@ -49,6 +49,8 @@
 #define USART_RX_GPIO_Port GPIOA
 #define LedGreen_Pin GPIO_PIN_5
 #define LedGreen_GPIO_Port GPIOA
+#define ADC_WATER_Pin GPIO_PIN_4
+#define ADC_WATER_GPIO_Port GPIOC
 #define TMS_Pin GPIO_PIN_13
 #define TMS_GPIO_Port GPIOA
 #define TCK_Pin GPIO_PIN_14
