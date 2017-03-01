@@ -39,6 +39,7 @@
 #include "stm32l1xx_hal_uart.h"
 #include "tcp_connector.h"
 #include "sp1ml.h"
+#include "xprint.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -46,6 +47,9 @@ TIM_HandleTypeDef htim2;
 
 UART_HandleTypeDef huart4;
 UART_HandleTypeDef huart5;
+UART_HandleTypeDef huart2;
+DMA_HandleTypeDef hdma_uart4_rx;
+DMA_HandleTypeDef hdma_uart4_tx;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
@@ -56,9 +60,11 @@ UART_HandleTypeDef huart5;
 void SystemClock_Config(void);
 void Error_Handler(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_UART4_Init(void);
 static void MX_UART5_Init(void);
+static void MX_USART2_UART_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -87,15 +93,20 @@ int main(void) {
 
 	/* Initialize all configured peripherals */
 	MX_GPIO_Init();
+	MX_DMA_Init();
 	MX_TIM2_Init();
 	MX_UART4_Init();
 	MX_UART5_Init();
+	MX_USART2_UART_Init();
 
 	/* USER CODE BEGIN 2 */
 	//запускаем таймер 1
 	HAL_TIM_Base_Start_IT(&htim2);
 	SP1ML_Init(&huart4);
 	TCP_Init(&huart5);
+	//	xprint_init_SWO();
+	xprint_init_UART(&huart2);
+	xprintln("Start Gate");
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
@@ -234,14 +245,46 @@ static void MX_UART5_Init(void) {
 
 }
 
+/* USART2 init function */
+static void MX_USART2_UART_Init(void) {
+
+	huart2.Instance = USART2;
+	huart2.Init.BaudRate = 115200;
+	huart2.Init.WordLength = UART_WORDLENGTH_8B;
+	huart2.Init.StopBits = UART_STOPBITS_1;
+	huart2.Init.Parity = UART_PARITY_NONE;
+	huart2.Init.Mode = UART_MODE_TX_RX;
+	huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+	huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+	if (HAL_UART_Init(&huart2) != HAL_OK) {
+		Error_Handler();
+	}
+
+}
+
+/** 
+ * Enable DMA controller clock
+ */
+static void MX_DMA_Init(void) {
+	/* DMA controller clock enable */
+	__HAL_RCC_DMA2_CLK_ENABLE();
+
+	/* DMA interrupt init */
+	/* DMA2_Channel3_IRQn interrupt configuration */
+	HAL_NVIC_SetPriority(DMA2_Channel3_IRQn, 0, 0);
+	HAL_NVIC_EnableIRQ(DMA2_Channel3_IRQn);
+	/* DMA2_Channel5_IRQn interrupt configuration */
+	HAL_NVIC_SetPriority(DMA2_Channel5_IRQn, 0, 0);
+	HAL_NVIC_EnableIRQ(DMA2_Channel5_IRQn);
+
+}
+
 /** Configure pins as 
  * Analog
  * Input
  * Output
  * EVENT_OUT
  * EXTI
-	 PA2   ------> USART2_TX
-	 PA3   ------> USART2_RX
  */
 static void MX_GPIO_Init(void) {
 
@@ -262,14 +305,6 @@ static void MX_GPIO_Init(void) {
 	GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	HAL_GPIO_Init(ButtonBlue_GPIO_Port, &GPIO_InitStruct);
-
-	/*Configure GPIO pins : USART_TX_Pin USART_RX_Pin */
-	GPIO_InitStruct.Pin = USART_TX_Pin | USART_RX_Pin;
-	GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-	GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
-	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
 	/*Configure GPIO pin : LedGreen_Pin */
 	GPIO_InitStruct.Pin = LedGreen_Pin;
@@ -292,7 +327,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef* huart) {
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-	if (htim == &htim2) {
+	if (htim->Instance == TIM2) {
 		if (enabledPing) {
 			SP1ML_Ping();
 		}
@@ -303,7 +338,14 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
 	SP1ML_OnReceiveCallback(huart);
 }
 
+void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart){
+	xprintln("HAL_UART_ErrorCallback");
+	uint32_t uartErrorCode = HAL_UART_GetError(huart);
+	xprintf("HAL_UART_ErrorCode %x\n",uartErrorCode);
+}
+
 void SP1ML_OnPing(uint8_t data[], uint16_t size) {
+	xprintln("OnPing");
 	//HAL_GPIO_TogglePin(LedGreen_GPIO_Port, LedGreen_Pin);
 }
 //
@@ -331,6 +373,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 void Error_Handler(void) {
 	/* USER CODE BEGIN Error_Handler */
 	/* User can add his own implementation to report the HAL error return state */
+	xprintln("HAL Error_Handler");
 	while (1) {
 		HAL_GPIO_TogglePin(LedGreen_GPIO_Port, LedGreen_Pin);
 		HAL_Delay(500);

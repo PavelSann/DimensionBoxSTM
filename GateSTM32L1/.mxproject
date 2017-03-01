@@ -1,7 +1,7 @@
 [PreviousGenFiles]
-HeaderPath=E:/NetBeansProject/NewDimension/ARM/GateSTM32L1/Inc
+HeaderPath=E:/NetBeansProject/NewDimensionARM/GateSTM32L1/Inc
 HeaderFiles=stm32l1xx_it.h;stm32l1xx_hal_conf.h;main.h;
-SourcePath=E:/NetBeansProject/NewDimension/ARM/GateSTM32L1/Src
+SourcePath=E:/NetBeansProject/NewDimensionARM/GateSTM32L1/Src
 SourceFiles=stm32l1xx_it.h;stm32l1xx_hal_conf.h;main.h;stm32l1xx_it.c;stm32l1xx_hal_msp.c;main.c;
 
 [PreviousLibFiles]

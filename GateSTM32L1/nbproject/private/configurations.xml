@@ -48,8 +48,11 @@
         <gdb_interceptlist>
           <gdbinterceptoptions gdb_all="false" gdb_unhandled="true" gdb_unexpected="true"/>
         </gdb_interceptlist>
+        <gdb_signals>
+        </gdb_signals>
         <gdb_options>
           <DebugOptions>
+            <option name="gdb_init_file" value="gdbOpenOCD"/>
           </DebugOptions>
         </gdb_options>
         <gdb_buildfirst gdb_buildfirst_overriden="false" gdb_buildfirst_old="false"/>
@@ -60,10 +63,13 @@
       <runprofile version="9">
         <runcommandpicklist>
           <runcommandpicklistitem>"${OUTPUT_PATH}"</runcommandpicklistitem>
+          <runcommandpicklistitem>openocd.cmd -f st_board/nucleo_l152re.cfg -c "program \"${OUTPUT_PATH}\" verify reset exit"</runcommandpicklistitem>
+          <runcommandpicklistitem>../OpenOCD/openocd.cmd -f st_board/nucleo_l152re.cfg -c "program \"${OUTPUT_PATH}\" verify reset exit"</runcommandpicklistitem>
         </runcommandpicklist>
-        <runcommand>"${OUTPUT_PATH}"</runcommand>
+        <runcommand>../OpenOCD/openocd.cmd -f st_board/nucleo_l152re.cfg -c "program \"${OUTPUT_PATH}\" verify reset exit"</runcommand>
         <rundir></rundir>
         <buildfirst>true</buildfirst>
+        <console-type>1</console-type>
         <terminal-type>0</terminal-type>
         <remove-instrumentation>0</remove-instrumentation>
         <environment>

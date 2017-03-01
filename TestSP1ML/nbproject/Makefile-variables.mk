@@ -9,19 +9,19 @@ CND_DISTDIR=dist
 # Debug configuration
 CND_PLATFORM_Debug=GNUToolsARMEmbedded-Windows
 CND_ARTIFACT_DIR_Debug=dist/Debug/GNUToolsARMEmbedded-Windows
-CND_ARTIFACT_NAME_Debug=sp1ml
-CND_ARTIFACT_PATH_Debug=dist/Debug/GNUToolsARMEmbedded-Windows/sp1ml
+CND_ARTIFACT_NAME_Debug=testsp1ml
+CND_ARTIFACT_PATH_Debug=dist/Debug/GNUToolsARMEmbedded-Windows/testsp1ml
 CND_PACKAGE_DIR_Debug=dist/Debug/GNUToolsARMEmbedded-Windows/package
-CND_PACKAGE_NAME_Debug=sp1ml.tar
-CND_PACKAGE_PATH_Debug=dist/Debug/GNUToolsARMEmbedded-Windows/package/sp1ml.tar
+CND_PACKAGE_NAME_Debug=testsp1ml.tar
+CND_PACKAGE_PATH_Debug=dist/Debug/GNUToolsARMEmbedded-Windows/package/testsp1ml.tar
 # Release configuration
 CND_PLATFORM_Release=MinGW64-Windows
 CND_ARTIFACT_DIR_Release=dist/Release/MinGW64-Windows
-CND_ARTIFACT_NAME_Release=sp1ml
-CND_ARTIFACT_PATH_Release=dist/Release/MinGW64-Windows/sp1ml
+CND_ARTIFACT_NAME_Release=testsp1ml
+CND_ARTIFACT_PATH_Release=dist/Release/MinGW64-Windows/testsp1ml
 CND_PACKAGE_DIR_Release=dist/Release/MinGW64-Windows/package
-CND_PACKAGE_NAME_Release=sp1ml.tar
-CND_PACKAGE_PATH_Release=dist/Release/MinGW64-Windows/package/sp1ml.tar
+CND_PACKAGE_NAME_Release=testsp1ml.tar
+CND_PACKAGE_PATH_Release=dist/Release/MinGW64-Windows/package/testsp1ml.tar
 #
 # include compiler specific variables
 #

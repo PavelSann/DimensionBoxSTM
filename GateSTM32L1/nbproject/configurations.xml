@@ -87,6 +87,10 @@
       <logicalFolder name="Library" displayName="Library" projectFiles="true">
         <itemPath>../Library/sp1ml.c</itemPath>
         <itemPath>../Library/sp1ml.h</itemPath>
+        <itemPath>../Library/xprint.c</itemPath>
+        <itemPath>../Library/xprint.h</itemPath>
+        <itemPath>../Library/xprintf.c</itemPath>
+        <itemPath>../Library/xprintf.h</itemPath>
       </logicalFolder>
       <itemPath>Src/main.c</itemPath>
       <itemPath>Src/processor.c</itemPath>
@@ -174,6 +178,14 @@
       <item path="../Library/sp1ml.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="../Library/sp1ml.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../Library/xprint.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../Library/xprint.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../Library/xprintf.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../Library/xprintf.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Drivers/CMSIS/Device/ST/STM32L1xx/Include/stm32l152xe.h"
             ex="false"
@@ -469,6 +481,14 @@
       <item path="../Library/sp1ml.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="../Library/sp1ml.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../Library/xprint.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../Library/xprint.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../Library/xprintf.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../Library/xprintf.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Drivers/CMSIS/Device/ST/STM32L1xx/Include/stm32l152xe.h"
             ex="false"
