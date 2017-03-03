@@ -9,92 +9,37 @@
           <logicalFolder name="Device" displayName="Device" projectFiles="true">
             <logicalFolder name="ST" displayName="ST" projectFiles="true">
               <logicalFolder name="STM32L1xx" displayName="STM32L1xx" projectFiles="true">
-                <logicalFolder name="Include" displayName="Include" projectFiles="true">
-                  <itemPath>Drivers/CMSIS/Device/ST/STM32L1xx/Include/stm32l152xe.h</itemPath>
-                  <itemPath>Drivers/CMSIS/Device/ST/STM32L1xx/Include/stm32l1xx.h</itemPath>
-                  <itemPath>Drivers/CMSIS/Device/ST/STM32L1xx/Include/system_stm32l1xx.h</itemPath>
-                </logicalFolder>
-                <logicalFolder name="Source" displayName="Source" projectFiles="true">
-                  <logicalFolder name="Templates" displayName="Templates" projectFiles="true">
-                    <logicalFolder name="gcc" displayName="gcc" projectFiles="true">
-                    </logicalFolder>
-                  </logicalFolder>
-                </logicalFolder>
               </logicalFolder>
             </logicalFolder>
-          </logicalFolder>
-          <logicalFolder name="Include" displayName="Include" projectFiles="true">
-            <itemPath>Drivers/CMSIS/Include/arm_common_tables.h</itemPath>
-            <itemPath>Drivers/CMSIS/Include/arm_const_structs.h</itemPath>
-            <itemPath>Drivers/CMSIS/Include/arm_math.h</itemPath>
-            <itemPath>Drivers/CMSIS/Include/cmsis_armcc.h</itemPath>
-            <itemPath>Drivers/CMSIS/Include/cmsis_armcc_V6.h</itemPath>
-            <itemPath>Drivers/CMSIS/Include/cmsis_gcc.h</itemPath>
-            <itemPath>Drivers/CMSIS/Include/core_cm0.h</itemPath>
-            <itemPath>Drivers/CMSIS/Include/core_cm0plus.h</itemPath>
-            <itemPath>Drivers/CMSIS/Include/core_cm3.h</itemPath>
-            <itemPath>Drivers/CMSIS/Include/core_cm4.h</itemPath>
-            <itemPath>Drivers/CMSIS/Include/core_cm7.h</itemPath>
-            <itemPath>Drivers/CMSIS/Include/core_cmFunc.h</itemPath>
-            <itemPath>Drivers/CMSIS/Include/core_cmInstr.h</itemPath>
-            <itemPath>Drivers/CMSIS/Include/core_cmSimd.h</itemPath>
-            <itemPath>Drivers/CMSIS/Include/core_sc000.h</itemPath>
-            <itemPath>Drivers/CMSIS/Include/core_sc300.h</itemPath>
           </logicalFolder>
         </logicalFolder>
         <logicalFolder name="STM32L1xx_HAL_Driver"
                        displayName="STM32L1xx_HAL_Driver"
                        projectFiles="true">
-          <logicalFolder name="Inc" displayName="Inc" projectFiles="true">
-            <logicalFolder name="Legacy" displayName="Legacy" projectFiles="true">
-              <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h</itemPath>
-            </logicalFolder>
-            <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal.h</itemPath>
-            <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_adc.h</itemPath>
-            <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_adc_ex.h</itemPath>
-            <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_cortex.h</itemPath>
-            <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_def.h</itemPath>
-            <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_dma.h</itemPath>
-            <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_flash.h</itemPath>
-            <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_flash_ex.h</itemPath>
-            <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_flash_ramfunc.h</itemPath>
-            <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_gpio.h</itemPath>
-            <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_gpio_ex.h</itemPath>
-            <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_pwr.h</itemPath>
-            <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_pwr_ex.h</itemPath>
-            <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_rcc.h</itemPath>
-            <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_rcc_ex.h</itemPath>
-            <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_tim.h</itemPath>
-            <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_tim_ex.h</itemPath>
-            <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_uart.h</itemPath>
-          </logicalFolder>
-          <logicalFolder name="Src" displayName="Src" projectFiles="true">
-            <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal.c</itemPath>
-            <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc.c</itemPath>
-            <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc_ex.c</itemPath>
-            <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_cortex.c</itemPath>
-            <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_dma.c</itemPath>
-            <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash.c</itemPath>
-            <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ex.c</itemPath>
-            <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ramfunc.c</itemPath>
-            <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_gpio.c</itemPath>
-            <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr.c</itemPath>
-            <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr_ex.c</itemPath>
-            <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc.c</itemPath>
-            <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc_ex.c</itemPath>
-            <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_tim.c</itemPath>
-            <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_tim_ex.c</itemPath>
-            <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_uart.c</itemPath>
-          </logicalFolder>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal.c</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc.c</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc_ex.c</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_cortex.c</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_dma.c</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash.c</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ex.c</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ramfunc.c</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_gpio.c</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr.c</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr_ex.c</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc.c</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc_ex.c</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_tim.c</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_tim_ex.c</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_uart.c</itemPath>
         </logicalFolder>
       </logicalFolder>
       <logicalFolder name="Library" displayName="Library" projectFiles="true">
         <itemPath>../Library/sp1ml.c</itemPath>
-        <itemPath>../Library/sp1ml.h</itemPath>
         <itemPath>../Library/xprint.c</itemPath>
-        <itemPath>../Library/xprint.h</itemPath>
         <itemPath>../Library/xprintf.c</itemPath>
-        <itemPath>../Library/xprintf.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f1" displayName="Meter" projectFiles="true">
       </logicalFolder>
       <itemPath>Src/adc.c</itemPath>
       <itemPath>Src/main.c</itemPath>
@@ -107,9 +52,70 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Файлы заголовков"
                    projectFiles="true">
+      <logicalFolder name="Drivers" displayName="Drivers" projectFiles="true">
+        <logicalFolder name="CMSIS" displayName="CMSIS" projectFiles="true">
+          <logicalFolder name="Device" displayName="Device" projectFiles="true">
+            <logicalFolder name="ST" displayName="ST" projectFiles="true">
+              <logicalFolder name="STM32L1xx" displayName="STM32L1xx" projectFiles="true">
+                <itemPath>Drivers/CMSIS/Device/ST/STM32L1xx/Include/stm32l152xe.h</itemPath>
+                <itemPath>Drivers/CMSIS/Device/ST/STM32L1xx/Include/stm32l1xx.h</itemPath>
+                <itemPath>Drivers/CMSIS/Device/ST/STM32L1xx/Include/system_stm32l1xx.h</itemPath>
+              </logicalFolder>
+            </logicalFolder>
+          </logicalFolder>
+          <itemPath>Drivers/CMSIS/Include/arm_common_tables.h</itemPath>
+          <itemPath>Drivers/CMSIS/Include/arm_const_structs.h</itemPath>
+          <itemPath>Drivers/CMSIS/Include/arm_math.h</itemPath>
+          <itemPath>Drivers/CMSIS/Include/cmsis_armcc.h</itemPath>
+          <itemPath>Drivers/CMSIS/Include/cmsis_armcc_V6.h</itemPath>
+          <itemPath>Drivers/CMSIS/Include/cmsis_gcc.h</itemPath>
+          <itemPath>Drivers/CMSIS/Include/core_cm0.h</itemPath>
+          <itemPath>Drivers/CMSIS/Include/core_cm0plus.h</itemPath>
+          <itemPath>Drivers/CMSIS/Include/core_cm3.h</itemPath>
+          <itemPath>Drivers/CMSIS/Include/core_cm4.h</itemPath>
+          <itemPath>Drivers/CMSIS/Include/core_cm7.h</itemPath>
+          <itemPath>Drivers/CMSIS/Include/core_cmFunc.h</itemPath>
+          <itemPath>Drivers/CMSIS/Include/core_cmInstr.h</itemPath>
+          <itemPath>Drivers/CMSIS/Include/core_cmSimd.h</itemPath>
+          <itemPath>Drivers/CMSIS/Include/core_sc000.h</itemPath>
+          <itemPath>Drivers/CMSIS/Include/core_sc300.h</itemPath>
+        </logicalFolder>
+        <logicalFolder name="STM32L1xx_HAL_Driver"
+                       displayName="STM32L1xx_HAL_Driver"
+                       projectFiles="true">
+          <logicalFolder name="Legacy" displayName="Legacy" projectFiles="true">
+            <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h</itemPath>
+          </logicalFolder>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_adc.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_adc_ex.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_cortex.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_def.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_dma.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_flash.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_flash_ex.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_flash_ramfunc.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_gpio.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_gpio_ex.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_pwr.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_pwr_ex.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_rcc.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_rcc_ex.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_tim.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_tim_ex.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_uart.h</itemPath>
+        </logicalFolder>
+      </logicalFolder>
+      <logicalFolder name="Library" displayName="Library" projectFiles="true">
+        <itemPath>../Library/sp1ml.h</itemPath>
+        <itemPath>../Library/xprint.h</itemPath>
+        <itemPath>../Library/xprintf.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f1" displayName="Meter" projectFiles="true">
+      </logicalFolder>
       <itemPath>Inc/adc.h</itemPath>
       <itemPath>Inc/main.h</itemPath>
-      <itemPath>Src/processor.h</itemPath>
+      <itemPath>Inc/processor.h</itemPath>
       <itemPath>Inc/stm32l1xx_hal_conf.h</itemPath>
       <itemPath>Inc/stm32l1xx_it.h</itemPath>
     </logicalFolder>
@@ -441,6 +447,8 @@
       </item>
       <item path="Inc/main.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="Inc/processor.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="Inc/stm32l1xx_hal_conf.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Inc/stm32l1xx_it.h" ex="false" tool="3" flavor2="0">
@@ -450,8 +458,6 @@
       <item path="Src/main.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="Src/processor.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="Src/processor.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Src/stm32l1xx_hal_msp.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -764,6 +770,8 @@
       </item>
       <item path="Inc/main.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="Inc/processor.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="Inc/stm32l1xx_hal_conf.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Inc/stm32l1xx_it.h" ex="false" tool="3" flavor2="0">
@@ -773,8 +781,6 @@
       <item path="Src/main.c" ex="false" tool="0" flavor2="3">
       </item>
       <item path="Src/processor.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="Src/processor.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Src/stm32l1xx_hal_msp.c" ex="false" tool="0" flavor2="3">
       </item>
