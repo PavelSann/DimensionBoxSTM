@@ -39,7 +39,8 @@
         <itemPath>../Library/xprint.c</itemPath>
         <itemPath>../Library/xprintf.c</itemPath>
       </logicalFolder>
-      <logicalFolder name="f1" displayName="Meter" projectFiles="true">
+      <logicalFolder name="f1" displayName="meters" projectFiles="true">
+        <itemPath>Src/meters/water_meter.c</itemPath>
       </logicalFolder>
       <itemPath>Src/adc.c</itemPath>
       <itemPath>Src/main.c</itemPath>
@@ -107,11 +108,13 @@
         </logicalFolder>
       </logicalFolder>
       <logicalFolder name="Library" displayName="Library" projectFiles="true">
+        <itemPath>../Library/atomic.h</itemPath>
         <itemPath>../Library/sp1ml.h</itemPath>
         <itemPath>../Library/xprint.h</itemPath>
         <itemPath>../Library/xprintf.h</itemPath>
       </logicalFolder>
-      <logicalFolder name="f1" displayName="Meter" projectFiles="true">
+      <logicalFolder name="f1" displayName="meters" projectFiles="true">
+        <itemPath>Inc/meters/water_meter.h</itemPath>
       </logicalFolder>
       <itemPath>Inc/adc.h</itemPath>
       <itemPath>Inc/main.h</itemPath>
@@ -185,6 +188,8 @@
           <commandLine>-mcpu=cortex-m3 -mthumb -mfloat-abi=soft -specs=nosys.specs -specs=nano.specs -TSTM32L152RETx_FLASH.ld -Wl,-Map=output.map -Wl,--gc-sections -lm</commandLine>
         </linkerTool>
       </compileType>
+      <item path="../Library/atomic.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="../Library/sp1ml.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="../Library/sp1ml.h" ex="false" tool="3" flavor2="0">
@@ -447,6 +452,8 @@
       </item>
       <item path="Inc/main.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="Inc/meters/water_meter.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="Inc/processor.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Inc/stm32l1xx_hal_conf.h" ex="false" tool="3" flavor2="0">
@@ -456,6 +463,8 @@
       <item path="Src/adc.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="Src/main.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="Src/meters/water_meter.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="Src/processor.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -508,6 +517,8 @@
           <commandLine>-mcpu=cortex-m3 -mthumb -mfloat-abi=soft -specs=nosys.specs -specs=nano.specs -TSTM32L152RETx_FLASH.ld -Wl,-Map=output.map -Wl,--gc-sections -lm</commandLine>
         </linkerTool>
       </compileType>
+      <item path="../Library/atomic.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="../Library/sp1ml.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="../Library/sp1ml.h" ex="false" tool="3" flavor2="0">
@@ -770,6 +781,8 @@
       </item>
       <item path="Inc/main.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="Inc/meters/water_meter.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="Inc/processor.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Inc/stm32l1xx_hal_conf.h" ex="false" tool="3" flavor2="0">
@@ -779,6 +792,8 @@
       <item path="Src/adc.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="Src/main.c" ex="false" tool="0" flavor2="3">
+      </item>
+      <item path="Src/meters/water_meter.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="Src/processor.c" ex="false" tool="0" flavor2="0">
       </item>

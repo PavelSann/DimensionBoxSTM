@@ -40,10 +40,12 @@
 #include "adc.h"
 #include "sp1ml.h"
 #include "xprint.h"
+#include "meters/water_meter.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc;
+DMA_HandleTypeDef hdma_adc;
 
 TIM_HandleTypeDef htim2;
 
@@ -64,8 +66,8 @@ static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_UART4_Init(void);
-static void MX_ADC_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_ADC_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -96,16 +98,18 @@ int main(void)
   MX_DMA_Init();
   MX_TIM2_Init();
   MX_UART4_Init();
-  MX_ADC_Init();
   MX_USART2_UART_Init();
+  MX_ADC_Init();
 
   /* USER CODE BEGIN 2 */
+	//	xprint_init_SWO();
+	xprint_init_UART(&huart2);
+	xprintf("Start Box  DEVID:0x%x REVID:0x%x HAL:0x%x \n", HAL_GetDEVID(), HAL_GetREVID(), HAL_GetHalVersion());
 	//запускаем таймер 2
 	HAL_TIM_Base_Start_IT(&htim2);
 	SP1ML_Init(&huart4);
-//	xprint_init_SWO();
-	xprint_init_UART(&huart2);
-	xprintln("Start Box");
+	WaterMeter_Init(&hadc,ADC_CHANNEL_14);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -116,16 +120,17 @@ int main(void)
 
   /* USER CODE BEGIN 3 */
 
-		//		HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_RESET);
 
-
-		//				uint32_t waterVolt = EX_ADC_SoftReadValue(&hadc, 1000);
-		//
-		//				if (waterVolt > 1800) { // напряжение больше 1.8 вольт,значит импульс
-		//					HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_SET);
-		//				} else {
-		//					HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_RESET);
-		//				}
+//		char command[50];
+//		xgets(command, 50);
+//
+//		HAL_ADC_Start(&hadc);
+//		HAL_ADC_PollForConversion(&hadc, 100);
+//		uint32_t value = HAL_ADC_GetValue(&hadc);
+//		HAL_ADC_Stop(&hadc);
+//		uint32_t normValue = EX_ADC_VOLTAGE_FROM_12BITS(value);
+//
+//		xprintf("Value=%d, normValue=%d", value, normValue);
 
 
 
@@ -203,12 +208,12 @@ static void MX_ADC_Init(void)
   hadc.Init.LowPowerAutoWait = ADC_AUTOWAIT_DISABLE;
   hadc.Init.LowPowerAutoPowerOff = ADC_AUTOPOWEROFF_DISABLE;
   hadc.Init.ChannelsBank = ADC_CHANNELS_BANK_A;
-  hadc.Init.ContinuousConvMode = DISABLE;
+  hadc.Init.ContinuousConvMode = ENABLE;
   hadc.Init.NbrOfConversion = 1;
   hadc.Init.DiscontinuousConvMode = DISABLE;
   hadc.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
-  hadc.Init.DMAContinuousRequests = DISABLE;
+  hadc.Init.DMAContinuousRequests = ENABLE;
   if (HAL_ADC_Init(&hadc) != HAL_OK)
   {
     Error_Handler();
@@ -303,8 +308,12 @@ static void MX_DMA_Init(void)
 {
   /* DMA controller clock enable */
   __HAL_RCC_DMA2_CLK_ENABLE();
+  __HAL_RCC_DMA1_CLK_ENABLE();
 
   /* DMA interrupt init */
+  /* DMA1_Channel1_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
   /* DMA2_Channel3_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA2_Channel3_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA2_Channel3_IRQn);
@@ -361,13 +370,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
 
 }
 
-void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart){
+void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
 	xprintln("HAL_UART_ErrorCallback");
 	uint32_t uartErrorCode = HAL_UART_GetError(huart);
-	xprintf("HAL_UART_ErrorCode %x\n",uartErrorCode);
+	xprintf("HAL_UART_ErrorCode %x\n", uartErrorCode);
 	//SEE HAL_UART_ERROR_
 }
-
 
 void SP1ML_OnPing(uint8_t data[], uint16_t size) {
 	HAL_GPIO_TogglePin(LedGreen_GPIO_Port, LedGreen_Pin);
