@@ -15,6 +15,7 @@ static uint32_t fullValue = 0;
 static uint32_t deltaValue = 0;
 
 void WaterMeter_Init(ADC_HandleTypeDef * hadc, uint32_t adcChannel) {
+	
 	hADC = hadc;
 	/**
 	 * Включаем analog watchdog
@@ -28,7 +29,9 @@ void WaterMeter_Init(ADC_HandleTypeDef * hadc, uint32_t adcChannel) {
 	if (HAL_ADC_AnalogWDGConfig(hadc, &AnalogWDGConfig) != HAL_OK) {
 		xprintf("Error init AnalogWDGConfig %x", HAL_ADC_GetError(hadc));
 	}
+	
 	HAL_ADC_Start_DMA(hadc, &adcValue, 1);
+	xprintf("WaterMeter Init & Start DMA: ADC:0x%x Channel:0x%x\n",hadc->Instance,adcChannel);
 }
 
 //void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef * hadc) {
