@@ -41,6 +41,7 @@
 #include "sp1ml.h"
 #include "xprint.h"
 #include "meters/water_meter.h"
+#include "meters/electro_meter.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -50,6 +51,7 @@ DMA_HandleTypeDef hdma_adc;
 TIM_HandleTypeDef htim2;
 
 UART_HandleTypeDef huart4;
+UART_HandleTypeDef huart5;
 UART_HandleTypeDef huart2;
 DMA_HandleTypeDef hdma_uart4_rx;
 DMA_HandleTypeDef hdma_uart4_tx;
@@ -68,6 +70,7 @@ static void MX_TIM2_Init(void);
 static void MX_UART4_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_ADC_Init(void);
+static void MX_UART5_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -99,6 +102,7 @@ int main(void) {
 	MX_UART4_Init();
 	MX_USART2_UART_Init();
 	MX_ADC_Init();
+	MX_UART5_Init();
 
 	/* USER CODE BEGIN 2 */
 	//	xprint_init_SWO();
@@ -107,7 +111,8 @@ int main(void) {
 	//запускаем таймер 2
 	HAL_TIM_Base_Start_IT(&htim2);
 	SP1ML_Init(&huart4);
-	WaterMeter_Init(&hadc, ADC_CHANNEL_14);
+	//	WaterMeter_Init(&hadc, ADC_CHANNEL_14);
+	ElectroMeter_Init(&huart5, MAX484RD_GPIO_Port, MAX484RD_Pin);
 
 	/* USER CODE END 2 */
 
@@ -117,6 +122,7 @@ int main(void) {
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
+		ElectroMeter_CMD();
 		__WFI();
 	}
 	/* USER CODE END 3 */
@@ -254,6 +260,23 @@ static void MX_UART4_Init(void) {
 
 }
 
+/* UART5 init function */
+static void MX_UART5_Init(void) {
+
+	huart5.Instance = UART5;
+	huart5.Init.BaudRate = 9600;
+	huart5.Init.WordLength = UART_WORDLENGTH_8B;
+	huart5.Init.StopBits = UART_STOPBITS_1;
+	huart5.Init.Parity = UART_PARITY_EVEN;
+	huart5.Init.Mode = UART_MODE_TX_RX;
+	huart5.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+	huart5.Init.OverSampling = UART_OVERSAMPLING_16;
+	if (HAL_UART_Init(&huart5) != HAL_OK) {
+		Error_Handler();
+	}
+
+}
+
 /* USART2 init function */
 static void MX_USART2_UART_Init(void) {
 
@@ -276,8 +299,8 @@ static void MX_USART2_UART_Init(void) {
  */
 static void MX_DMA_Init(void) {
 	/* DMA controller clock enable */
-	__HAL_RCC_DMA2_CLK_ENABLE();
 	__HAL_RCC_DMA1_CLK_ENABLE();
+	__HAL_RCC_DMA2_CLK_ENABLE();
 
 	/* DMA interrupt init */
 	/* DMA1_Channel1_IRQn interrupt configuration */
@@ -307,10 +330,11 @@ static void MX_GPIO_Init(void) {
 	__HAL_RCC_GPIOC_CLK_ENABLE();
 	__HAL_RCC_GPIOH_CLK_ENABLE();
 	__HAL_RCC_GPIOA_CLK_ENABLE();
+	__HAL_RCC_GPIOD_CLK_ENABLE();
 	__HAL_RCC_GPIOB_CLK_ENABLE();
 
 	/*Configure GPIO pin Output Level */
-	HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GPIOA, LedGreen_Pin | MAX484RD_Pin, GPIO_PIN_RESET);
 
 	/*Configure GPIO pin : ButtonBlue_Pin */
 	GPIO_InitStruct.Pin = ButtonBlue_Pin;
@@ -324,6 +348,13 @@ static void MX_GPIO_Init(void) {
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 	HAL_GPIO_Init(LedGreen_GPIO_Port, &GPIO_InitStruct);
+
+	/*Configure GPIO pin : MAX484RD_Pin */
+	GPIO_InitStruct.Pin = MAX484RD_Pin;
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	HAL_GPIO_Init(MAX484RD_GPIO_Port, &GPIO_InitStruct);
 
 	/* EXTI interrupt init*/
 	HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);

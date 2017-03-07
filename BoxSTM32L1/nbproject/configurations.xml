@@ -40,6 +40,7 @@
         <itemPath>../Library/xprintf.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="meters" projectFiles="true">
+        <itemPath>Src/meters/electro_meter.c</itemPath>
         <itemPath>Src/meters/water_meter.c</itemPath>
       </logicalFolder>
       <itemPath>Src/adc.c</itemPath>
@@ -114,6 +115,7 @@
         <itemPath>../Library/xprintf.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="meters" projectFiles="true">
+        <itemPath>Inc/meters/electro_meter.h</itemPath>
         <itemPath>Inc/meters/water_meter.h</itemPath>
       </logicalFolder>
       <itemPath>Inc/adc.h</itemPath>
@@ -452,6 +454,8 @@
       </item>
       <item path="Inc/main.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="Inc/meters/electro_meter.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="Inc/meters/water_meter.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Inc/processor.h" ex="false" tool="3" flavor2="0">
@@ -463,6 +467,8 @@
       <item path="Src/adc.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="Src/main.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="Src/meters/electro_meter.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="Src/meters/water_meter.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -781,6 +787,8 @@
       </item>
       <item path="Inc/main.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="Inc/meters/electro_meter.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="Inc/meters/water_meter.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Inc/processor.h" ex="false" tool="3" flavor2="0">
@@ -792,6 +800,8 @@
       <item path="Src/adc.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="Src/main.c" ex="false" tool="0" flavor2="3">
+      </item>
+      <item path="Src/meters/electro_meter.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="Src/meters/water_meter.c" ex="false" tool="0" flavor2="0">
       </item>
