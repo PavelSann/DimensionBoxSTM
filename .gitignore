@@ -5,3 +5,4 @@ dist/
 output.map
 STM32L152RE/Debug/*
 STM32L152RE/Release/*
+*/nbproject/private/private.xml
