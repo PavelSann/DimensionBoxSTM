@@ -118,12 +118,17 @@ int main(void) {
 
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
+//	ElectroMeter_ReadData();
+	ElectroMeterValues values = ElectroMeter_GetValues();
+	xprintln("### END ###");
 	while (1) {
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
-		ElectroMeter_CMD();
-		__WFI();
+		//		ElectroMeter_ProxyUART(&huart2);
+		//				ElectroMeter_CMD();
+
+		//		__WFI();
 	}
 	/* USER CODE END 3 */
 
