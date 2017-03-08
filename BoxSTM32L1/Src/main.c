@@ -105,9 +105,11 @@ int main(void) {
 	MX_UART5_Init();
 
 	/* USER CODE BEGIN 2 */
-	//	xprint_init_SWO();
+#if X_PRINT_LOG
+	//xprint_init_SWO();
 	xprint_init_UART(&huart2);
-	xprintf("Start Box  DEVID:0x%x REVID:0x%x HAL:0x%x \n", HAL_GetDEVID(), HAL_GetREVID(), HAL_GetHalVersion());
+	LOG("Start Box  DEVID:0x%x REVID:0x%x HAL:0x%x", HAL_GetDEVID(), HAL_GetREVID(), HAL_GetHalVersion());
+#endif
 	//запускаем таймер 2
 	HAL_TIM_Base_Start_IT(&htim2);
 	SP1ML_Init(&huart4);
@@ -118,9 +120,11 @@ int main(void) {
 
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
-//	ElectroMeter_ReadData();
 	ElectroMeterValues values = ElectroMeter_GetValues();
-	xprintln("### END ###");
+	LOG("Values: t1=%d t2=%d t3=%d t4=%d ",values.tariff1,values.tariff2,values.tariff3,values.tariff4);
+	ElectroMeterData data = ElectroMeter_ReadData();
+	LOG("Data: stat=%d volta=%d ",data.stat,data.volta);
+
 	while (1) {
 		/* USER CODE END WHILE */
 
@@ -375,9 +379,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
 }
 
 void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
-	xprintln("HAL_UART_ErrorCallback");
 	uint32_t uartErrorCode = HAL_UART_GetError(huart);
-	xprintf("HAL_UART_ErrorCode %x\n", uartErrorCode);
+	LOGERR("HAL_UART_ErrorCode %x", uartErrorCode);
 	//SEE HAL_UART_ERROR_
 }
 
@@ -413,7 +416,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 void Error_Handler(void) {
 	/* USER CODE BEGIN Error_Handler */
 	/* User can add his own implementation to report the HAL error return state */
-	xprintln("HAL Error_Handler");
+	LOGERR("HAL Error_Handler");
 	while (1) {
 		HAL_GPIO_TogglePin(LedGreen_GPIO_Port, LedGreen_Pin);
 		HAL_Delay(500);

@@ -3,10 +3,10 @@
 #include <stdlib.h>
 
 /*Нужно ли писать пакеты в лог*/
-#define PRINT_LOG 1
+#define TRACE_LOG 0
 
 #define UART_TRANSMIT_TIMEOUT 100
-#define UART_RECEIVE_TIMEOUT 1000
+#define UART_RECEIVE_TIMEOUT 500
 
 
 /*STX Символ  начала  кадра  в  блоке  с  контрольным  символом (STX,  начало  текста,  код  02Н)*/
@@ -38,6 +38,9 @@ static uint8_t cmdReadData[] = {EM_ack, '0', '5', '0', EM_cr, EM_lf};
 /*Режим программирования*/
 static uint8_t cmdProgramMode[] = {EM_ack, '0', '5', '1', EM_cr, EM_lf};
 #define cmdProgramModeLn sizeof(cmdProgramMode)
+/*Режим программирования*/
+static uint8_t cmdBreak[] = {EM_soh, 'B', '0', EM_etx, 'u'};
+#define cmdBreakLn sizeof(cmdBreak)
 
 static const char *password = "777777";
 
@@ -148,7 +151,7 @@ static uint16_t send(uint8_t *command, uint16_t commandLn, uint8_t *result, uint
 	for (uint16_t i = 0; i < maxResultLn; i++) {
 		result[i] = 0;
 	}
-#if PRINT_LOG
+#if TRACE_LOG
 	LOG("->");
 	LOGMEM(command, commandLn);
 #endif
@@ -159,7 +162,7 @@ static uint16_t send(uint8_t *command, uint16_t commandLn, uint8_t *result, uint
 	HAL_UART_Receive(hUART, result, maxResultLn, UART_RECEIVE_TIMEOUT);
 	uint16_t resultLn = maxResultLn;
 	for (resultLn = 0; (result[resultLn] != 0) && resultLn < maxResultLn; resultLn++);
-#if PRINT_LOG
+#if TRACE_LOG
 	LOG("<-");
 	LOGMEM(result, resultLn);
 #endif
@@ -173,7 +176,6 @@ static uint16_t sendCmd(char cmd, char cmdMod, const char *addr, const char *val
 	createCmd(cmd, cmdMod, addr, value, cmdBuff);
 	return send(cmdBuff, buffLn, result, maxResultLn);
 }
-
 
 static void dumpData(uint8_t *result, uint16_t resultLn) {
 	/*
@@ -302,7 +304,7 @@ static uint32_t strToInt(uint8_t *str) {
 
 }
 
-static ElectroMeterStatus getErrorCode(uint8_t *result, uint16_t resultLn) {
+static ElectroMeterError getErrorCode(uint8_t *result, uint16_t resultLn) {
 	uint8_t err = ElectroMeter_OK;
 	//первый символ должен быть STX,
 	if (result[0] != EM_stx) {
@@ -335,7 +337,7 @@ ElectroMeterValues ElectroMeter_GetValues() {
 
 	uint16_t ln = 0;
 	ElectroMeterValues values = {0};
-	values.status = ElectroMeter_ERROR;
+	values.error = ElectroMeter_ERROR;
 	//первичный запрос, в ответ должен придти ID устройства
 	ln = send(cmdRequest, cmdRequestLn, buff, buffLn);
 	if (ln > 0) {
@@ -351,12 +353,12 @@ ElectroMeterValues ElectroMeter_GetValues() {
 			ln = sendCmd('R', '1', "ET0PE", "", buff, buffLn);
 			// в ответ блок данных
 			// блок данных может содержать код ошибки
-			ElectroMeterStatus err = getErrorCode(buff, buffLn);
+			ElectroMeterError err = getErrorCode(buff, buffLn);
 			if (err) {
 				LOG("error code %d\n", err);
-				values.status = err;
+				values.error = err;
 			} else {
-				values.status = ElectroMeter_OK;
+				values.error = ElectroMeter_OK;
 
 				EM_Data data = parseData(buff, ln);
 				/*
@@ -379,25 +381,29 @@ ElectroMeterValues ElectroMeter_GetValues() {
 				values.tariff3 = strToInt(pT3.pValue);
 				values.tariff4 = strToInt(pT4.pValue);
 
+				send(cmdBreak, cmdBreakLn, buff, buffLn);
 
 			}
 		} else {
+			values.error = ElectroMeter_ERR_NOT_ASK;
 			LOGERR("Meter not response АСК");
 		}
 
 	} else {
+		values.error = ElectroMeter_ERR_NOT_RESPONSE;
 		LOGERR("Meter not response");
 	}
 
 	return values;
 }
 
-void ElectroMeter_ReadData() {
+ElectroMeterData ElectroMeter_ReadData() {
 	uint16_t buffLn = 1024;
 	uint8_t buff[buffLn];
 	memset(buff, 0, buffLn);
 	uint16_t ln = 0;
-
+	ElectroMeterData result;
+	result.error = ElectroMeter_ERROR;
 	//первичный запрос, в ответ должен придти ID устройства
 	ln = send(cmdRequest, cmdRequestLn, buff, buffLn);
 	if (ln > 0) {
@@ -405,15 +411,27 @@ void ElectroMeter_ReadData() {
 		ln = send(cmdReadData, cmdReadDataLn, buff, buffLn);
 		if (ln > 0) {
 			//получили блок данных
-
 			EM_Data data = parseData(buff, ln);
 			while (!data.error && data.pNextRow) {
 				EM_DataRow row = nextDataRow(&data);
-				LOG("%s:%s\n", row.pAddr, row.pValue);
+
+				if (strcmp("STAT_",(const char*) row.pAddr)==0) {
+					result.stat = strToInt(row.pValue);
+				} else if (strcmp("VOLTA",(const char*) row.pAddr)==0) {
+					result.volta = strToInt(row.pValue);
+				}
+#if TRACE_LOG
+				LOG("%s:%s", row.pAddr, row.pValue);
+#endif
 			}
+		} else {
+			result.error = ElectroMeter_ERROR;
+			LOGERR("Empty data");
 		}
 
 	} else {
+		result.error = ElectroMeter_ERR_NOT_RESPONSE;
 		LOGERR("Meter not response");
 	}
+	return result;
 }

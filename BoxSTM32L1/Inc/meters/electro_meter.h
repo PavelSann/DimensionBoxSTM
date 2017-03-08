@@ -25,6 +25,10 @@ extern "C" {
 		ElectroMeter_OK = 0,
 		/*Общая ошибка*/
 		ElectroMeter_ERROR = 1,
+		/*Нет ответа от счётчика*/
+		ElectroMeter_ERR_NOT_RESPONSE = 2,
+		/*Нет подтверждения от счётчика*/
+		ElectroMeter_ERR_NOT_ASK = 3,
 		/*Недопустимое число параметров в массиве. число параметров
 		превышает допустимое значение и параметр, в ответ которого
 		послано это сообщение, игнорируется
@@ -68,20 +72,25 @@ extern "C" {
 		 */
 		ElectroMeter_ERR18 = 18,
 
-	} ElectroMeterStatus;
+	} ElectroMeterError;
 
 	typedef struct {
-		ElectroMeterStatus status;
+		ElectroMeterError error;
 		uint32_t tariff1;
 		uint32_t tariff2;
 		uint32_t tariff3;
 		uint32_t tariff4;
 	} ElectroMeterValues;
 
+	typedef struct {
+		ElectroMeterError error;
+		uint32_t stat;
+		uint32_t volta;
+	} ElectroMeterData;
 
 	void ElectroMeter_Init(UART_HandleTypeDef * huart, GPIO_TypeDef* GPIO_MAX484_RD_Port, uint16_t GPIO_MAX484_RD_Pin);
 	ElectroMeterValues ElectroMeter_GetValues();
-	void ElectroMeter_ReadData();
+	ElectroMeterData ElectroMeter_ReadData();
 
 
 #ifdef __cplusplus
