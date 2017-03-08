@@ -19,6 +19,16 @@ void xprintln(const char* str) {
 	xputc('\n');
 }
 
+void xprint(const void* buff, int begin, int len) {
+	int i;
+	const unsigned char *bp;
+	bp = buff;
+	if (begin < len) {
+		for (i = begin; i < len; i++) /* ASCII dump */
+			xputc((bp[i] >= ' ' && bp[i] <= '~') ? bp[i] : '.');
+	}
+}
+
 void xprintbt(const void* buff, int len) {
 	int i;
 	const unsigned char *bp;
@@ -26,8 +36,7 @@ void xprintbt(const void* buff, int len) {
 	for (i = 0; i < len; i++) /* Hexdecimal dump */
 		xprintf(" %02X", bp[i]);
 	xputc(' ');
-	for (i = 0; i < len; i++) /* ASCII dump */
-		xputc((bp[i] >= ' ' && bp[i] <= '~') ? bp[i] : '.');
+	xprint(buff,0, len);
 	xputc('\n');
 }
 
@@ -36,14 +45,14 @@ static UART_HandleTypeDef *hUart;
 
 void UART_xfunc_out(unsigned char ch) {
 	uint8_t c[1];
-	c[0] = ch;// & 0x00FF;
+	c[0] = ch; // & 0x00FF;
 	HAL_UART_Transmit(hUart, &*c, 1, 10);
 }
 
 unsigned char UART_xfunc_in() {
 	uint8_t c[1];
-	HAL_UART_Receive(hUart,c, 1, UINT32_MAX);
-	unsigned char ch = c[0];// & 0x00FF;
+	HAL_UART_Receive(hUart, c, 1, UINT32_MAX);
+	unsigned char ch = c[0]; // & 0x00FF;
 	return ch;
 }
 
