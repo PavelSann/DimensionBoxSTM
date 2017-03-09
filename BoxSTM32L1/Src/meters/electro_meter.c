@@ -327,7 +327,7 @@ void ElectroMeter_Init(UART_HandleTypeDef * huart, GPIO_TypeDef* GPIO_MAX484_RD_
 	MAX484_RD_Port = GPIO_MAX484_RD_Port;
 	MAX484_RD_Pin = GPIO_MAX484_RD_Pin;
 	//	huart->Init.BaudRate = 9600;
-	LOG("ElectroMeter Init: UART:0x%x MAX484_Port:0x%x MAX484_Pin:0x%x \n", huart->Instance, *MAX484_RD_Port, MAX484_RD_Pin);
+	LOG("ElectroMeter Init: UART:0x%x MAX484_Port:0x%x MAX484_Pin:0x%x", huart->Instance, *MAX484_RD_Port, MAX484_RD_Pin);
 }
 
 ElectroMeterValues ElectroMeter_GetValues() {

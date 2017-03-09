@@ -37,7 +37,6 @@
 /* USER CODE BEGIN Includes */
 #include "processor.h"
 #include "stm32l1xx_hal_uart.h"
-#include "adc.h"
 #include "sp1ml.h"
 #include "xprint.h"
 #include "meters/water_meter.h"
@@ -46,7 +45,6 @@
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc;
-DMA_HandleTypeDef hdma_adc;
 
 TIM_HandleTypeDef htim2;
 
@@ -58,7 +56,7 @@ DMA_HandleTypeDef hdma_uart4_tx;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-
+static volatile uint8_t readMeters = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -69,8 +67,8 @@ static void MX_DMA_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_UART4_Init(void);
 static void MX_USART2_UART_Init(void);
-static void MX_ADC_Init(void);
 static void MX_UART5_Init(void);
+static void MX_ADC_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -78,6 +76,8 @@ static void MX_UART5_Init(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
+uint32_t ADC1ConvertedValues[1];
+__IO uint32_t counter;
 
 /* USER CODE END 0 */
 
@@ -101,38 +101,50 @@ int main(void) {
 	MX_TIM2_Init();
 	MX_UART4_Init();
 	MX_USART2_UART_Init();
-	MX_ADC_Init();
 	MX_UART5_Init();
+	MX_ADC_Init();
 
 	/* USER CODE BEGIN 2 */
 #if X_PRINT_LOG
-	//xprint_init_SWO();
+	//	xprint_init_SWO();
 	xprint_init_UART(&huart2);
 	LOG("Start Box  DEVID:0x%x REVID:0x%x HAL:0x%x", HAL_GetDEVID(), HAL_GetREVID(), HAL_GetHalVersion());
 #endif
 	//запускаем таймер 2
 	HAL_TIM_Base_Start_IT(&htim2);
 	SP1ML_Init(&huart4);
-	//	WaterMeter_Init(&hadc, ADC_CHANNEL_14);
 	ElectroMeter_Init(&huart5, MAX484RD_GPIO_Port, MAX484RD_Pin);
+	WaterMeter_Init(&hadc, ADC_CHANNEL_14);
 
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
-	ElectroMeterValues values = ElectroMeter_GetValues();
-	LOG("Values: t1=%d t2=%d t3=%d t4=%d ",values.tariff1,values.tariff2,values.tariff3,values.tariff4);
-	ElectroMeterData data = ElectroMeter_ReadData();
-	LOG("Data: stat=%d volta=%d ",data.stat,data.volta);
-
 	while (1) {
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
-		//		ElectroMeter_ProxyUART(&huart2);
-		//				ElectroMeter_CMD();
+		if (readMeters == 1) {
+			LOG("Read...");
+			HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_SET);
+			if (!WaterMeter_getError()) {
+				uint32_t waterValue = WaterMeter_getValue();
+				LOG("Water value: %d ", waterValue);
+			} else {
+				LOG("Water meter not connect");
+			}
 
-		//		__WFI();
+			ElectroMeterValues values = ElectroMeter_GetValues();
+			if (!values.error) {
+				LOG("Electro values: t1=%d t2=%d t3=%d t4=%d ", values.tariff1, values.tariff2, values.tariff3, values.tariff4);
+			} else {
+				LOG("Electro meter not connect");
+			}
+
+			HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_RESET);
+			readMeters = 0;
+		}
+		__WFI;
 	}
 	/* USER CODE END 3 */
 
@@ -190,17 +202,18 @@ void SystemClock_Config(void) {
 /* ADC init function */
 static void MX_ADC_Init(void) {
 
+	ADC_AnalogWDGConfTypeDef AnalogWDGConfig;
 	ADC_ChannelConfTypeDef sConfig;
 
 	/**Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
 	 */
 	hadc.Instance = ADC1;
-	hadc.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
+	hadc.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV4;
 	hadc.Init.Resolution = ADC_RESOLUTION_12B;
 	hadc.Init.DataAlign = ADC_DATAALIGN_RIGHT;
 	hadc.Init.ScanConvMode = ADC_SCAN_DISABLE;
-	hadc.Init.EOCSelection = ADC_EOC_SEQ_CONV;
-	hadc.Init.LowPowerAutoWait = ADC_AUTOWAIT_DISABLE;
+	hadc.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+	hadc.Init.LowPowerAutoWait = ADC_AUTOWAIT_UNTIL_DATA_READ;
 	hadc.Init.LowPowerAutoPowerOff = ADC_AUTOPOWEROFF_DISABLE;
 	hadc.Init.ChannelsBank = ADC_CHANNELS_BANK_A;
 	hadc.Init.ContinuousConvMode = ENABLE;
@@ -208,8 +221,19 @@ static void MX_ADC_Init(void) {
 	hadc.Init.DiscontinuousConvMode = DISABLE;
 	hadc.Init.ExternalTrigConv = ADC_SOFTWARE_START;
 	hadc.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
-	hadc.Init.DMAContinuousRequests = ENABLE;
+	hadc.Init.DMAContinuousRequests = DISABLE;
 	if (HAL_ADC_Init(&hadc) != HAL_OK) {
+		Error_Handler();
+	}
+
+	/**Configure the analog watchdog
+	 */
+	AnalogWDGConfig.WatchdogMode = ADC_ANALOGWATCHDOG_SINGLE_REG;
+	AnalogWDGConfig.Channel = ADC_CHANNEL_14;
+	AnalogWDGConfig.ITMode = ENABLE;
+	AnalogWDGConfig.HighThreshold = 2000;
+	AnalogWDGConfig.LowThreshold = 1000;
+	if (HAL_ADC_AnalogWDGConfig(&hadc, &AnalogWDGConfig) != HAL_OK) {
 		Error_Handler();
 	}
 
@@ -233,7 +257,7 @@ static void MX_TIM2_Init(void) {
 	htim2.Instance = TIM2;
 	htim2.Init.Prescaler = 16000;
 	htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-	htim2.Init.Period = 1000;
+	htim2.Init.Period = 10000;
 	htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
 	if (HAL_TIM_Base_Init(&htim2) != HAL_OK) {
 		Error_Handler();
@@ -308,13 +332,9 @@ static void MX_USART2_UART_Init(void) {
  */
 static void MX_DMA_Init(void) {
 	/* DMA controller clock enable */
-	__HAL_RCC_DMA1_CLK_ENABLE();
 	__HAL_RCC_DMA2_CLK_ENABLE();
 
 	/* DMA interrupt init */
-	/* DMA1_Channel1_IRQn interrupt configuration */
-	HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
-	HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
 	/* DMA2_Channel3_IRQn interrupt configuration */
 	HAL_NVIC_SetPriority(DMA2_Channel3_IRQn, 0, 0);
 	HAL_NVIC_EnableIRQ(DMA2_Channel3_IRQn);
@@ -380,8 +400,13 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
 
 void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
 	uint32_t uartErrorCode = HAL_UART_GetError(huart);
-	LOGERR("HAL_UART_ErrorCode %x", uartErrorCode);
+	LOGERR("UART %x Error %x", huart->Instance, uartErrorCode);
 	//SEE HAL_UART_ERROR_
+}
+
+void HAL_ADC_ErrorCallback(ADC_HandleTypeDef* hadc) {
+	uint32_t adcErrorCode = HAL_ADC_GetError(hadc);
+	LOGERR("ADC %x Error %x", hadc->Instance, adcErrorCode);
 }
 
 void SP1ML_OnPing(uint8_t data[], uint16_t size) {
@@ -390,9 +415,8 @@ void SP1ML_OnPing(uint8_t data[], uint16_t size) {
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-	//	if (htim == &htim2) {
-	//		//onTimer();
-	//	}
+	//	LOG("OnTimer");
+	readMeters = 1;
 }
 //
 //void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
@@ -405,6 +429,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 //		//doShow();
 //	}
 //}
+
 
 /* USER CODE END 4 */
 
@@ -437,6 +462,7 @@ void assert_failed(uint8_t* file, uint32_t line) {
 	/* USER CODE BEGIN 6 */
 	/* User can add his own implementation to report the file name and line number,
 	  ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+	LOG("assert_failed: Wrong parameters value: file %s on line %d\r\n", file, line);
 	/* USER CODE END 6 */
 
 }

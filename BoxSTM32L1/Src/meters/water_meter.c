@@ -3,19 +3,42 @@
 #include "xprint.h"
 #include "atomic.h"
 
+/*
+ Результат АЦП у нас 12-битный, а значит максимальное значение равно 4095 (0b111111111111).
+ * То есть при напряжении, равном 3.3 В результат составит 4095.
+ * При напряжении 1 В получим значение преобразования: 1 * 4095 / 3.3 = 1241.
+ * Для 2 В соответственно будет 2482 и т. д.
+ */
+#define VDDA_APPLI                     ((uint32_t) 3300)    /* Value of analog voltage supply Vdda (unit: mV) */
+#define RANGE_12BITS                   ((uint32_t) 4095)    /* Max digital value with a full range of 12 bits */
+/**
+ * @brief  Computation of voltage (unit: mV) from ADC measurement digital
+ *         value on range 12 bits.
+ *         Calculation validity conditioned to settings:
+ *          - ADC resolution 12 bits (need to scale value if using a different
+ *            resolution).
+ *          - Power supply of analog voltage Vdda 3.3V (need to scale value
+ *            if using a different analog voltage supply value).
+ * @param ADC_DATA: Digital value measured by ADC
+ * @retval None
+ */
+#define EX_ADC_VOLTAGE_FROM_12BITS(ADC_DATA)                        \
+  ( ((ADC_DATA) * VDDA_APPLI) / RANGE_12BITS)
+
+
 #define WDG_HIGH_THRESHOLD 2000
 #define WDG_LOW_THRESHOLD 1000
-#define MIN_PAUSE_IMPULSE 500
+#define MIN_PAUSE_IMPULSE 300
+#define MIN_VOLT 500
 
 static ADC_HandleTypeDef * hADC;
-static uint32_t adcValue = 0;
 static uint8_t awd = 0;
 static uint32_t lastTick = 0;
-static uint32_t fullValue = 0;
-static uint32_t deltaValue = 0;
+static uint32_t value = 0;
+static WaterMeteError error = WaterMete_OK;
 
 void WaterMeter_Init(ADC_HandleTypeDef * hadc, uint32_t adcChannel) {
-	
+
 	hADC = hadc;
 	/**
 	 * Включаем analog watchdog
@@ -27,44 +50,27 @@ void WaterMeter_Init(ADC_HandleTypeDef * hadc, uint32_t adcChannel) {
 	AnalogWDGConfig.HighThreshold = WDG_HIGH_THRESHOLD;
 	AnalogWDGConfig.LowThreshold = WDG_LOW_THRESHOLD;
 	if (HAL_ADC_AnalogWDGConfig(hadc, &AnalogWDGConfig) != HAL_OK) {
-		xprintf("Error init AnalogWDGConfig %x", HAL_ADC_GetError(hadc));
+		LOGERR("Error init AnalogWDGConfig %x", HAL_ADC_GetError(hadc));
 	}
+
+	HAL_StatusTypeDef status = HAL_ADC_Start_IT(hADC);
+	if (status != HAL_OK) {
+		LOGERR("WaterMeter init error 0x%x", status);
+	}
+	LOG("WaterMeter Init: ADC:0x%x Channel:0x%x", hadc->Instance, adcChannel);
+}
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
+	//В прерывании нельзя делать длинные операции, даже print
 	
-	HAL_ADC_Start_DMA(hadc, &adcValue, 1);
-	xprintf("WaterMeter Init & Start DMA: ADC:0x%x Channel:0x%x\n",hadc->Instance,adcChannel);
-}
-
-//void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef * hadc) {
-//	uint32_t rawValue = adcValue;
-//	uint32_t value = EX_ADC_VOLTAGE_FROM_12BITS(rawValue);
-//	xprintf("ADC_VALUE=%d (%d) %x\n", value, rawValue);
-//
-//
-//}
-
-void onImpulse() {
-	xprintf("WaterMeter impulse deltaValue:%d fullValue:%d\n", deltaValue, fullValue);
-	ATOMIC_BLOCK{
-		deltaValue++;
-		fullValue++;}
-}
-
-void subValue(uint32_t delta) {
-	ATOMIC_BLOCK{
-		deltaValue -= delta;}
-}
-
-uint32_t getValue() {
-	return deltaValue;
-}
-
-uint32_t getFullValue() {
-	return fullValue;
-}
-
-void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc) {
-
+	uint32_t val12Bit = HAL_ADC_GetValue(hadc);
+	uint32_t waterVolt = EX_ADC_VOLTAGE_FROM_12BITS(val12Bit);
 	if (__HAL_ADC_GET_FLAG(hadc, ADC_FLAG_AWD)) {
+		if (waterVolt < MIN_VOLT) {
+			error = WaterMete_ERR_NOT_CONNECT;
+		}else{
+			error=WaterMete_OK;
+		}
 		uint32_t tick = HAL_GetTick(); //In the default implementation, this variable is incremented each 1ms
 		if (lastTick == 0 || (tick - lastTick) > MIN_PAUSE_IMPULSE) {
 			lastTick = tick;
@@ -73,10 +79,23 @@ void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc) {
 
 	} else {
 		if (awd == 1) {
-			onImpulse();
+			ATOMIC_BLOCK{
+				value++;}
 		}
 		awd = 0;
 	}
 }
 
+void WaterMeter_subValue(uint32_t delta) {
+	ATOMIC_BLOCK{
+		value -= delta;}
+}
+
+uint32_t WaterMeter_getValue() {
+	return value;
+}
+
+WaterMeteError WaterMeter_getError() {
+	return error;
+}
 

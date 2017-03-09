@@ -1,12 +1,14 @@
 #include "xprint.h"
+#include "stm32l1xx_hal.h"
 
 void SWO_xfunc_out(unsigned char c) {
 	ITM_SendChar(c);
 }
 
 unsigned char SWO_xfunc_in() {
-	int32_t r = ITM_ReceiveChar();
-	return r;
+//	int32_t r = ITM_ReceiveChar();
+	LOGERR("Not support in SWO!");
+	return '0';
 }
 
 void xprint_init_SWO() {

@@ -43,7 +43,6 @@
         <itemPath>Src/meters/electro_meter.c</itemPath>
         <itemPath>Src/meters/water_meter.c</itemPath>
       </logicalFolder>
-      <itemPath>Src/adc.c</itemPath>
       <itemPath>Src/main.c</itemPath>
       <itemPath>Src/processor.c</itemPath>
       <itemPath>startup/startup_stm32l152xe.s</itemPath>
@@ -118,7 +117,6 @@
         <itemPath>Inc/meters/electro_meter.h</itemPath>
         <itemPath>Inc/meters/water_meter.h</itemPath>
       </logicalFolder>
-      <itemPath>Inc/adc.h</itemPath>
       <itemPath>Inc/main.h</itemPath>
       <itemPath>Inc/processor.h</itemPath>
       <itemPath>Inc/stm32l1xx_hal_conf.h</itemPath>
@@ -139,8 +137,38 @@
                    kind="IMPORTANT_FILES_FOLDER">
       <itemPath>Makefile</itemPath>
     </logicalFolder>
+    <logicalFolder name="TestFiles"
+                   displayName="Файлы тестов"
+                   projectFiles="false"
+                   kind="TEST_LOGICAL_FOLDER">
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Важные файлы"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+    <logicalFolder name="TestFiles"
+                   displayName="Файлы тестов"
+                   projectFiles="false"
+                   kind="TEST_LOGICAL_FOLDER">
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Важные файлы"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
   </logicalFolder>
   <sourceRootList>
+    <Elem>Src</Elem>
+    <Elem>Inc</Elem>
+    <Elem>Drivers</Elem>
+    <Elem>../Library</Elem>
+    <Elem>Src</Elem>
+    <Elem>Inc</Elem>
+    <Elem>Drivers</Elem>
+    <Elem>../Library</Elem>
     <Elem>Src</Elem>
     <Elem>Inc</Elem>
     <Elem>Drivers</Elem>
@@ -450,8 +478,6 @@
             tool="0"
             flavor2="0">
       </item>
-      <item path="Inc/adc.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="Inc/main.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Inc/meters/electro_meter.h" ex="false" tool="3" flavor2="0">
@@ -463,8 +489,6 @@
       <item path="Inc/stm32l1xx_hal_conf.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Inc/stm32l1xx_it.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="Src/adc.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="Src/main.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -503,6 +527,7 @@
           <preprocessorList>
             <Elem>ARM_MATH_CM3</Elem>
             <Elem>STM32L152xE</Elem>
+            <Elem>USE_FULL_ASSERT</Elem>
             <Elem>USE_HAL_DRIVER</Elem>
           </preprocessorList>
           <useLinkerLibraries>false</useLinkerLibraries>
@@ -783,8 +808,6 @@
             tool="0"
             flavor2="0">
       </item>
-      <item path="Inc/adc.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="Inc/main.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Inc/meters/electro_meter.h" ex="false" tool="3" flavor2="0">
@@ -796,8 +819,6 @@
       <item path="Inc/stm32l1xx_hal_conf.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Inc/stm32l1xx_it.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="Src/adc.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="Src/main.c" ex="false" tool="0" flavor2="3">
       </item>

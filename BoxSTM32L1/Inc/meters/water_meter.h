@@ -17,9 +17,19 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include "adc.h"
+#include "stm32l1xx_hal.h"
+#include "stm32l1xx_hal_adc.h"
 
-	void WaterMeter_Init(ADC_HandleTypeDef * hadc,uint32_t adcChannel);
+	typedef enum {
+		WaterMete_OK = 0,
+		/*Нет ответа от счётчика*/
+		WaterMete_ERR_NOT_CONNECT = 1,
+	} WaterMeteError;
+
+	void WaterMeter_Init(ADC_HandleTypeDef * hadc, uint32_t adcChannel);
+	void WaterMeter_subValue(uint32_t delta);
+	uint32_t WaterMeter_getValue();
+	WaterMeteError WaterMeter_getError();
 
 #ifdef __cplusplus
 }

@@ -54,7 +54,6 @@ OBJECTFILES= \
 	${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_tim.o \
 	${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_tim_ex.o \
 	${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_uart.o \
-	${OBJECTDIR}/Src/adc.o \
 	${OBJECTDIR}/Src/main.o \
 	${OBJECTDIR}/Src/meters/electro_meter.o \
 	${OBJECTDIR}/Src/meters/water_meter.o \
@@ -183,11 +182,6 @@ ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_uart.o: Drivers/STM3
 	${MKDIR} -p ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src
 	${RM} "$@.d"
 	$(COMPILE.c) -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -std=c99 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_uart.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_uart.c
-
-${OBJECTDIR}/Src/adc.o: Src/adc.c nbproject/Makefile-${CND_CONF}.mk
-	${MKDIR} -p ${OBJECTDIR}/Src
-	${RM} "$@.d"
-	$(COMPILE.c) -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -std=c99 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Src/adc.o Src/adc.c
 
 ${OBJECTDIR}/Src/main.o: Src/main.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/Src
