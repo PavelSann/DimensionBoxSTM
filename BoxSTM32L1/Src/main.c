@@ -51,8 +51,6 @@ TIM_HandleTypeDef htim2;
 UART_HandleTypeDef huart4;
 UART_HandleTypeDef huart5;
 UART_HandleTypeDef huart2;
-DMA_HandleTypeDef hdma_uart4_rx;
-DMA_HandleTypeDef hdma_uart4_tx;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
@@ -63,7 +61,6 @@ static volatile uint8_t readMeters = 0;
 void SystemClock_Config(void);
 void Error_Handler(void);
 static void MX_GPIO_Init(void);
-static void MX_DMA_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_UART4_Init(void);
 static void MX_USART2_UART_Init(void);
@@ -97,7 +94,6 @@ int main(void) {
 
 	/* Initialize all configured peripherals */
 	MX_GPIO_Init();
-	MX_DMA_Init();
 	MX_TIM2_Init();
 	MX_UART4_Init();
 	MX_USART2_UART_Init();
@@ -127,8 +123,9 @@ int main(void) {
 		if (readMeters == 1) {
 			LOG("Read...");
 			HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_SET);
+			uint32_t waterValue = 0;
 			if (!WaterMeter_getError()) {
-				uint32_t waterValue = WaterMeter_getValue();
+				waterValue = WaterMeter_getValue();
 				LOG("Water value: %d ", waterValue);
 			} else {
 				LOG("Water meter not connect");
@@ -142,6 +139,13 @@ int main(void) {
 			}
 
 			HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_RESET);
+			TRANS_DATA_METERS meters = {
+				values.tariff1, values.tariff2, values.tariff3, values.tariff4,
+				waterValue
+			};
+
+			TRANS_MeterSend(&meters);
+
 			readMeters = 0;
 		}
 		__WFI;
@@ -168,8 +172,8 @@ void SystemClock_Config(void) {
 	RCC_OscInitStruct.HSICalibrationValue = 16;
 	RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
 	RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-	RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL6;
-	RCC_OscInitStruct.PLL.PLLDIV = RCC_PLL_DIV3;
+	RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL4;
+	RCC_OscInitStruct.PLL.PLLDIV = RCC_PLL_DIV2;
 	if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
 		Error_Handler();
 	}
@@ -327,23 +331,6 @@ static void MX_USART2_UART_Init(void) {
 
 }
 
-/** 
- * Enable DMA controller clock
- */
-static void MX_DMA_Init(void) {
-	/* DMA controller clock enable */
-	__HAL_RCC_DMA2_CLK_ENABLE();
-
-	/* DMA interrupt init */
-	/* DMA2_Channel3_IRQn interrupt configuration */
-	HAL_NVIC_SetPriority(DMA2_Channel3_IRQn, 0, 0);
-	HAL_NVIC_EnableIRQ(DMA2_Channel3_IRQn);
-	/* DMA2_Channel5_IRQn interrupt configuration */
-	HAL_NVIC_SetPriority(DMA2_Channel5_IRQn, 0, 0);
-	HAL_NVIC_EnableIRQ(DMA2_Channel5_IRQn);
-
-}
-
 /** Configure pins as 
  * Analog
  * Input
@@ -394,7 +381,7 @@ static void MX_GPIO_Init(void) {
 /* USER CODE BEGIN 4 */
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
-	TRANS_OnReceiveCallback(huart);
+	TRANS_UART_TxCpltCallback(huart);
 
 }
 

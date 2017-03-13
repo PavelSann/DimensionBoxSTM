@@ -101,7 +101,7 @@
         </logicalFolder>
       </logicalFolder>
       <logicalFolder name="Library" displayName="Library" projectFiles="true">
-        <itemPath>../Library/sp1ml.h</itemPath>
+        <itemPath>../Library/transceiver.h</itemPath>
         <itemPath>../Library/xprint.h</itemPath>
         <itemPath>../Library/xprintf.h</itemPath>
       </logicalFolder>
@@ -178,9 +178,9 @@
           <commandLine>-mcpu=cortex-m3 -mthumb -mfloat-abi=soft -specs=nosys.specs -specs=nano.specs -TSTM32L152RETx_FLASH.ld -Wl,-Map=output.map -Wl,--gc-sections -lm</commandLine>
         </linkerTool>
       </compileType>
-      <item path="../Library/sp1ml.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="../Library/transceiver.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../Library/transceiver.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../Library/xprint.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -481,9 +481,9 @@
           <commandLine>-mcpu=cortex-m3 -mthumb -mfloat-abi=soft -specs=nosys.specs -specs=nano.specs -TSTM32L152RETx_FLASH.ld -Wl,-Map=output.map -Wl,--gc-sections -lm</commandLine>
         </linkerTool>
       </compileType>
-      <item path="../Library/sp1ml.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="../Library/transceiver.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../Library/transceiver.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../Library/xprint.c" ex="false" tool="0" flavor2="0">
       </item>

@@ -100,15 +100,15 @@ int main(void) {
 	MX_USART2_UART_Init();
 
 	/* USER CODE BEGIN 2 */
-	//запускаем таймер 1
-	HAL_TIM_Base_Start_IT(&htim2);
-	TRANS_Init(&huart4);
-	TCP_Init(&huart5);
 #if X_PRINT_LOG
 	//	xprint_init_SWO();
 	xprint_init_UART(&huart2);
 	LOG("Start Gate DEVID:0x%x REVID:0x%x HAL:0x%x", HAL_GetDEVID(), HAL_GetREVID(), HAL_GetHalVersion());
 #endif
+	//запускаем таймер 1
+	HAL_TIM_Base_Start_IT(&htim2);
+	TRANS_Init(&huart4);
+	TCP_Init(&huart5);
 
 	/* USER CODE END 2 */
 
@@ -325,8 +325,7 @@ static void MX_GPIO_Init(void) {
 /* USER CODE BEGIN 4 */
 
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef* huart) {
-
-
+	TRANS_UART_TxCpltCallback(huart);
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
@@ -338,32 +337,46 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
-	TRANS_OnReceiveCallback(huart);
+	TRANS_UART_TxCpltCallback(huart);
 }
 
 void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
-	xprintln("HAL_UART_ErrorCallback");
 	uint32_t uartErrorCode = HAL_UART_GetError(huart);
-	xprintf("HAL_UART_ErrorCode %x\n", uartErrorCode);
+	xprintf("HAL UART Error Code:%x\n", uartErrorCode);
+	// see HAL_UART_ERROR_
 }
 
-void TRANS_OnPing(uint8_t data[], uint16_t size) {
-	xprintln("OnPing");
-	HAL_GPIO_TogglePin(LedGreen_GPIO_Port, LedGreen_Pin);
+void TRANS_OnReceivePackage(TRANS_PACKAGE *pPackage){
+	LOG("ReceivePackage: type:%d source:0x%x target:0x%x", pPackage->type, pPackage->sourceAddress, pPackage->targetAddress);
+	if (pPackage->type == TRANS_TYPE_METERS) {
+		TRANS_DATA_METERS *pMeters = &pPackage->data.meters;
+		LOG("Meters:\n"
+				"	value0:%d\n"
+				"	value1:%d\n"
+				"	value2:%d\n"
+				"	value3:%d\n"
+				"	value4:%d\n"
+				"	value5:%d\n"
+				"	value6:%d\n"
+				"	value7:%d\n",
+				pMeters->value0,
+				pMeters->value1,
+				pMeters->value2,
+				pMeters->value3,
+				pMeters->value4,
+				pMeters->value5,
+				pMeters->value6,
+				pMeters->value7);
+	}else{
+		LOG("Invalid type %d",pPackage->type);
+	}
 }
 //
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 	if (GPIO_Pin == ButtonBlue_Pin) {
-		TRANS_Ping();
-		//		if (enabledPing) {
-		//			enabledPing = 0;
-		//			HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_RESET);
-		//		} else {
-		//			enabledPing = 1;
-		//			HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_SET);
-		//		}
+
 	}
 }
 
