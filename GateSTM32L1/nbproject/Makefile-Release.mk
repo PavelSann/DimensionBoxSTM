@@ -35,7 +35,7 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
-	${OBJECTDIR}/_ext/8f63f4c/sp1ml.o \
+	${OBJECTDIR}/_ext/8f63f4c/transceiver.o \
 	${OBJECTDIR}/_ext/8f63f4c/xprint.o \
 	${OBJECTDIR}/_ext/8f63f4c/xprintf.o \
 	${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal.o \
@@ -85,10 +85,10 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/stm32l1.exe: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	arm-none-eabi-gcc -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/stm32l1 ${OBJECTFILES} ${LDLIBSOPTIONS} -mcpu=cortex-m3 -mthumb -mfloat-abi=soft -specs=nosys.specs -specs=nano.specs -TSTM32L152RETx_FLASH.ld -Wl,-Map=output.map -Wl,--gc-sections -lm
 
-${OBJECTDIR}/_ext/8f63f4c/sp1ml.o: ../Library/sp1ml.c nbproject/Makefile-${CND_CONF}.mk
+${OBJECTDIR}/_ext/8f63f4c/transceiver.o: ../Library/transceiver.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/_ext/8f63f4c
 	${RM} "$@.d"
-	$(COMPILE.c) -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -std=c99 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/8f63f4c/sp1ml.o ../Library/sp1ml.c
+	$(COMPILE.c) -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -std=c99 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/8f63f4c/transceiver.o ../Library/transceiver.c
 
 ${OBJECTDIR}/_ext/8f63f4c/xprint.o: ../Library/xprint.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/_ext/8f63f4c

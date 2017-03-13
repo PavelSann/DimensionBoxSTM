@@ -20,10 +20,17 @@ extern "C" {
 #include "stm32l1xx_hal.h"
 #include "stm32l1xx_hal_uart.h"
 
-	void SP1ML_Init(UART_HandleTypeDef* UARTHandle);
-	void SP1ML_Ping();
-	void SP1ML_OnReceiveCallback(UART_HandleTypeDef* huart);
-	void SP1ML_OnPing(uint8_t data[],uint16_t size);
+	typedef struct {
+		uint32_t magicMark; //4byte
+		uint32_t sign; //4byte
+		uint32_t dataSize; //4byte
+		DATA *data;
+	} RADIO_PACKAGE;
+
+	void TRANS_Init(UART_HandleTypeDef* UARTHandle);
+	void TRANS_Ping();
+	void TRANS_OnReceiveCallback(UART_HandleTypeDef* huart);
+	void TRANS_OnPing(uint8_t data[], uint16_t size);
 
 #ifdef __cplusplus
 }

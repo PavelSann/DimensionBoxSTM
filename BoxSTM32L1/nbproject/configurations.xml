@@ -109,7 +109,7 @@
       </logicalFolder>
       <logicalFolder name="Library" displayName="Library" projectFiles="true">
         <itemPath>../Library/atomic.h</itemPath>
-        <itemPath>../Library/sp1ml.h</itemPath>
+        <itemPath>../Library/sp1ml_box.h</itemPath>
         <itemPath>../Library/xprint.h</itemPath>
         <itemPath>../Library/xprintf.h</itemPath>
       </logicalFolder>
@@ -222,7 +222,7 @@
       </item>
       <item path="../Library/sp1ml.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="../Library/sp1ml.h" ex="false" tool="3" flavor2="0">
+      <item path="../Library/sp1ml_box.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../Library/xprint.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -552,7 +552,7 @@
       </item>
       <item path="../Library/sp1ml.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="../Library/sp1ml.h" ex="false" tool="3" flavor2="0">
+      <item path="../Library/sp1ml_box.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../Library/xprint.c" ex="false" tool="0" flavor2="0">
       </item>

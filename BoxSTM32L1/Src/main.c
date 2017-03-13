@@ -37,7 +37,7 @@
 /* USER CODE BEGIN Includes */
 #include "processor.h"
 #include "stm32l1xx_hal_uart.h"
-#include "sp1ml.h"
+#include "transceiver.h"
 #include "xprint.h"
 #include "meters/water_meter.h"
 #include "meters/electro_meter.h"
@@ -112,7 +112,7 @@ int main(void) {
 #endif
 	//запускаем таймер 2
 	HAL_TIM_Base_Start_IT(&htim2);
-	SP1ML_Init(&huart4);
+	TRANS_Init(&huart4);
 	ElectroMeter_Init(&huart5, MAX484RD_GPIO_Port, MAX484RD_Pin);
 	WaterMeter_Init(&hadc, ADC_CHANNEL_14);
 
@@ -394,7 +394,7 @@ static void MX_GPIO_Init(void) {
 /* USER CODE BEGIN 4 */
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
-	SP1ML_OnReceiveCallback(huart);
+	TRANS_OnReceiveCallback(huart);
 
 }
 
@@ -409,9 +409,9 @@ void HAL_ADC_ErrorCallback(ADC_HandleTypeDef* hadc) {
 	LOGERR("ADC %x Error %x", hadc->Instance, adcErrorCode);
 }
 
-void SP1ML_OnPing(uint8_t data[], uint16_t size) {
+void TRANS_OnPing(uint8_t data[], uint16_t size) {
 	HAL_GPIO_TogglePin(LedGreen_GPIO_Port, LedGreen_Pin);
-	SP1ML_Ping();
+	TRANS_Ping();
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
