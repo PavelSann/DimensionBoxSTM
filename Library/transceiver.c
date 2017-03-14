@@ -4,6 +4,7 @@
 #include "xprint.h"
 #include "assert.h"
 
+#define CONFIG_SP1ML 0
 #define SEND_TIMEOUT 500
 #define TRANS_PACKAGE_MAGIC 0xCAFE
 #define TRANS_PACKAGE_SIGN 0xBABEDEFE
@@ -12,11 +13,32 @@
 static_assert(sizeof (TRANS_PACKAGE) < 96, "Max PAYLOAD_SIZE ST1ML 96");
 static_assert(sizeof (TRANS_PACKAGE) == ST1ML_PAYLOAD_SIZE, "sizeof(TRANS_PACKAGE) != ST1ML_PAYLOAD_SIZE");
 
+/*Струтура для преобразования TRANS_PACKAGE в байты и обратно	*/
+typedef struct {
+
+	/*Данные в разном представлении*/
+	union {
+		/*Данные в виде пакета TRANS_PACKAGE*/
+		TRANS_PACKAGE *package;
+		/*Данные в виде массива байт*/
+		uint8_t *bytes;
+	} data;
+	/*Код ошибки, если не 0, значит данные кривые*/
+	uint8_t error;
+} TRANS_PACKAGE_BYTES;
+
 
 static UART_HandleTypeDef *hUART;
 static uint8_t packageReceive[TRANS_PACKAGE_SIZE];
 
-static TRANS_PACKAGE newPackage(SOURCE_ADDRESS sourceAddress, TARGET_ADDRESS targetAddress, TRANS_PACKAGE_TYPE type) {
+static void sendBytes(uint8_t *bytes, int len) {
+	HAL_StatusTypeDef status = HAL_UART_Transmit(hUART, bytes, len, SEND_TIMEOUT);
+	if (status != HAL_OK) {
+		LOGERR("Not transmit bytes. status=0x%x", status);
+	}
+}
+
+TRANS_PACKAGE TRANS_newPackage(TRANS_ADDRESS sourceAddress, TRANS_ADDRESS targetAddress, TRANS_PACKAGE_TYPE type) {
 	TRANS_PACKAGE package = {0};
 	package.magicMark = TRANS_PACKAGE_MAGIC;
 	package.sign = TRANS_PACKAGE_SIGN;
@@ -27,38 +49,36 @@ static TRANS_PACKAGE newPackage(SOURCE_ADDRESS sourceAddress, TARGET_ADDRESS tar
 	return package;
 }
 
-static void sendBytes(uint8_t *bytes, int len) {
-	HAL_StatusTypeDef status = HAL_UART_Transmit(hUART, bytes, len, SEND_TIMEOUT);
-	if (status != HAL_OK) {
-		LOGERR("Not transmit bytes. status=0x%x", status);
+uint8_t TRANS_toPackage(uint8_t *bytes, TRANS_PACKAGE **pPackage) {
+	TRANS_PACKAGE_BYTES p2bytes;
+	p2bytes.data.bytes = bytes;
+	uint8_t error = 0;
+
+	if (p2bytes.data.package->magicMark != TRANS_PACKAGE_MAGIC) {
+		error = 1;
+	} else if (p2bytes.data.package->sign != TRANS_PACKAGE_SIGN) {
+		error = 2;
 	}
+
+	*pPackage = p2bytes.data.package;
+	return error;
+}
+
+uint8_t *TRANS_toByte(TRANS_PACKAGE *pPackage) {
+	TRANS_PACKAGE_BYTES bytes;
+	bytes.data.package = pPackage;
+	return bytes.data.bytes;
 }
 
 static void sendPackage(TRANS_PACKAGE *pPackage) {
-	TRANS_PACKAGE_BYTES bytes;
-	bytes.data.package = pPackage;
-	//	uint8_t *bytes = (uint8_t *) pPackage;
-	//	offsetof
-	LOGMEM(bytes.data.bytes, TRANS_PACKAGE_SIZE);
-	sendBytes(bytes.data.bytes, TRANS_PACKAGE_SIZE);
-}
-
-static TRANS_PACKAGE_BYTES readPackage(uint8_t *bytes) {
-	TRANS_PACKAGE_BYTES p2bytes;
-	p2bytes.data.bytes = bytes;
-	LOGMEM(p2bytes.data.bytes, TRANS_PACKAGE_SIZE);
-
-	if (p2bytes.data.package->magicMark == TRANS_PACKAGE_MAGIC
-			&& p2bytes.data.package->sign == TRANS_PACKAGE_SIGN) {
-		p2bytes.error = 0;
-	} else {
-		p2bytes.error = 1;
-	}
-	return p2bytes;
+	uint8_t *bytes = TRANS_toByte(pPackage);
+	LOGMEM(bytes, TRANS_PACKAGE_SIZE);
+	sendBytes(bytes, TRANS_PACKAGE_SIZE);
 }
 
 
-#define CONFIG_ARR_SIZE 9
+#if CONFIG_SP1ML
+	#define CONFIG_ARR_SIZE 9
 static char *(config[CONFIG_ARR_SIZE]) = {
 	"+++",
 	"ATR\r\n",
@@ -94,11 +114,13 @@ static void config_SP1ML() {
 	//останавливаем HAL_UART_Receive_IT
 	stopReceiveIT(hUART);
 }
+#endif
 
 void TRANS_Init(UART_HandleTypeDef *UARTHandle) {
 	hUART = UARTHandle;
-
+#if CONFIG_SP1ML
 	config_SP1ML();
+#endif
 
 	//	HAL_UART_Receive_IT(hUART, packageReceive, PACKAGE_SIZE);
 	HAL_StatusTypeDef status = HAL_UART_Receive_IT(hUART, packageReceive, TRANS_PACKAGE_SIZE);
@@ -110,7 +132,7 @@ void TRANS_Init(UART_HandleTypeDef *UARTHandle) {
 }
 
 void TRANS_MeterSend(TRANS_DATA_METERS *dataMeters) {
-	TRANS_PACKAGE p = newPackage(1, 2, TRANS_TYPE_METERS);
+	TRANS_PACKAGE p = TRANS_newPackage(1, 2, TRANS_TYPE_METERS);
 	p.data.meters = *dataMeters;
 	sendPackage(&p);
 }
@@ -123,18 +145,20 @@ void TRANS_UART_TxCpltCallback(UART_HandleTypeDef* huart) {
 	if (huart->Instance != hUART->Instance) {
 		return;
 	}
-	LOG("Receive data size:%d", huart->RxXferSize);
-	TRANS_PACKAGE_BYTES pBytes = readPackage(packageReceive);
-	if (pBytes.error) {
-		LOG("Receive data error");
+
+	LOG("TRANS: Receive data size:%d", huart->RxXferSize);
+	TRANS_PACKAGE *pPackage = NULL;
+	uint8_t error = TRANS_toPackage(packageReceive, &pPackage);
+	if (error) {
+		LOGERR("Receive data error %d", error);
 	} else {
-		TRANS_PACKAGE *pPackage = pBytes.data.package;
+		LOGMEM(pPackage, TRANS_PACKAGE_SIZE);
 		TRANS_OnReceivePackage(pPackage);
 	}
 
 
 	HAL_StatusTypeDef status = HAL_UART_Receive_IT(hUART, packageReceive, TRANS_PACKAGE_SIZE);
-	if(status!=HAL_OK){
-		LOGERR("Not start Receive_IT status:%d",status);
+	if (status != HAL_OK) {
+		LOGERR("Not start Receive_IT status:%d", status);
 	}
 }
