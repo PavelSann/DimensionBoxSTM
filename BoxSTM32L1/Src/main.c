@@ -73,8 +73,6 @@ static void MX_ADC_Init(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-uint32_t ADC1ConvertedValues[1];
-__IO uint32_t counter;
 
 /* USER CODE END 0 */
 
@@ -259,9 +257,9 @@ static void MX_TIM2_Init(void) {
 	TIM_MasterConfigTypeDef sMasterConfig;
 
 	htim2.Instance = TIM2;
-	htim2.Init.Prescaler = 16000;
+	htim2.Init.Prescaler = 32000;
 	htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-	htim2.Init.Period = 10000;
+	htim2.Init.Period = 5000;
 	htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
 	if (HAL_TIM_Base_Init(&htim2) != HAL_OK) {
 		Error_Handler();
@@ -396,13 +394,7 @@ void HAL_ADC_ErrorCallback(ADC_HandleTypeDef* hadc) {
 	LOGERR("ADC %x Error %x", hadc->Instance, adcErrorCode);
 }
 
-void TRANS_OnPing(uint8_t data[], uint16_t size) {
-	HAL_GPIO_TogglePin(LedGreen_GPIO_Port, LedGreen_Pin);
-	TRANS_Ping();
-}
-
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-	//	LOG("OnTimer");
 	readMeters = 1;
 }
 //
