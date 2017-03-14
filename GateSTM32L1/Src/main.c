@@ -43,13 +43,9 @@
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
-TIM_HandleTypeDef htim2;
-
 UART_HandleTypeDef huart4;
 UART_HandleTypeDef huart5;
 UART_HandleTypeDef huart2;
-DMA_HandleTypeDef hdma_uart4_rx;
-DMA_HandleTypeDef hdma_uart4_tx;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
@@ -60,8 +56,6 @@ DMA_HandleTypeDef hdma_uart4_tx;
 void SystemClock_Config(void);
 void Error_Handler(void);
 static void MX_GPIO_Init(void);
-static void MX_DMA_Init(void);
-static void MX_TIM2_Init(void);
 static void MX_UART4_Init(void);
 static void MX_UART5_Init(void);
 static void MX_USART2_UART_Init(void);
@@ -72,8 +66,6 @@ static void MX_USART2_UART_Init(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-
-static uint8_t enabledPing = 0;
 
 /* USER CODE END 0 */
 
@@ -93,8 +85,6 @@ int main(void) {
 
 	/* Initialize all configured peripherals */
 	MX_GPIO_Init();
-	MX_DMA_Init();
-	MX_TIM2_Init();
 	MX_UART4_Init();
 	MX_UART5_Init();
 	MX_USART2_UART_Init();
@@ -106,7 +96,6 @@ int main(void) {
 	LOG("Start Gate DEVID:0x%x REVID:0x%x HAL:0x%x", HAL_GetDEVID(), HAL_GetREVID(), HAL_GetHalVersion());
 #endif
 	//запускаем таймер 1
-	HAL_TIM_Base_Start_IT(&htim2);
 	TRANS_Init(&huart4);
 	TCP_Init(&huart5);
 
@@ -186,34 +175,6 @@ void SystemClock_Config(void) {
 	HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
 
-/* TIM2 init function */
-static void MX_TIM2_Init(void) {
-
-	TIM_ClockConfigTypeDef sClockSourceConfig;
-	TIM_MasterConfigTypeDef sMasterConfig;
-
-	htim2.Instance = TIM2;
-	htim2.Init.Prescaler = 16000;
-	htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-	htim2.Init.Period = 1000;
-	htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-	if (HAL_TIM_Base_Init(&htim2) != HAL_OK) {
-		Error_Handler();
-	}
-
-	sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-	if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK) {
-		Error_Handler();
-	}
-
-	sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-	if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK) {
-		Error_Handler();
-	}
-
-}
-
 /* UART4 init function */
 static void MX_UART4_Init(void) {
 
@@ -265,23 +226,6 @@ static void MX_USART2_UART_Init(void) {
 
 }
 
-/** 
- * Enable DMA controller clock
- */
-static void MX_DMA_Init(void) {
-	/* DMA controller clock enable */
-	__HAL_RCC_DMA2_CLK_ENABLE();
-
-	/* DMA interrupt init */
-	/* DMA2_Channel3_IRQn interrupt configuration */
-	HAL_NVIC_SetPriority(DMA2_Channel3_IRQn, 0, 0);
-	HAL_NVIC_EnableIRQ(DMA2_Channel3_IRQn);
-	/* DMA2_Channel5_IRQn interrupt configuration */
-	HAL_NVIC_SetPriority(DMA2_Channel5_IRQn, 0, 0);
-	HAL_NVIC_EnableIRQ(DMA2_Channel5_IRQn);
-
-}
-
 /** Configure pins as 
  * Analog
  * Input
@@ -328,16 +272,9 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef* huart) {
 	TRANS_UART_TxCpltCallback(huart);
 }
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-	if (htim->Instance == TIM2) {
-		//		if (enabledPing) {
-		//			SP1ML_Ping();
-		//		}
-	}
-}
-
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
 	TRANS_UART_TxCpltCallback(huart);
+	TCP_UART_TxCpltCallback(huart);
 }
 
 void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
@@ -346,8 +283,8 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
 	// see HAL_UART_ERROR_
 }
 
-void TRANS_OnReceivePackage(TRANS_PACKAGE *pPackage){
-	LOG("ReceivePackage: type:%d source:0x%x target:0x%x", pPackage->type, pPackage->sourceAddress, pPackage->targetAddress);
+void TRANS_OnReceivePackage(TRANS_PACKAGE *pPackage) {
+	LOG("TRANS: ReceivePackage: type:%d source:0x%x target:0x%x", pPackage->type, pPackage->sourceAddress, pPackage->targetAddress);
 	if (pPackage->type == TRANS_TYPE_METERS) {
 		TRANS_DATA_METERS *pMeters = &pPackage->data.meters;
 		LOG("Meters:\n"
@@ -367,11 +304,21 @@ void TRANS_OnReceivePackage(TRANS_PACKAGE *pPackage){
 				pMeters->value5,
 				pMeters->value6,
 				pMeters->value7);
-	}else{
-		LOG("Invalid type %d",pPackage->type);
+	} else {
+		LOG("Invalid type %d", pPackage->type);
 	}
+
+
+	TCP_Status status = TCP_SendTransPackage(pPackage);
+	if (status != TCP_OK) {
+		LOGERR("TCP error %d" + status);
+	}
+
 }
-//
+
+void TCP_OnReceivePackage(TRANS_PACKAGE* pPackage) {
+	LOG("TCP: ReceivePackage: type:%d source:0x%x target:0x%x", pPackage->type, pPackage->sourceAddress, pPackage->targetAddress);
+}
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
