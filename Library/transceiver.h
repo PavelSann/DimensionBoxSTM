@@ -64,14 +64,19 @@ extern "C" {
 	} TRANS_PACKAGE;
 
 #define TRANS_PACKAGE_SIZE sizeof(TRANS_PACKAGE)
+
+	/**
+	 * Инициализация модуля связи TRANS
+	 * @param UARTHandle
+	 */
+	void TRANS_Init(UART_HandleTypeDef* UARTHandle, TRANS_ADDRESS address);
 	/**
 	 * Создаёт новый пакет, заполняет основные поля
-	 * @param sourceAddress
 	 * @param targetAddress
 	 * @param type TRANS_PACKAGE_TYPE
 	 * @return
 	 */
-	TRANS_PACKAGE TRANS_newPackage(TRANS_ADDRESS sourceAddress, TRANS_ADDRESS targetAddress, TRANS_PACKAGE_TYPE type);
+	TRANS_PACKAGE TRANS_newPackage(TRANS_ADDRESS targetAddress, TRANS_PACKAGE_TYPE type);
 
 	/**
 	 * Преобразует набор байт в TRANS_PACKAGE, заполняет указатель pPackage
@@ -87,15 +92,16 @@ extern "C" {
 	 */
 	uint8_t *TRANS_toByte(TRANS_PACKAGE *pPackage);
 	/**
-	 * Инициализация модуля связи TRANS
-	 * @param UARTHandle
+	 * Отправляет произвольный пакет
+	 * @param pPackage
 	 */
-	void TRANS_Init(UART_HandleTypeDef* UARTHandle);
+	void TRANS_SendPackage(TRANS_PACKAGE *pPackage);
 	/**
 	 * Отправка показаний с счётчиков
+	 * @param targetAddress
 	 * @param dataMeters
 	 */
-	void TRANS_MeterSend(TRANS_DATA_METERS *dataMeters);
+	void TRANS_SendDataMeters(TRANS_ADDRESS targetAddress, TRANS_DATA_METERS *dataMeters);
 	/**
 	 * Обработчик для  HAL_UART_TxCpltCallback
 	 * для приёма пакетов, нужно вызывать в HAL_UART_TxCpltCallback

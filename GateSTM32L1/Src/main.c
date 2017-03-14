@@ -37,6 +37,7 @@
 /* USER CODE BEGIN Includes */
 #include "processor.h"
 #include "stm32l1xx_hal_uart.h"
+#include "config.h"
 #include "tcp_connector.h"
 #include "transceiver.h"
 #include "xprint.h"
@@ -93,10 +94,10 @@ int main(void) {
 #if X_PRINT_LOG
 	//	xprint_init_SWO();
 	xprint_init_UART(&huart2);
-	LOG("Start Gate DEVID:0x%x REVID:0x%x HAL:0x%x", HAL_GetDEVID(), HAL_GetREVID(), HAL_GetHalVersion());
+	LOG("Start Gate ID: 0x%x DEVID:0x%x REVID:0x%x HAL:0x%x", CONFIG_ID, HAL_GetDEVID(), HAL_GetREVID(), HAL_GetHalVersion());
 #endif
 	//запускаем таймер 1
-	TRANS_Init(&huart4);
+	TRANS_Init(&huart4, CONFIG_LOCAL_ADDRESS);
 	TCP_Init(&huart5);
 
 	/* USER CODE END 2 */
@@ -279,35 +280,41 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
 
 void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
 	uint32_t uartErrorCode = HAL_UART_GetError(huart);
-	xprintf("HAL UART Error Code:%x\n", uartErrorCode);
+	LOGERR("UART %x Error %x", huart->Instance, uartErrorCode);
+	HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin,GPIO_PIN_SET);
+	__HAL_UART_CLEAR_OREFLAG(huart);
+	//UART4 0x40004C00 SP1ML
+	//UART5 0x40005000 TCP
 	// see HAL_UART_ERROR_
+
 }
 
 void TRANS_OnReceivePackage(TRANS_PACKAGE *pPackage) {
 	LOG("TRANS: ReceivePackage: type:%d source:0x%x target:0x%x", pPackage->type, pPackage->sourceAddress, pPackage->targetAddress);
-	if (pPackage->type == TRANS_TYPE_METERS) {
-		TRANS_DATA_METERS *pMeters = &pPackage->data.meters;
-		LOG("Meters:\n"
-				"	value0:%d\n"
-				"	value1:%d\n"
-				"	value2:%d\n"
-				"	value3:%d\n"
-				"	value4:%d\n"
-				"	value5:%d\n"
-				"	value6:%d\n"
-				"	value7:%d\n",
-				pMeters->value0,
-				pMeters->value1,
-				pMeters->value2,
-				pMeters->value3,
-				pMeters->value4,
-				pMeters->value5,
-				pMeters->value6,
-				pMeters->value7);
-	} else {
-		LOG("Invalid type %d", pPackage->type);
-	}
-
+	//
+	//	if (pPackage->type == TRANS_TYPE_METERS) {
+	//		TRANS_DATA_METERS *pMeters = &pPackage->data.meters;
+	//		LOG("Meters:\n"
+	//				"	value0:%d\n"
+	//				"	value1:%d\n"
+	//				"	value2:%d\n"
+	//				"	value3:%d\n"
+	//				"	value4:%d\n"
+	//				"	value5:%d\n"
+	//				"	value6:%d\n"
+	//				"	value7:%d\n",
+	//				pMeters->value0,
+	//				pMeters->value1,
+	//				pMeters->value2,
+	//				pMeters->value3,
+	//				pMeters->value4,
+	//				pMeters->value5,
+	//				pMeters->value6,
+	//				pMeters->value7);
+	//	} else {
+	//		LOG("Invalid type %d", pPackage->type);
+	//	}
+	//
 
 	TCP_Status status = TCP_SendTransPackage(pPackage);
 	if (status != TCP_OK) {
@@ -318,6 +325,7 @@ void TRANS_OnReceivePackage(TRANS_PACKAGE *pPackage) {
 
 void TCP_OnReceivePackage(TRANS_PACKAGE* pPackage) {
 	LOG("TCP: ReceivePackage: type:%d source:0x%x target:0x%x", pPackage->type, pPackage->sourceAddress, pPackage->targetAddress);
+	TRANS_SendPackage(pPackage);
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {

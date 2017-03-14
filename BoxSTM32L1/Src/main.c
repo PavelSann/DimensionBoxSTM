@@ -37,6 +37,7 @@
 /* USER CODE BEGIN Includes */
 #include "processor.h"
 #include "stm32l1xx_hal_uart.h"
+#include "config.h"
 #include "transceiver.h"
 #include "xprint.h"
 #include "meters/water_meter.h"
@@ -102,11 +103,11 @@ int main(void) {
 #if X_PRINT_LOG
 	//	xprint_init_SWO();
 	xprint_init_UART(&huart2);
-	LOG("Start Box  DEVID:0x%x REVID:0x%x HAL:0x%x", HAL_GetDEVID(), HAL_GetREVID(), HAL_GetHalVersion());
+	LOG("Start Box ID:0x%x DEVID:0x%x REVID:0x%x HAL:0x%x", CONFIG_ID, HAL_GetDEVID(), HAL_GetREVID(), HAL_GetHalVersion());
 #endif
 	//запускаем таймер 2
 	HAL_TIM_Base_Start_IT(&htim2);
-	TRANS_Init(&huart4);
+	TRANS_Init(&huart4, CONFIG_LOCAL_ADDRESS);
 	ElectroMeter_Init(&huart5, MAX484RD_GPIO_Port, MAX484RD_Pin);
 	WaterMeter_Init(&hadc, ADC_CHANNEL_14);
 
@@ -119,34 +120,33 @@ int main(void) {
 
 		/* USER CODE BEGIN 3 */
 		if (readMeters == 1) {
-			LOG("Read...");
-			HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_SET);
+//			HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_SET);
 			uint32_t waterValue = 0;
 			if (!WaterMeter_getError()) {
 				waterValue = WaterMeter_getValue();
-				LOG("Water value: %d ", waterValue);
+				//LOG("Water value: %d ", waterValue);
 			} else {
 				LOG("Water meter not connect");
 			}
 
 			ElectroMeterValues values = ElectroMeter_GetValues();
 			if (!values.error) {
-				LOG("Electro values: t1=%d t2=%d t3=%d t4=%d ", values.tariff1, values.tariff2, values.tariff3, values.tariff4);
+				//LOG("Electro values: t1=%d t2=%d t3=%d t4=%d ", values.tariff1, values.tariff2, values.tariff3, values.tariff4);
 			} else {
 				LOG("Electro meter not connect");
 			}
 
-			HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_RESET);
 			TRANS_DATA_METERS meters = {
 				values.tariff1, values.tariff2, values.tariff3, values.tariff4,
 				waterValue
 			};
 
-			TRANS_MeterSend(&meters);
+			TRANS_SendDataMeters(CONFIG_GATE_ADDRESS, &meters);
 
+//			HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_RESET);
 			readMeters = 0;
 		}
-		__WFI;
+//		__WFI;
 	}
 	/* USER CODE END 3 */
 
@@ -396,6 +396,17 @@ void HAL_ADC_ErrorCallback(ADC_HandleTypeDef* hadc) {
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	readMeters = 1;
+}
+
+void TRANS_OnReceivePackage(TRANS_PACKAGE* pPackage) {
+//	LOG("OnReceivePackage: source:0x%x type:%d", pPackage->sourceAddress, pPackage->type);
+	if (pPackage->type == TRANS_TYPE_COMMAND) {
+		uint32_t command = pPackage->data.command.command;
+		if (command == 1) {
+			LOG("Close the valve");
+			HAL_GPIO_TogglePin(LedGreen_GPIO_Port, LedGreen_Pin);
+		}
+	}
 }
 //
 //void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {

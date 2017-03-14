@@ -105,6 +105,7 @@
         <itemPath>../Library/xprint.h</itemPath>
         <itemPath>../Library/xprintf.h</itemPath>
       </logicalFolder>
+      <itemPath>Inc/config.h</itemPath>
       <itemPath>Inc/main.h</itemPath>
       <itemPath>Inc/processor.h</itemPath>
       <itemPath>Inc/stm32l1xx_hal_conf.h</itemPath>
@@ -416,6 +417,8 @@
             tool="0"
             flavor2="0">
       </item>
+      <item path="Inc/config.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="Inc/main.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Inc/processor.h" ex="false" tool="3" flavor2="0">
@@ -718,6 +721,8 @@
             ex="false"
             tool="0"
             flavor2="0">
+      </item>
+      <item path="Inc/config.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Inc/main.h" ex="false" tool="3" flavor2="0">
       </item>
