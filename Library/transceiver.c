@@ -13,8 +13,8 @@
 #define TRANS_PACKAGE_END 0xFF
 #define ST1ML_PAYLOAD_SIZE 48
 #define ST1ML_PAYLOAD_SIZE_STR "48"
-static_assert(sizeof (TRANS_PACKAGE) < 96, "Max PAYLOAD_SIZE ST1ML 96");
 static_assert(sizeof (TRANS_PACKAGE) == ST1ML_PAYLOAD_SIZE, "sizeof(TRANS_PACKAGE) != ST1ML_PAYLOAD_SIZE");
+static_assert(sizeof (TRANS_PACKAGE) < 96, "Max PAYLOAD_SIZE ST1ML 96");
 
 /*Струтура для преобразования TRANS_PACKAGE в байты и обратно	*/
 typedef struct {
@@ -51,7 +51,7 @@ static void sendBytes(uint8_t *bytes, int len) {
 static char *(config[CONFIG_ARR_SIZE]) = {
 	"+++",
 	"ATR\r\n",
-//	"ATS02=1000\r\n",
+	//	"ATS02=1000\r\n",
 	"ATS14=1\r\n",
 	"ATS19=1\r\n",
 	"ATS28=" ST1ML_PAYLOAD_SIZE_STR "\r\n", //PAYLOAD_SIZE
