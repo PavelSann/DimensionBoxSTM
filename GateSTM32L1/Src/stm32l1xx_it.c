@@ -34,10 +34,10 @@
 #include "stm32l1xx_hal.h"
 #include "stm32l1xx.h"
 #include "stm32l1xx_it.h"
-#include "xprint.h"
+
 
 /* USER CODE BEGIN 0 */
-
+#include "xprint.h"
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
