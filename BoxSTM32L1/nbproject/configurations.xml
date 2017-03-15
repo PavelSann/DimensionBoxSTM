@@ -35,6 +35,8 @@
         </logicalFolder>
       </logicalFolder>
       <logicalFolder name="Library" displayName="Library" projectFiles="true">
+        <itemPath>../Library/package_queue.c</itemPath>
+        <itemPath>../Library/trans_package.c</itemPath>
         <itemPath>../Library/transceiver.c</itemPath>
         <itemPath>../Library/xprint.c</itemPath>
         <itemPath>../Library/xprintf.c</itemPath>
@@ -109,6 +111,8 @@
       </logicalFolder>
       <logicalFolder name="Library" displayName="Library" projectFiles="true">
         <itemPath>../Library/atomic.h</itemPath>
+        <itemPath>../Library/package_queue.h</itemPath>
+        <itemPath>../Library/trans_package.h</itemPath>
         <itemPath>../Library/transceiver.h</itemPath>
         <itemPath>../Library/xprint.h</itemPath>
         <itemPath>../Library/xprintf.h</itemPath>
@@ -220,6 +224,14 @@
         </linkerTool>
       </compileType>
       <item path="../Library/atomic.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../Library/package_queue.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../Library/package_queue.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../Library/trans_package.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../Library/trans_package.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../Library/transceiver.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -552,6 +564,14 @@
         </linkerTool>
       </compileType>
       <item path="../Library/atomic.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../Library/package_queue.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../Library/package_queue.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../Library/trans_package.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../Library/trans_package.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../Library/transceiver.c" ex="false" tool="0" flavor2="0">
       </item>

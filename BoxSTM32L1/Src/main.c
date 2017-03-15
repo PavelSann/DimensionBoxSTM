@@ -52,6 +52,8 @@ TIM_HandleTypeDef htim2;
 UART_HandleTypeDef huart4;
 UART_HandleTypeDef huart5;
 UART_HandleTypeDef huart2;
+DMA_HandleTypeDef hdma_uart4_rx;
+DMA_HandleTypeDef hdma_uart4_tx;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
@@ -62,6 +64,7 @@ static volatile uint8_t readMeters = 0;
 void SystemClock_Config(void);
 void Error_Handler(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_UART4_Init(void);
 static void MX_USART2_UART_Init(void);
@@ -93,6 +96,7 @@ int main(void) {
 
 	/* Initialize all configured peripherals */
 	MX_GPIO_Init();
+	MX_DMA_Init();
 	MX_TIM2_Init();
 	MX_UART4_Init();
 	MX_USART2_UART_Init();
@@ -119,8 +123,9 @@ int main(void) {
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
+		TRANS_ProcessPackage();
 		if (readMeters == 1) {
-//			HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_SET);
+			//			HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_SET);
 			uint32_t waterValue = 0;
 			if (!WaterMeter_getError()) {
 				waterValue = WaterMeter_getValue();
@@ -143,10 +148,10 @@ int main(void) {
 
 			TRANS_SendDataMeters(CONFIG_GATE_ADDRESS, &meters);
 
-//			HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_RESET);
+			//			HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_RESET);
 			readMeters = 0;
 		}
-//		__WFI;
+		//		__WFI;
 	}
 	/* USER CODE END 3 */
 
@@ -329,6 +334,23 @@ static void MX_USART2_UART_Init(void) {
 
 }
 
+/** 
+ * Enable DMA controller clock
+ */
+static void MX_DMA_Init(void) {
+	/* DMA controller clock enable */
+	__HAL_RCC_DMA2_CLK_ENABLE();
+
+	/* DMA interrupt init */
+	/* DMA2_Channel3_IRQn interrupt configuration */
+	HAL_NVIC_SetPriority(DMA2_Channel3_IRQn, 0, 0);
+	HAL_NVIC_EnableIRQ(DMA2_Channel3_IRQn);
+	/* DMA2_Channel5_IRQn interrupt configuration */
+	HAL_NVIC_SetPriority(DMA2_Channel5_IRQn, 0, 0);
+	HAL_NVIC_EnableIRQ(DMA2_Channel5_IRQn);
+
+}
+
 /** Configure pins as 
  * Analog
  * Input
@@ -379,8 +401,7 @@ static void MX_GPIO_Init(void) {
 /* USER CODE BEGIN 4 */
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
-	TRANS_UART_TxCpltCallback(huart);
-
+	TRANS_UART_RxCpltCallback(huart);
 }
 
 void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
@@ -398,8 +419,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	readMeters = 1;
 }
 
-void TRANS_OnReceivePackage(TRANS_PACKAGE* pPackage) {
-//	LOG("OnReceivePackage: source:0x%x type:%d", pPackage->sourceAddress, pPackage->type);
+void TRANS_OnProcessPackage(TRANS_PACKAGE* pPackage) {
+	//	LOG("OnReceivePackage: source:0x%x type:%d", pPackage->sourceAddress, pPackage->type);
 	if (pPackage->type == TRANS_TYPE_COMMAND) {
 		uint32_t command = pPackage->data.command.command;
 		if (command == 1) {

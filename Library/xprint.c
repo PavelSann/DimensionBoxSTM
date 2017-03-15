@@ -6,7 +6,7 @@ void SWO_xfunc_out(unsigned char c) {
 }
 
 unsigned char SWO_xfunc_in() {
-//	int32_t r = ITM_ReceiveChar();
+	//	int32_t r = ITM_ReceiveChar();
 	LOGERR("Not support in SWO!");
 	return '0';
 }
@@ -38,17 +38,19 @@ void xprintbt(const void* buff, int len) {
 	for (i = 0; i < len; i++) /* Hexdecimal dump */
 		xprintf(" %02X", bp[i]);
 	xputc(' ');
-	xprint(buff,0, len);
+	xprint(buff, 0, len);
 	xputc('\n');
 }
 
 #if X_PRINT_UART
 static UART_HandleTypeDef *hUart;
+	#define UART_XFUNC_OUT_TIMEOUT 10000
+	#define UART_XFUNC_IN_TIMEOUT UINT32_MAX
 
 void UART_xfunc_out(unsigned char ch) {
 	uint8_t c[1];
 	c[0] = ch; // & 0x00FF;
-	HAL_UART_Transmit(hUart, &*c, 1, 10);
+	HAL_UART_Transmit(hUart, &*c, 1, UART_XFUNC_OUT_TIMEOUT);
 }
 
 unsigned char UART_xfunc_in() {

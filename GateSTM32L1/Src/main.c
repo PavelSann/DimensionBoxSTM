@@ -41,12 +41,17 @@
 #include "tcp_connector.h"
 #include "transceiver.h"
 #include "xprint.h"
+#include "package_queue.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
 UART_HandleTypeDef huart4;
 UART_HandleTypeDef huart5;
 UART_HandleTypeDef huart2;
+DMA_HandleTypeDef hdma_uart4_rx;
+DMA_HandleTypeDef hdma_uart4_tx;
+DMA_HandleTypeDef hdma_uart5_rx;
+DMA_HandleTypeDef hdma_uart5_tx;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
@@ -57,6 +62,7 @@ UART_HandleTypeDef huart2;
 void SystemClock_Config(void);
 void Error_Handler(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_UART4_Init(void);
 static void MX_UART5_Init(void);
 static void MX_USART2_UART_Init(void);
@@ -86,6 +92,7 @@ int main(void) {
 
 	/* Initialize all configured peripherals */
 	MX_GPIO_Init();
+	MX_DMA_Init();
 	MX_UART4_Init();
 	MX_UART5_Init();
 	MX_USART2_UART_Init();
@@ -96,7 +103,7 @@ int main(void) {
 	xprint_init_UART(&huart2);
 	LOG("Start Gate ID: 0x%x DEVID:0x%x REVID:0x%x HAL:0x%x", CONFIG_ID, HAL_GetDEVID(), HAL_GetREVID(), HAL_GetHalVersion());
 #endif
-	//запускаем таймер 1
+
 	TRANS_Init(&huart4, CONFIG_LOCAL_ADDRESS);
 	TCP_Init(&huart5);
 
@@ -106,21 +113,11 @@ int main(void) {
 	/* USER CODE BEGIN WHILE */
 	//HAL_StatusTypeDef rStatus = HAL_UART_Receive_IT(&huart4, receiveData, UART_DT_SIZE);
 	while (1) {
+		TCP_ProcessPackage();
+		TRANS_ProcessPackage();
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
-		//		GPIO_PinState buttonState = HAL_GPIO_ReadPin(ButtonBlue_GPIO_Port, ButtonBlue_Pin);
-		//		if (buttonState == GPIO_PIN_RESET) {
-		//			HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_RESET);
-		//
-		//			//HAL_StatusTypeDef tStatus = HAL_UART_Transmit(&huart4, transmitData, UART_DT_SIZE, 1000);
-		//			TCP_Status status = TCP_Ping();
-		//			if (status == TCP_OK) {
-		//				HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_SET);
-		//			}
-		//
-		//		}
-
 
 	}
 	/* USER CODE END 3 */
@@ -227,6 +224,29 @@ static void MX_USART2_UART_Init(void) {
 
 }
 
+/** 
+ * Enable DMA controller clock
+ */
+static void MX_DMA_Init(void) {
+	/* DMA controller clock enable */
+	__HAL_RCC_DMA2_CLK_ENABLE();
+
+	/* DMA interrupt init */
+	/* DMA2_Channel1_IRQn interrupt configuration */
+	HAL_NVIC_SetPriority(DMA2_Channel1_IRQn, 0, 0);
+	HAL_NVIC_EnableIRQ(DMA2_Channel1_IRQn);
+	/* DMA2_Channel2_IRQn interrupt configuration */
+	HAL_NVIC_SetPriority(DMA2_Channel2_IRQn, 0, 0);
+	HAL_NVIC_EnableIRQ(DMA2_Channel2_IRQn);
+	/* DMA2_Channel3_IRQn interrupt configuration */
+	HAL_NVIC_SetPriority(DMA2_Channel3_IRQn, 0, 0);
+	HAL_NVIC_EnableIRQ(DMA2_Channel3_IRQn);
+	/* DMA2_Channel5_IRQn interrupt configuration */
+	HAL_NVIC_SetPriority(DMA2_Channel5_IRQn, 0, 0);
+	HAL_NVIC_EnableIRQ(DMA2_Channel5_IRQn);
+
+}
+
 /** Configure pins as 
  * Analog
  * Input
@@ -269,27 +289,12 @@ static void MX_GPIO_Init(void) {
 
 /* USER CODE BEGIN 4 */
 
-void HAL_UART_TxCpltCallback(UART_HandleTypeDef* huart) {
-	TRANS_UART_TxCpltCallback(huart);
-}
-
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
-	TRANS_UART_TxCpltCallback(huart);
-	TCP_UART_TxCpltCallback(huart);
+	TCP_UART_RxCpltCallback(huart);
+	TRANS_UART_RxCpltCallback(huart);
 }
 
-void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
-	uint32_t uartErrorCode = HAL_UART_GetError(huart);
-	LOGERR("UART %x Error %x", huart->Instance, uartErrorCode);
-	HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin,GPIO_PIN_SET);
-	__HAL_UART_CLEAR_OREFLAG(huart);
-	//UART4 0x40004C00 SP1ML
-	//UART5 0x40005000 TCP
-	// see HAL_UART_ERROR_
-
-}
-
-void TRANS_OnReceivePackage(TRANS_PACKAGE *pPackage) {
+void TRANS_OnProcessPackage(TRANS_PACKAGE *pPackage) {
 	LOG("TRANS: ReceivePackage: type:%d source:0x%x target:0x%x", pPackage->type, pPackage->sourceAddress, pPackage->targetAddress);
 	//
 	//	if (pPackage->type == TRANS_TYPE_METERS) {
@@ -323,18 +328,31 @@ void TRANS_OnReceivePackage(TRANS_PACKAGE *pPackage) {
 
 }
 
-void TCP_OnReceivePackage(TRANS_PACKAGE* pPackage) {
-	LOG("TCP: ReceivePackage: type:%d source:0x%x target:0x%x", pPackage->type, pPackage->sourceAddress, pPackage->targetAddress);
+void TCP_OnProcessPackage(TRANS_PACKAGE* pPackage) {
+	LOG("TCP: ProcessPackage: type:%d source:0x%x target:0x%x", pPackage->type, pPackage->sourceAddress, pPackage->targetAddress);
 	TRANS_SendPackage(pPackage);
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 	if (GPIO_Pin == ButtonBlue_Pin) {
-
+		//		TRANS_PACKAGE package = TRANS_newPackage(0, 0, TRANS_TYPE_METERS);
+		//		TCP_SendTransPackage(&package);
 	}
 }
 
+void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
+	uint32_t uartErrorCode = HAL_UART_GetError(huart);
+	LOGERR("UART %x Error %x", huart->Instance, uartErrorCode);
+	HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_SET);
+	//UART4 0x40004C00 SP1ML
+	//UART5 0x40005000 TCP
+	// see HAL_UART_ERROR_
+}
+
+void TCP_OnError(uint8_t queueOverflow, uint8_t receiveStatusError) {
+	LOGERR("TCP error: queueOverflow:%d, receiveStatusError:%d", queueOverflow, receiveStatusError);
+}
 /* USER CODE END 4 */
 
 /**
@@ -366,6 +384,7 @@ void assert_failed(uint8_t* file, uint32_t line) {
 	/* USER CODE BEGIN 6 */
 	/* User can add his own implementation to report the file name and line number,
 	  ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+	LOG("assert_failed: Wrong parameters value: file %s on line %d\r\n", file, line);
 	/* USER CODE END 6 */
 
 }

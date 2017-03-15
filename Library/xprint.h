@@ -43,9 +43,9 @@ extern "C" {
 
 #if X_PRINT_LOG
 
-#define LOG(args...) xprintf(args),xputc('\n')
+#define LOG(args...) xprintf(args);xputc('\n')
 #define LOGMEM(buff,buffLn) xprintbt(buff,buffLn)
-#define LOGERR(args...)xprintf("%d	%s:%d	",HAL_GetTick(),__FILE__, __LINE__), xprintf(args),xputc('\n')
+#define LOGERR(args...)xprintf("%d	%s:%d	",HAL_GetTick(),__FILE__, __LINE__); xprintf(args);xputc('\n')
 #else
 #define LOG(args...)
 #define LOGMEM(buff,buffLn)

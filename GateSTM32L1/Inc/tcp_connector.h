@@ -20,7 +20,7 @@ extern "C" {
 
 #include "stm32l1xx_hal.h"
 #include "stm32l1xx_hal_uart.h"
-#include "transceiver.h"
+#include "trans_package.h"
 
 	typedef enum {
 		TCP_OK = 0x00,
@@ -29,8 +29,10 @@ extern "C" {
 
 	void TCP_Init(UART_HandleTypeDef *UARTHandle);
 	TCP_Status TCP_SendTransPackage(TRANS_PACKAGE *pPackage);
-	void TCP_OnReceivePackage(TRANS_PACKAGE *pPackage);
-	void TCP_UART_TxCpltCallback(UART_HandleTypeDef* huart);
+	void TCP_OnProcessPackage(TRANS_PACKAGE *pPackage);
+	void TCP_UART_RxCpltCallback(UART_HandleTypeDef* huart);
+	void TCP_ProcessPackage();
+	void TCP_OnError(uint8_t queueOverflow, uint8_t receiveStatusError);
 
 
 #ifdef __cplusplus
