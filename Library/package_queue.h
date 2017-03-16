@@ -47,31 +47,31 @@ extern "C" {
 	 * @param size
 	 * @return
 	 */
-	PACKAGE_QUEUE QUEUE_newQueue(PACKAGE_QUEUE_NODE packetBuffer[], const uint32_t size);
+	PACKAGE_QUEUE QUEUE_NewQueue(PACKAGE_QUEUE_NODE packetBuffer[], const uint32_t size);
 	/**
 	 * Возвращает ноду для использования, если таких нет вернёт NULL
 	 * @param queue
 	 * @return 
 	 */
-	uint8_t *QUEUE_useNode(PACKAGE_QUEUE *queue);
+	uint8_t *QUEUE_UseNode(PACKAGE_QUEUE *queue);
 	/**
 	 * Помечает текущую используемую ноду, как содержащую принятые данные
 	 * @param queue
 	 */
-	void QUEUE_receiveNode(PACKAGE_QUEUE *queue);
+	void QUEUE_ReceiveNode(PACKAGE_QUEUE *queue);
 	/**
 	 * Обрабатывает 1 ноду с принятыми данными, если такая есть
 	 * вызывает callback, потом отмечает ноду как свободную
 	 * @param queue
 	 * @param callback
 	 */
-	void QUEUE_processNode(PACKAGE_QUEUE *queue, void (*callback)(PACKAGE_QUEUE_NODE *));
+	void QUEUE_ProcessNode(PACKAGE_QUEUE *queue, void (*callback)(PACKAGE_QUEUE_NODE *));
 	/**
 	 * Возвращает количество пакетов в очереди
 	 * @param queue
 	 * @return
 	 */
-	uint32_t QUEUE_getReceiveNodeCount(PACKAGE_QUEUE *queue);
+	uint32_t QUEUE_GetReceiveNodeCount(PACKAGE_QUEUE *queue);
 
 
 

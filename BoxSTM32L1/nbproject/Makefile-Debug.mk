@@ -59,7 +59,6 @@ OBJECTFILES= \
 	${OBJECTDIR}/Src/main.o \
 	${OBJECTDIR}/Src/meters/electro_meter.o \
 	${OBJECTDIR}/Src/meters/water_meter.o \
-	${OBJECTDIR}/Src/processor.o \
 	${OBJECTDIR}/Src/stm32l1xx_hal_msp.o \
 	${OBJECTDIR}/Src/stm32l1xx_it.o \
 	${OBJECTDIR}/Src/system_stm32l1xx.o \
@@ -209,11 +208,6 @@ ${OBJECTDIR}/Src/meters/water_meter.o: Src/meters/water_meter.c nbproject/Makefi
 	${MKDIR} -p ${OBJECTDIR}/Src/meters
 	${RM} "$@.d"
 	$(COMPILE.c) -g -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_FULL_ASSERT -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Src/meters/water_meter.o Src/meters/water_meter.c
-
-${OBJECTDIR}/Src/processor.o: Src/processor.c nbproject/Makefile-${CND_CONF}.mk
-	${MKDIR} -p ${OBJECTDIR}/Src
-	${RM} "$@.d"
-	$(COMPILE.c) -g -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_FULL_ASSERT -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Src/processor.o Src/processor.c
 
 ${OBJECTDIR}/Src/stm32l1xx_hal_msp.o: Src/stm32l1xx_hal_msp.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/Src

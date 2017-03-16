@@ -65,6 +65,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
 	
 	uint32_t val12Bit = HAL_ADC_GetValue(hadc);
 	uint32_t waterVolt = EX_ADC_VOLTAGE_FROM_12BITS(val12Bit);
+	
 	if (__HAL_ADC_GET_FLAG(hadc, ADC_FLAG_AWD)) {
 		if (waterVolt < MIN_VOLT) {
 			error = WaterMete_ERR_NOT_CONNECT;

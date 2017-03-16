@@ -40,6 +40,11 @@ extern "C" {
 		uint32_t value7;
 	} TRANS_DATA_METERS;
 
+	enum TRANS_COMMANDS {
+		TRANS_COMMAND_VALVE_OPEN = 1,
+		TRANS_COMMAND_VALVE_CLOSE = 2,
+	};
+
 	/**Пакет с коммандой*/
 	typedef struct __packed {
 		uint32_t command;
@@ -53,7 +58,7 @@ extern "C" {
 		uint32_t sign;
 		TRANS_ADDRESS sourceAddress;
 		TRANS_ADDRESS targetAddress;
-		TRANS_PACKAGE_TYPE type;
+		TRANS_PACKAGE_TYPE type; //размер который занимает enum не специфицированно, в trans_package.h есть assert
 
 		/**Данные, тип данных зависит от значения поля type*/
 		union {
@@ -71,7 +76,7 @@ extern "C" {
 	 * @param type
 	 * @return
 	 */
-	TRANS_PACKAGE TRANS_newPackage(TRANS_ADDRESS sourceAddress, TRANS_ADDRESS targetAddress, TRANS_PACKAGE_TYPE type);
+	TRANS_PACKAGE TRANS_NewPackage(TRANS_ADDRESS sourceAddress, TRANS_ADDRESS targetAddress, TRANS_PACKAGE_TYPE type);
 
 	/**
 	 * Преобразует набор байт в TRANS_PACKAGE, заполняет указатель pPackage
@@ -79,13 +84,13 @@ extern "C" {
 	 * @param pPackage указатель на пакет
 	 * @return код ошибки, 0 если нет ошибок
 	 */
-	uint8_t TRANS_toPackage(uint8_t *bytes, TRANS_PACKAGE **pPackage);
+	uint8_t TRANS_ByteToPackage(uint8_t *bytes, TRANS_PACKAGE **pPackage);
 	/**
 	 *
 	 * @param pPackage
 	 * @return
 	 */
-	uint8_t *TRANS_toByte(TRANS_PACKAGE *pPackage);
+	uint8_t *TRANS_PackageToByte(TRANS_PACKAGE *pPackage);
 
 
 	/**Размер пакета в байтах*/

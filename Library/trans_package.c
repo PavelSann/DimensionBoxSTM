@@ -1,8 +1,12 @@
 #include "trans_package.h"
+#include <assert.h>
 
 #define TRANS_PACKAGE_MAGIC 0xCAFE
 #define TRANS_PACKAGE_SIGN 0xBABEDEFE
 #define TRANS_PACKAGE_END 0xFF
+
+//Проверим что поле  TRANS_PACKAGE.type занимает 1 байт, для протокола это важно
+static_assert((offsetof(TRANS_PACKAGE, data) - offsetof(TRANS_PACKAGE, type)) == 1, "Size field TRANS_PACKAGE.type NOT 1 byte");
 
 /*Струтура для преобразования TRANS_PACKAGE в байты и обратно	*/
 typedef struct {
@@ -18,18 +22,19 @@ typedef struct {
 	uint8_t error;
 } TRANS_PACKAGE_BYTES;
 
-TRANS_PACKAGE TRANS_newPackage(TRANS_ADDRESS sourceAddress, TRANS_ADDRESS targetAddress, TRANS_PACKAGE_TYPE type) {
-	TRANS_PACKAGE package = {0};
-	package.magicMark = TRANS_PACKAGE_MAGIC;
-	package.sign = TRANS_PACKAGE_SIGN;
-	package.sourceAddress = sourceAddress;
-	package.targetAddress = targetAddress;
-	package.type = type;
-	package.end = 0xFF;
+inline TRANS_PACKAGE TRANS_NewPackage(TRANS_ADDRESS sourceAddress, TRANS_ADDRESS targetAddress, TRANS_PACKAGE_TYPE type) {
+	TRANS_PACKAGE package = {
+		.magicMark = TRANS_PACKAGE_MAGIC,
+		.sign = TRANS_PACKAGE_SIGN,
+		.sourceAddress = sourceAddress,
+		.targetAddress = targetAddress,
+		.type = type,
+		.end = 0xFF
+	};
 	return package;
 }
 
-uint8_t TRANS_toPackage(uint8_t *bytes, TRANS_PACKAGE **pPackage) {
+uint8_t TRANS_ByteToPackage(uint8_t *bytes, TRANS_PACKAGE **pPackage) {
 	TRANS_PACKAGE_BYTES p2bytes;
 	p2bytes.data.bytes = bytes;
 	uint8_t error = 0;
@@ -46,7 +51,7 @@ uint8_t TRANS_toPackage(uint8_t *bytes, TRANS_PACKAGE **pPackage) {
 	return error;
 }
 
-uint8_t *TRANS_toByte(TRANS_PACKAGE *pPackage) {
+uint8_t *TRANS_PackageToByte(TRANS_PACKAGE *pPackage) {
 	TRANS_PACKAGE_BYTES bytes;
 	bytes.data.package = pPackage;
 	return bytes.data.bytes;

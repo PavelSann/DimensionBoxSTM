@@ -30,10 +30,10 @@ static TCP_Status sendBytes(uint8_t *pData, uint16_t size) {
 }
 
 void TCP_Init(UART_HandleTypeDef *UARTHandle) {
-	queue = QUEUE_newQueue(packetBuffer, PACKAGE_QUEUE_SIZE);
+	queue = QUEUE_NewQueue(packetBuffer, PACKAGE_QUEUE_SIZE);
 	hUART = UARTHandle;
 
-	uint8_t *nodeBuffer = QUEUE_useNode(&queue);
+	uint8_t *nodeBuffer = QUEUE_UseNode(&queue);
 	lastReceiveStatus = HAL_UART_Receive_DMA(hUART, nodeBuffer, TRANS_PACKAGE_SIZE);
 	if (lastReceiveStatus != HAL_OK) {
 		LOGERR("Not start HAL_UART_Receive_IT status:%d", lastReceiveStatus);
@@ -44,7 +44,7 @@ void TCP_Init(UART_HandleTypeDef *UARTHandle) {
 
 TCP_Status TCP_SendTransPackage(TRANS_PACKAGE *pPackage) {
 	//пакет в байты
-	uint8_t* bytes = TRANS_toByte(pPackage);
+	uint8_t* bytes = TRANS_PackageToByte(pPackage);
 	return sendBytes(bytes, TRANS_PACKAGE_SIZE);
 }
 
@@ -61,8 +61,8 @@ void TCP_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
 	if (huart->Instance != hUART->Instance) {
 		return;
 	}
-	QUEUE_receiveNode(&queue);
-	uint8_t *nodeBuffer = QUEUE_useNode(&queue);
+	QUEUE_ReceiveNode(&queue);
+	uint8_t *nodeBuffer = QUEUE_UseNode(&queue);
 	if (nodeBuffer != NULL) {
 		lastReceiveStatus = HAL_UART_Receive_DMA(hUART, nodeBuffer, TRANS_PACKAGE_SIZE);
 	} else {
@@ -73,7 +73,7 @@ void TCP_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
 static void processPackageNode(PACKAGE_QUEUE_NODE *node) {
 
 	TRANS_PACKAGE *pPackage = NULL;
-	uint8_t error = TRANS_toPackage(node->package, &pPackage);
+	uint8_t error = TRANS_ByteToPackage(node->package, &pPackage);
 	if (error) {
 		LOGERR("TCP: Receive data error %d", error);
 		LOGMEM(node->package, TRANS_PACKAGE_SIZE);
@@ -92,18 +92,18 @@ void TCP_ProcessPackage() {
 		TCP_OnError(queueOverflow, lastReceiveStatus);
 	}
 
-	QUEUE_processNode(&queue, processPackageNode);
+	QUEUE_ProcessNode(&queue, processPackageNode);
 
 	if (queueOverflow) {
 		queueOverflow = 0;
-		uint8_t *nodeBuffer = QUEUE_useNode(&queue);
+		uint8_t *nodeBuffer = QUEUE_UseNode(&queue);
 		lastReceiveStatus = HAL_UART_Receive_DMA(hUART, nodeBuffer, TRANS_PACKAGE_SIZE);
 		LOG("Overflow Receive 0x%x", lastReceiveStatus);
 		LOGERR("НЕ РАБОТАЕТ!");
 	}
 
 #if LOG_PACKAGE
-	uint32_t count = QUEUE_getReceiveNodeCount(&queue);
+	uint32_t count = QUEUE_GetReceiveNodeCount(&queue);
 	if (count > 0) {
 		LOG("TCP: ProcessPackage: receive node count %d QUEUE:%d:%d:%d", count, queue.size, queue.useIndex, queue.processIndex);
 	}

@@ -13,6 +13,12 @@
 
 #ifndef X_PRINT_H
 #define X_PRINT_H
+
+#ifdef X_PRINT_NO_LOG
+#define X_PRINT_UART 0
+#define X_PRINT_LOG 0
+#endif
+
 #ifndef X_PRINT_UART
 #define X_PRINT_UART 1
 #endif

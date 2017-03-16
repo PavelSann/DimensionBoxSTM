@@ -20,6 +20,7 @@ extern "C" {
 #include "stm32l1xx_hal.h"
 #include "stm32l1xx_hal_uart.h"
 #include "trans_package.h"
+#include <stdbool.h>
 
 	/**
 	 * Инициализация модуля связи TRANS
@@ -33,7 +34,7 @@ extern "C" {
 	 * @param type TRANS_PACKAGE_TYPE
 	 * @return
 	 */
-	TRANS_PACKAGE TRANS_newLocalPackage(TRANS_ADDRESS targetAddress, TRANS_PACKAGE_TYPE type);
+	TRANS_PACKAGE TRANS_NewLocalPackage(TRANS_ADDRESS targetAddress, TRANS_PACKAGE_TYPE type);
 
 	/**
 	 * Отправляет произвольный пакет
@@ -63,7 +64,7 @@ extern "C" {
 	 */
 	void TRANS_ProcessPackage();
 
-	void TRANS_OnError(uint8_t queueOverflow, HAL_StatusTypeDef lastReceiveStatus);
+	void TRANS_OnError(bool queueOverflow, HAL_StatusTypeDef lastReceiveStatus);
 
 #ifdef __cplusplus
 }

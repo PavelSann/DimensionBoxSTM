@@ -2,12 +2,12 @@
 
 #include "xprint.h"
 
-PACKAGE_QUEUE QUEUE_newQueue(PACKAGE_QUEUE_NODE packetBuffer[], const uint32_t size) {
+PACKAGE_QUEUE QUEUE_NewQueue(PACKAGE_QUEUE_NODE packetBuffer[], const uint32_t size) {
 	PACKAGE_QUEUE queue = {size, packetBuffer, 0, 0};
 	return queue;
 }
 
-uint8_t *QUEUE_useNode(PACKAGE_QUEUE *queue) {
+uint8_t *QUEUE_UseNode(PACKAGE_QUEUE *queue) {
 	PACKAGE_QUEUE_NODE *node = &queue->packetQueue[queue->useIndex];
 	if (node->status == PQ_NODE_FREE) {
 		node->status = PQ_NODE_USE;
@@ -18,7 +18,7 @@ uint8_t *QUEUE_useNode(PACKAGE_QUEUE *queue) {
 	}
 }
 
-void QUEUE_receiveNode(PACKAGE_QUEUE *queue) {
+void QUEUE_ReceiveNode(PACKAGE_QUEUE *queue) {
 	queue->packetQueue[queue->useIndex].status = PQ_NODE_RECEIVE;
 
 	queue->useIndex++;
@@ -27,7 +27,7 @@ void QUEUE_receiveNode(PACKAGE_QUEUE *queue) {
 	}
 }
 
-void QUEUE_processNode(PACKAGE_QUEUE *queue, void (*callback)(PACKAGE_QUEUE_NODE *)) {
+void QUEUE_ProcessNode(PACKAGE_QUEUE *queue, void (*callback)(PACKAGE_QUEUE_NODE *)) {
 	if (queue->processIndex == queue->size) {
 		queue->processIndex = 0;
 	}
@@ -47,7 +47,7 @@ void QUEUE_processNode(PACKAGE_QUEUE *queue, void (*callback)(PACKAGE_QUEUE_NODE
 	//	}
 }
 
-uint32_t QUEUE_getReceiveNodeCount(PACKAGE_QUEUE *queue) {
+uint32_t QUEUE_GetReceiveNodeCount(PACKAGE_QUEUE *queue) {
 
 	if (queue->useIndex >= queue->processIndex) {
 		return queue->useIndex - queue->processIndex;

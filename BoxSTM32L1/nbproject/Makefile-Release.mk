@@ -59,7 +59,6 @@ OBJECTFILES= \
 	${OBJECTDIR}/Src/main.o \
 	${OBJECTDIR}/Src/meters/electro_meter.o \
 	${OBJECTDIR}/Src/meters/water_meter.o \
-	${OBJECTDIR}/Src/processor.o \
 	${OBJECTDIR}/Src/stm32l1xx_hal_msp.o \
 	${OBJECTDIR}/Src/stm32l1xx_it.o \
 	${OBJECTDIR}/Src/system_stm32l1xx.o \
@@ -93,142 +92,137 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/stm32l1.exe: ${OBJECTFILES}
 ${OBJECTDIR}/_ext/8f63f4c/package_queue.o: ../Library/package_queue.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/_ext/8f63f4c
 	${RM} "$@.d"
-	$(COMPILE.c) -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -std=c99 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/8f63f4c/package_queue.o ../Library/package_queue.c
+	$(COMPILE.c) -w -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -DX_PRINT_NO_LOG -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/8f63f4c/package_queue.o ../Library/package_queue.c
 
 ${OBJECTDIR}/_ext/8f63f4c/trans_package.o: ../Library/trans_package.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/_ext/8f63f4c
 	${RM} "$@.d"
-	$(COMPILE.c) -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -std=c99 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/8f63f4c/trans_package.o ../Library/trans_package.c
+	$(COMPILE.c) -w -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -DX_PRINT_NO_LOG -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/8f63f4c/trans_package.o ../Library/trans_package.c
 
 ${OBJECTDIR}/_ext/8f63f4c/transceiver.o: ../Library/transceiver.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/_ext/8f63f4c
 	${RM} "$@.d"
-	$(COMPILE.c) -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -std=c99 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/8f63f4c/transceiver.o ../Library/transceiver.c
+	$(COMPILE.c) -w -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -DX_PRINT_NO_LOG -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/8f63f4c/transceiver.o ../Library/transceiver.c
 
 ${OBJECTDIR}/_ext/8f63f4c/xprint.o: ../Library/xprint.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/_ext/8f63f4c
 	${RM} "$@.d"
-	$(COMPILE.c) -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -std=c99 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/8f63f4c/xprint.o ../Library/xprint.c
+	$(COMPILE.c) -w -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -DX_PRINT_NO_LOG -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/8f63f4c/xprint.o ../Library/xprint.c
 
 ${OBJECTDIR}/_ext/8f63f4c/xprintf.o: ../Library/xprintf.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/_ext/8f63f4c
 	${RM} "$@.d"
-	$(COMPILE.c) -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -std=c99 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/8f63f4c/xprintf.o ../Library/xprintf.c
+	$(COMPILE.c) -w -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -DX_PRINT_NO_LOG -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/8f63f4c/xprintf.o ../Library/xprintf.c
 
 ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal.o: Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src
 	${RM} "$@.d"
-	$(COMPILE.c) -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -std=c99 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal.c
+	$(COMPILE.c) -w -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -DX_PRINT_NO_LOG -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal.c
 
 ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc.o: Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src
 	${RM} "$@.d"
-	$(COMPILE.c) -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -std=c99 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc.c
+	$(COMPILE.c) -w -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -DX_PRINT_NO_LOG -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc.c
 
 ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc_ex.o: Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc_ex.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src
 	${RM} "$@.d"
-	$(COMPILE.c) -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -std=c99 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc_ex.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc_ex.c
+	$(COMPILE.c) -w -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -DX_PRINT_NO_LOG -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc_ex.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc_ex.c
 
 ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_cortex.o: Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_cortex.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src
 	${RM} "$@.d"
-	$(COMPILE.c) -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -std=c99 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_cortex.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_cortex.c
+	$(COMPILE.c) -w -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -DX_PRINT_NO_LOG -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_cortex.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_cortex.c
 
 ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_dma.o: Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_dma.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src
 	${RM} "$@.d"
-	$(COMPILE.c) -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -std=c99 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_dma.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_dma.c
+	$(COMPILE.c) -w -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -DX_PRINT_NO_LOG -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_dma.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_dma.c
 
 ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash.o: Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src
 	${RM} "$@.d"
-	$(COMPILE.c) -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -std=c99 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash.c
+	$(COMPILE.c) -w -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -DX_PRINT_NO_LOG -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash.c
 
 ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ex.o: Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ex.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src
 	${RM} "$@.d"
-	$(COMPILE.c) -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -std=c99 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ex.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ex.c
+	$(COMPILE.c) -w -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -DX_PRINT_NO_LOG -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ex.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ex.c
 
 ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ramfunc.o: Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ramfunc.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src
 	${RM} "$@.d"
-	$(COMPILE.c) -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -std=c99 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ramfunc.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ramfunc.c
+	$(COMPILE.c) -w -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -DX_PRINT_NO_LOG -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ramfunc.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ramfunc.c
 
 ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_gpio.o: Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_gpio.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src
 	${RM} "$@.d"
-	$(COMPILE.c) -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -std=c99 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_gpio.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_gpio.c
+	$(COMPILE.c) -w -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -DX_PRINT_NO_LOG -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_gpio.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_gpio.c
 
 ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr.o: Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src
 	${RM} "$@.d"
-	$(COMPILE.c) -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -std=c99 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr.c
+	$(COMPILE.c) -w -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -DX_PRINT_NO_LOG -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr.c
 
 ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr_ex.o: Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr_ex.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src
 	${RM} "$@.d"
-	$(COMPILE.c) -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -std=c99 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr_ex.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr_ex.c
+	$(COMPILE.c) -w -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -DX_PRINT_NO_LOG -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr_ex.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr_ex.c
 
 ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc.o: Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src
 	${RM} "$@.d"
-	$(COMPILE.c) -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -std=c99 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc.c
+	$(COMPILE.c) -w -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -DX_PRINT_NO_LOG -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc.c
 
 ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc_ex.o: Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc_ex.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src
 	${RM} "$@.d"
-	$(COMPILE.c) -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -std=c99 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc_ex.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc_ex.c
+	$(COMPILE.c) -w -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -DX_PRINT_NO_LOG -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc_ex.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc_ex.c
 
 ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_tim.o: Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_tim.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src
 	${RM} "$@.d"
-	$(COMPILE.c) -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -std=c99 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_tim.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_tim.c
+	$(COMPILE.c) -w -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -DX_PRINT_NO_LOG -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_tim.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_tim.c
 
 ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_tim_ex.o: Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_tim_ex.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src
 	${RM} "$@.d"
-	$(COMPILE.c) -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -std=c99 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_tim_ex.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_tim_ex.c
+	$(COMPILE.c) -w -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -DX_PRINT_NO_LOG -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_tim_ex.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_tim_ex.c
 
 ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_uart.o: Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_uart.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src
 	${RM} "$@.d"
-	$(COMPILE.c) -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -std=c99 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_uart.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_uart.c
+	$(COMPILE.c) -w -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -DX_PRINT_NO_LOG -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_uart.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_uart.c
 
 ${OBJECTDIR}/Src/main.o: Src/main.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/Src
 	${RM} "$@.d"
-	$(COMPILE.c) -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -std=c99 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Src/main.o Src/main.c
+	$(COMPILE.c) -w -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -DX_PRINT_NO_LOG -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Src/main.o Src/main.c
 
 ${OBJECTDIR}/Src/meters/electro_meter.o: Src/meters/electro_meter.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/Src/meters
 	${RM} "$@.d"
-	$(COMPILE.c) -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -std=c99 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Src/meters/electro_meter.o Src/meters/electro_meter.c
+	$(COMPILE.c) -w -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -DX_PRINT_NO_LOG -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Src/meters/electro_meter.o Src/meters/electro_meter.c
 
 ${OBJECTDIR}/Src/meters/water_meter.o: Src/meters/water_meter.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/Src/meters
 	${RM} "$@.d"
-	$(COMPILE.c) -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -std=c99 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Src/meters/water_meter.o Src/meters/water_meter.c
-
-${OBJECTDIR}/Src/processor.o: Src/processor.c nbproject/Makefile-${CND_CONF}.mk
-	${MKDIR} -p ${OBJECTDIR}/Src
-	${RM} "$@.d"
-	$(COMPILE.c) -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -std=c99 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Src/processor.o Src/processor.c
+	$(COMPILE.c) -w -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -DX_PRINT_NO_LOG -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Src/meters/water_meter.o Src/meters/water_meter.c
 
 ${OBJECTDIR}/Src/stm32l1xx_hal_msp.o: Src/stm32l1xx_hal_msp.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/Src
 	${RM} "$@.d"
-	$(COMPILE.c) -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -std=c99 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Src/stm32l1xx_hal_msp.o Src/stm32l1xx_hal_msp.c
+	$(COMPILE.c) -w -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -DX_PRINT_NO_LOG -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Src/stm32l1xx_hal_msp.o Src/stm32l1xx_hal_msp.c
 
 ${OBJECTDIR}/Src/stm32l1xx_it.o: Src/stm32l1xx_it.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/Src
 	${RM} "$@.d"
-	$(COMPILE.c) -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -std=c99 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Src/stm32l1xx_it.o Src/stm32l1xx_it.c
+	$(COMPILE.c) -w -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -DX_PRINT_NO_LOG -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Src/stm32l1xx_it.o Src/stm32l1xx_it.c
 
 ${OBJECTDIR}/Src/system_stm32l1xx.o: Src/system_stm32l1xx.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/Src
 	${RM} "$@.d"
-	$(COMPILE.c) -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -std=c99 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Src/system_stm32l1xx.o Src/system_stm32l1xx.c
+	$(COMPILE.c) -w -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -DX_PRINT_NO_LOG -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Src/system_stm32l1xx.o Src/system_stm32l1xx.c
 
 ${OBJECTDIR}/startup/startup_stm32l152xe.o: startup/startup_stm32l152xe.s nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/startup

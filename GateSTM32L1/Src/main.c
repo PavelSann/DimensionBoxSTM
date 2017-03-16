@@ -35,7 +35,6 @@
 #include "stm32l1xx_hal.h"
 
 /* USER CODE BEGIN Includes */
-#include "processor.h"
 #include "stm32l1xx_hal_uart.h"
 #include "config.h"
 #include "tcp_connector.h"

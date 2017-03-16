@@ -1,31 +1,33 @@
-#include <string.h>
-
 #include "transceiver.h"
+#include <string.h>
+#include <assert.h>
 #include "xprint.h"
-#include "assert.h"
 #include "package_queue.h"
+
+#define __STR(val) #val
+#define DEF_TO_STR(X) __STR(X)
 
 #define LOG_PACKAGE 0
 #define CONFIG_SP1ML 0
+#define ST1ML_PAYLOAD_SIZE 48
+#define ST1ML_PAYLOAD_SIZE_STR DEF_TO_STR(ST1ML_PAYLOAD_SIZE)
+static_assert(sizeof (TRANS_PACKAGE) == ST1ML_PAYLOAD_SIZE, "sizeof(TRANS_PACKAGE) != ST1ML_PAYLOAD_SIZE");
+static_assert(sizeof (TRANS_PACKAGE) < 96, "Max PAYLOAD_SIZE ST1ML 96");
 
 #define SEND_TIMEOUT 10000
 #define SEND_PAUSE   200
-#define ST1ML_PAYLOAD_SIZE 48
-#define ST1ML_PAYLOAD_SIZE_STR "48"
-static_assert(sizeof (TRANS_PACKAGE) == ST1ML_PAYLOAD_SIZE, "sizeof(TRANS_PACKAGE) != ST1ML_PAYLOAD_SIZE");
-static_assert(sizeof (TRANS_PACKAGE) < 96, "Max PAYLOAD_SIZE ST1ML 96");
 
 static UART_HandleTypeDef *hUART;
 static TRANS_ADDRESS localAddress;
 #define PACKAGE_QUEUE_SIZE 100
 static PACKAGE_QUEUE_NODE queueBuffer[PACKAGE_QUEUE_SIZE];
 static PACKAGE_QUEUE queue;
-static uint8_t queueOverflow = 0;
+static bool queueOverflow = false;
 static HAL_StatusTypeDef lastReceiveStatus = HAL_OK;
 static uint32_t lastSendTime = 0;
 
-TRANS_PACKAGE TRANS_newLocalPackage(TRANS_ADDRESS targetAddress, TRANS_PACKAGE_TYPE type) {
-	return TRANS_newPackage(localAddress, targetAddress, type);
+TRANS_PACKAGE TRANS_NewLocalPackage(TRANS_ADDRESS targetAddress, TRANS_PACKAGE_TYPE type) {
+	return TRANS_NewPackage(localAddress, targetAddress, type);
 }
 
 static void sendBytes(uint8_t *bytes, int len) {
@@ -42,7 +44,6 @@ static void sendBytes(uint8_t *bytes, int len) {
 		LOGERR("Not transmit bytes. status=0x%x", status);
 	}
 }
-
 #if CONFIG_SP1ML
 	#define CONFIG_ARR_SIZE 9
 static char *(config[CONFIG_ARR_SIZE]) = {
@@ -89,9 +90,9 @@ void TRANS_Init(UART_HandleTypeDef *UARTHandle, TRANS_ADDRESS address) {
 	config_SP1ML();
 #endif
 	//создаём очередь
-	queue = QUEUE_newQueue(queueBuffer, PACKAGE_QUEUE_SIZE);
+	queue = QUEUE_NewQueue(queueBuffer, PACKAGE_QUEUE_SIZE);
 
-	uint8_t *nodeBuffer = QUEUE_useNode(&queue);
+	uint8_t *nodeBuffer = QUEUE_UseNode(&queue);
 	lastReceiveStatus = HAL_UART_Receive_DMA(hUART, nodeBuffer, TRANS_PACKAGE_SIZE);
 	if (lastReceiveStatus != HAL_OK) {
 		LOGERR("Not start HAL_UART_Receive_IT status:%d", lastReceiveStatus);
@@ -101,12 +102,12 @@ void TRANS_Init(UART_HandleTypeDef *UARTHandle, TRANS_ADDRESS address) {
 }
 
 void TRANS_SendPackage(TRANS_PACKAGE *pPackage) {
-	uint8_t *bytes = TRANS_toByte(pPackage);
+	uint8_t *bytes = TRANS_PackageToByte(pPackage);
 	sendBytes(bytes, TRANS_PACKAGE_SIZE);
 }
 
 void TRANS_SendDataMeters(TRANS_ADDRESS targetAddress, TRANS_DATA_METERS *dataMeters) {
-	TRANS_PACKAGE p = TRANS_newLocalPackage(targetAddress, TRANS_TYPE_METERS);
+	TRANS_PACKAGE p = TRANS_NewLocalPackage(targetAddress, TRANS_TYPE_METERS);
 	p.data.meters = *dataMeters;
 	TRANS_SendPackage(&p);
 }
@@ -115,7 +116,7 @@ __weak void TRANS_OnProcessPackage(TRANS_PACKAGE *pPackage) {
 	UNUSED(pPackage);
 }
 
-__weak void TRANS_OnError(uint8_t queueOverflow, HAL_StatusTypeDef lastReceiveStatus) {
+__weak void TRANS_OnError(bool queueOverflow, HAL_StatusTypeDef lastReceiveStatus) {
 	UNUSED(queueOverflow);
 	UNUSED(lastReceiveStatus);
 }
@@ -125,19 +126,19 @@ void TRANS_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
 		return;
 	}
 
-	QUEUE_receiveNode(&queue);
-	uint8_t *nodeBuffer = QUEUE_useNode(&queue);
+	QUEUE_ReceiveNode(&queue);
+	uint8_t *nodeBuffer = QUEUE_UseNode(&queue);
 	if (nodeBuffer != NULL) {
 		lastReceiveStatus = HAL_UART_Receive_DMA(hUART, nodeBuffer, TRANS_PACKAGE_SIZE);
 	} else {
-		queueOverflow++;
+		queueOverflow=true;
 	}
 }
 
 static void processPackageNode(PACKAGE_QUEUE_NODE *node) {
 
 	TRANS_PACKAGE *pPackage = NULL;
-	uint8_t error = TRANS_toPackage(node->package, &pPackage);
+	uint8_t error = TRANS_ByteToPackage(node->package, &pPackage);
 	if (error) {
 		LOGERR("Receive data error %d. NodeStatus:%d QUEUE:%d:%d:%d", error, node->status, queue.size, queue.useIndex, queue.processIndex);
 		LOGMEM(node->package, TRANS_PACKAGE_SIZE);
@@ -158,17 +159,17 @@ void TRANS_ProcessPackage() {
 		TRANS_OnError(queueOverflow, lastReceiveStatus);
 	}
 
-	QUEUE_processNode(&queue, processPackageNode);
+	QUEUE_ProcessNode(&queue, processPackageNode);
 
 	if (queueOverflow) {
-		queueOverflow = 0;
-		uint8_t *nodeBuffer = QUEUE_useNode(&queue);
+		queueOverflow = false;
+		uint8_t *nodeBuffer = QUEUE_UseNode(&queue);
 		lastReceiveStatus = HAL_UART_Receive_DMA(hUART, nodeBuffer, TRANS_PACKAGE_SIZE);
 		LOG("Overflow Receive 0x%x", lastReceiveStatus);
 		LOGERR("НЕ РАБОТАЕТ!");
 	}
 #if LOG_PACKAGE
-	uint32_t count = QUEUE_getReceiveNodeCount(&queue);
+	uint32_t count = QUEUE_GetReceiveNodeCount(&queue);
 	if (count > 0) {
 		LOG("TCP: ProcessPackage: receive node count %d QUEUE:%d:%d:%d", count, queue.size, queue.useIndex, queue.processIndex);
 	}
