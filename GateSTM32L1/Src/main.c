@@ -41,6 +41,7 @@
 #include "transceiver.h"
 #include "xprint.h"
 #include "package_queue.h"
+#include <assert.h>
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -104,7 +105,8 @@ int main(void) {
 #endif
 
 	TRANS_Init(&huart4, CONFIG_LOCAL_ADDRESS);
-	TCP_Init(&huart5);
+	//использую одинаковый порт для TCPNotConnect и TCPConfig
+	TCP_Init(&huart5, TCPConfig_GPIO_Port, TCPConfig_Pin, TCPNotConnect_Pin);
 
 	/* USER CODE END 2 */
 
@@ -112,6 +114,15 @@ int main(void) {
 	/* USER CODE BEGIN WHILE */
 	//HAL_StatusTypeDef rStatus = HAL_UART_Receive_IT(&huart4, receiveData, UART_DT_SIZE);
 	while (1) {
+		if (TCP_IsConnect() != HAL_GPIO_ReadPin(ConnectLED_GPIO_Port, ConnectLED_Pin)) {
+			if (TCP_IsConnect()) {
+				LOG("Connect server");
+			} else {
+				LOG("Disconnect server");
+			}
+		}
+		HAL_GPIO_WritePin(ConnectLED_GPIO_Port, ConnectLED_Pin, TCP_IsConnect());
+
 		TCP_ProcessPackage();
 		TRANS_ProcessPackage();
 		/* USER CODE END WHILE */
@@ -261,11 +272,17 @@ static void MX_GPIO_Init(void) {
 	__HAL_RCC_GPIOC_CLK_ENABLE();
 	__HAL_RCC_GPIOH_CLK_ENABLE();
 	__HAL_RCC_GPIOA_CLK_ENABLE();
-	__HAL_RCC_GPIOD_CLK_ENABLE();
 	__HAL_RCC_GPIOB_CLK_ENABLE();
+	__HAL_RCC_GPIOD_CLK_ENABLE();
+
+	/*Configure GPIO pin Output Level */
+	HAL_GPIO_WritePin(TCPConfig_GPIO_Port, TCPConfig_Pin, GPIO_PIN_RESET);
 
 	/*Configure GPIO pin Output Level */
 	HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_RESET);
+
+	/*Configure GPIO pin Output Level */
+	HAL_GPIO_WritePin(ConnectLED_GPIO_Port, ConnectLED_Pin, GPIO_PIN_RESET);
 
 	/*Configure GPIO pin : ButtonBlue_Pin */
 	GPIO_InitStruct.Pin = ButtonBlue_Pin;
@@ -273,12 +290,32 @@ static void MX_GPIO_Init(void) {
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	HAL_GPIO_Init(ButtonBlue_GPIO_Port, &GPIO_InitStruct);
 
+	/*Configure GPIO pin : TCPConfig_Pin */
+	GPIO_InitStruct.Pin = TCPConfig_Pin;
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	HAL_GPIO_Init(TCPConfig_GPIO_Port, &GPIO_InitStruct);
+
+	/*Configure GPIO pin : TCPNotConnect_Pin */
+	GPIO_InitStruct.Pin = TCPNotConnect_Pin;
+	GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	HAL_GPIO_Init(TCPNotConnect_GPIO_Port, &GPIO_InitStruct);
+
 	/*Configure GPIO pin : LedGreen_Pin */
 	GPIO_InitStruct.Pin = LedGreen_Pin;
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 	HAL_GPIO_Init(LedGreen_GPIO_Port, &GPIO_InitStruct);
+
+	/*Configure GPIO pin : ConnectLED_Pin */
+	GPIO_InitStruct.Pin = ConnectLED_Pin;
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	HAL_GPIO_Init(ConnectLED_GPIO_Port, &GPIO_InitStruct);
 
 	/* EXTI interrupt init*/
 	HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);

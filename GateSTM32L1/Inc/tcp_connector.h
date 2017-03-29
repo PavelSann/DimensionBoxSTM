@@ -21,13 +21,15 @@ extern "C" {
 #include "stm32l1xx_hal.h"
 #include "stm32l1xx_hal_uart.h"
 #include "trans_package.h"
+#include "stdbool.h"
 
 	typedef enum {
 		TCP_OK = 0x00,
 		TCP_ERROR = 0x01,
 	} TCP_Status;
 
-	void TCP_Init(UART_HandleTypeDef *UARTHandle);
+	void TCP_Init(UART_HandleTypeDef *UARTHandle, GPIO_TypeDef *GPIO_Port, uint16_t config_Pin, uint16_t notConnect_Pin);
+	bool TCP_IsConnect();
 	TCP_Status TCP_SendTransPackage(TRANS_PACKAGE *pPackage);
 	void TCP_OnProcessPackage(TRANS_PACKAGE *pPackage);
 	void TCP_UART_RxCpltCallback(UART_HandleTypeDef* huart);

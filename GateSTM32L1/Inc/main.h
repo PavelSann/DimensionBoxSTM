@@ -43,12 +43,18 @@
 
 #define ButtonBlue_Pin GPIO_PIN_13
 #define ButtonBlue_GPIO_Port GPIOC
+#define TCPConfig_Pin GPIO_PIN_0
+#define TCPConfig_GPIO_Port GPIOC
+#define TCPNotConnect_Pin GPIO_PIN_1
+#define TCPNotConnect_GPIO_Port GPIOC
 #define USART_TX_Pin GPIO_PIN_2
 #define USART_TX_GPIO_Port GPIOA
 #define USART_RX_Pin GPIO_PIN_3
 #define USART_RX_GPIO_Port GPIOA
 #define LedGreen_Pin GPIO_PIN_5
 #define LedGreen_GPIO_Port GPIOA
+#define ConnectLED_Pin GPIO_PIN_0
+#define ConnectLED_GPIO_Port GPIOB
 #define TMS_Pin GPIO_PIN_13
 #define TMS_GPIO_Port GPIOA
 #define TCK_Pin GPIO_PIN_14
@@ -59,6 +65,7 @@
 #define UART_SP1ML_RX_GPIO_Port GPIOC
 #define SWO_Pin GPIO_PIN_3
 #define SWO_GPIO_Port GPIOB
+
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
