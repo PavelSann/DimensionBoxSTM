@@ -17,8 +17,7 @@
                        displayName="STM32L1xx_HAL_Driver"
                        projectFiles="true">
           <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal.c</itemPath>
-          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc.c</itemPath>
-          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc_ex.c</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_comp.c</itemPath>
           <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_cortex.c</itemPath>
           <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_dma.c</itemPath>
           <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash.c</itemPath>
@@ -89,8 +88,8 @@
             <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h</itemPath>
           </logicalFolder>
           <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal.h</itemPath>
-          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_adc.h</itemPath>
-          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_adc_ex.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_comp.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_comp_ex.h</itemPath>
           <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_cortex.h</itemPath>
           <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_def.h</itemPath>
           <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_dma.h</itemPath>
@@ -324,12 +323,12 @@
             tool="3"
             flavor2="0">
       </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_adc.h"
+      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_comp.h"
             ex="false"
             tool="3"
             flavor2="0">
       </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_adc_ex.h"
+      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_comp_ex.h"
             ex="false"
             tool="3"
             flavor2="0">
@@ -414,12 +413,7 @@
             tool="0"
             flavor2="0">
       </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc.c"
-            ex="false"
-            tool="0"
-            flavor2="0">
-      </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc_ex.c"
+      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_comp.c"
             ex="false"
             tool="0"
             flavor2="0">
@@ -660,12 +654,12 @@
             tool="3"
             flavor2="0">
       </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_adc.h"
+      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_comp.h"
             ex="false"
             tool="3"
             flavor2="0">
       </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_adc_ex.h"
+      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_comp_ex.h"
             ex="false"
             tool="3"
             flavor2="0">
@@ -750,12 +744,7 @@
             tool="0"
             flavor2="0">
       </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc.c"
-            ex="false"
-            tool="0"
-            flavor2="0">
-      </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc_ex.c"
+      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_comp.c"
             ex="false"
             tool="0"
             flavor2="0">

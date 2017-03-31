@@ -45,7 +45,8 @@
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
-ADC_HandleTypeDef hadc;
+COMP_HandleTypeDef hcomp1;
+COMP_HandleTypeDef hcomp2;
 
 TIM_HandleTypeDef htim2;
 
@@ -70,7 +71,8 @@ static void MX_TIM2_Init(void);
 static void MX_UART4_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_UART5_Init(void);
-static void MX_ADC_Init(void);
+static void MX_COMP2_Init(void);
+static void MX_COMP1_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -102,7 +104,8 @@ int main(void) {
 	MX_UART4_Init();
 	MX_USART2_UART_Init();
 	MX_UART5_Init();
-	MX_ADC_Init();
+	MX_COMP2_Init();
+	MX_COMP1_Init();
 
 	/* USER CODE BEGIN 2 */
 #if X_PRINT_LOG
@@ -114,7 +117,7 @@ int main(void) {
 	HAL_TIM_Base_Start_IT(&htim2);
 	TRANS_Init(&huart4, CONFIG_LOCAL_ADDRESS);
 	ElectroMeter_Init(&huart5, MAX484RD_GPIO_Port, MAX484RD_Pin);
-	WaterMeter_Init(&hadc, ADC_CHANNEL_14);
+	WaterMeter_Init(&hcomp1, &hcomp2);
 
 	/* USER CODE END 2 */
 
@@ -137,7 +140,7 @@ int main(void) {
 
 			ElectroMeterValues values = ElectroMeter_GetValues();
 			if (!values.error) {
-//				LOG("Electro values: t1=%d t2=%d t3=%d t4=%d ", values.tariff1, values.tariff2, values.tariff3, values.tariff4);
+				//LOG("Electro values: t1=%d t2=%d t3=%d t4=%d ", values.tariff1, values.tariff2, values.tariff3, values.tariff4);
 			} else {
 				LOG("Electro meter not connect");
 				values.tariff1 = DISCONNECT_METER_VALUE;
@@ -153,7 +156,7 @@ int main(void) {
 
 			TRANS_SendDataMeters(CONFIG_GATE_ADDRESS, &meters);
 
-			//			HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_RESET);
+			//HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_RESET);
 			readMeters = 0;
 		}
 		//		__WFI;
@@ -211,50 +214,30 @@ void SystemClock_Config(void) {
 	HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
 
-/* ADC init function */
-static void MX_ADC_Init(void) {
+/* COMP1 init function */
+static void MX_COMP1_Init(void) {
 
-	ADC_AnalogWDGConfTypeDef AnalogWDGConfig;
-	ADC_ChannelConfTypeDef sConfig;
-
-	/**Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
-	 */
-	hadc.Instance = ADC1;
-	hadc.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV4;
-	hadc.Init.Resolution = ADC_RESOLUTION_12B;
-	hadc.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-	hadc.Init.ScanConvMode = ADC_SCAN_DISABLE;
-	hadc.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
-	hadc.Init.LowPowerAutoWait = ADC_AUTOWAIT_UNTIL_DATA_READ;
-	hadc.Init.LowPowerAutoPowerOff = ADC_AUTOPOWEROFF_DISABLE;
-	hadc.Init.ChannelsBank = ADC_CHANNELS_BANK_A;
-	hadc.Init.ContinuousConvMode = ENABLE;
-	hadc.Init.NbrOfConversion = 1;
-	hadc.Init.DiscontinuousConvMode = DISABLE;
-	hadc.Init.ExternalTrigConv = ADC_SOFTWARE_START;
-	hadc.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
-	hadc.Init.DMAContinuousRequests = DISABLE;
-	if (HAL_ADC_Init(&hadc) != HAL_OK) {
+	hcomp1.Instance = COMP1;
+	hcomp1.Init.NonInvertingInput = COMP_NONINVERTINGINPUT_NONE;
+	hcomp1.Init.TriggerMode = COMP_TRIGGERMODE_IT_RISING;
+	hcomp1.Init.NonInvertingInputPull = COMP_NONINVERTINGINPUT_NOPULL;
+	if (HAL_COMP_Init(&hcomp1) != HAL_OK) {
 		Error_Handler();
 	}
 
-	/**Configure the analog watchdog
-	 */
-	AnalogWDGConfig.WatchdogMode = ADC_ANALOGWATCHDOG_SINGLE_REG;
-	AnalogWDGConfig.Channel = ADC_CHANNEL_14;
-	AnalogWDGConfig.ITMode = ENABLE;
-	AnalogWDGConfig.HighThreshold = 2000;
-	AnalogWDGConfig.LowThreshold = 1000;
-	if (HAL_ADC_AnalogWDGConfig(&hadc, &AnalogWDGConfig) != HAL_OK) {
-		Error_Handler();
-	}
+}
 
-	/**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
-	 */
-	sConfig.Channel = ADC_CHANNEL_14;
-	sConfig.Rank = 1;
-	sConfig.SamplingTime = ADC_SAMPLETIME_4CYCLES;
-	if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK) {
+/* COMP2 init function */
+static void MX_COMP2_Init(void) {
+
+	hcomp2.Instance = COMP2;
+	hcomp2.Init.InvertingInput = COMP_INVERTINGINPUT_1_2VREFINT;
+	hcomp2.Init.NonInvertingInput = COMP_NONINVERTINGINPUT_PB4;
+	hcomp2.Init.Output = COMP_OUTPUT_NONE;
+	hcomp2.Init.Mode = COMP_MODE_LOWSPEED;
+	hcomp2.Init.WindowMode = COMP_WINDOWMODE_ENABLE;
+	hcomp2.Init.TriggerMode = COMP_TRIGGERMODE_IT_RISING_FALLING;
+	if (HAL_COMP_Init(&hcomp2) != HAL_OK) {
 		Error_Handler();
 	}
 
@@ -413,11 +396,6 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
 	uint32_t uartErrorCode = HAL_UART_GetError(huart);
 	LOGERR("UART %x Error %x", huart->Instance, uartErrorCode);
 	//SEE HAL_UART_ERROR_
-}
-
-void HAL_ADC_ErrorCallback(ADC_HandleTypeDef* hadc) {
-	uint32_t adcErrorCode = HAL_ADC_GetError(hadc);
-	LOGERR("ADC %x Error %x", hadc->Instance, adcErrorCode);
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {

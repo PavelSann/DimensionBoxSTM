@@ -78,59 +78,92 @@ void HAL_MspInit(void)
   /* USER CODE END MspInit 1 */
 }
 
-void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
+void HAL_COMP_MspInit(COMP_HandleTypeDef* hcomp)
 {
 
   GPIO_InitTypeDef GPIO_InitStruct;
-  if(hadc->Instance==ADC1)
+  if(hcomp->Instance==COMP1)
   {
-  /* USER CODE BEGIN ADC1_MspInit 0 */
+  /* USER CODE BEGIN COMP1_MspInit 0 */
 
-  /* USER CODE END ADC1_MspInit 0 */
-    /* Peripheral clock enable */
-    __HAL_RCC_ADC1_CLK_ENABLE();
+  /* USER CODE END COMP1_MspInit 0 */
+    /* Peripheral interrupt init */
+    HAL_NVIC_SetPriority(COMP_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(COMP_IRQn);
+  /* USER CODE BEGIN COMP1_MspInit 1 */
+
+  /* USER CODE END COMP1_MspInit 1 */
+  }
+  else if(hcomp->Instance==COMP2)
+  {
+  /* USER CODE BEGIN COMP2_MspInit 0 */
+
+  /* USER CODE END COMP2_MspInit 0 */
   
-    /**ADC GPIO Configuration    
-    PC4     ------> ADC_IN14 
+    /**COMP2 GPIO Configuration    
+    PB4     ------> COMP2_INP 
     */
     GPIO_InitStruct.Pin = GPIO_PIN_4;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
     /* Peripheral interrupt init */
-    HAL_NVIC_SetPriority(ADC1_IRQn, 0, 0);
-    HAL_NVIC_EnableIRQ(ADC1_IRQn);
-  /* USER CODE BEGIN ADC1_MspInit 1 */
+    HAL_NVIC_SetPriority(COMP_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(COMP_IRQn);
+  /* USER CODE BEGIN COMP2_MspInit 1 */
 
-  /* USER CODE END ADC1_MspInit 1 */
+  /* USER CODE END COMP2_MspInit 1 */
   }
 
 }
 
-void HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc)
+void HAL_COMP_MspDeInit(COMP_HandleTypeDef* hcomp)
 {
 
-  if(hadc->Instance==ADC1)
+  if(hcomp->Instance==COMP1)
   {
-  /* USER CODE BEGIN ADC1_MspDeInit 0 */
+  /* USER CODE BEGIN COMP1_MspDeInit 0 */
 
-  /* USER CODE END ADC1_MspDeInit 0 */
-    /* Peripheral clock disable */
-    __HAL_RCC_ADC1_CLK_DISABLE();
-  
-    /**ADC GPIO Configuration    
-    PC4     ------> ADC_IN14 
-    */
-    HAL_GPIO_DeInit(GPIOC, GPIO_PIN_4);
+  /* USER CODE END COMP1_MspDeInit 0 */
 
     /* Peripheral interrupt DeInit*/
-    HAL_NVIC_DisableIRQ(ADC1_IRQn);
+  /* USER CODE BEGIN COMP1:COMP_IRQn disable */
+    /**
+    * Uncomment the line below to disable the "COMP_IRQn" interrupt
+    * Be aware, disabling shared interrupt may affect other IPs
+    */
+    /* HAL_NVIC_DisableIRQ(COMP_IRQn); */
+  /* USER CODE END COMP1:COMP_IRQn disable */
 
+  /* USER CODE BEGIN COMP1_MspDeInit 1 */
+
+  /* USER CODE END COMP1_MspDeInit 1 */
   }
-  /* USER CODE BEGIN ADC1_MspDeInit 1 */
+  else if(hcomp->Instance==COMP2)
+  {
+  /* USER CODE BEGIN COMP2_MspDeInit 0 */
 
-  /* USER CODE END ADC1_MspDeInit 1 */
+  /* USER CODE END COMP2_MspDeInit 0 */
+  
+    /**COMP2 GPIO Configuration    
+    PB4     ------> COMP2_INP 
+    */
+    HAL_GPIO_DeInit(GPIOB, GPIO_PIN_4);
+
+    /* Peripheral interrupt DeInit*/
+  /* USER CODE BEGIN COMP2:COMP_IRQn disable */
+    /**
+    * Uncomment the line below to disable the "COMP_IRQn" interrupt
+    * Be aware, disabling shared interrupt may affect other IPs
+    */
+    /* HAL_NVIC_DisableIRQ(COMP_IRQn); */
+  /* USER CODE END COMP2:COMP_IRQn disable */
+
+  /* USER CODE BEGIN COMP2_MspDeInit 1 */
+
+  /* USER CODE END COMP2_MspDeInit 1 */
+  }
 
 }
 
