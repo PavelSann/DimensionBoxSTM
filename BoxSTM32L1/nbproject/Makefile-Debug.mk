@@ -41,8 +41,7 @@ OBJECTFILES= \
 	${OBJECTDIR}/_ext/8f63f4c/xprint.o \
 	${OBJECTDIR}/_ext/8f63f4c/xprintf.o \
 	${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal.o \
-	${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc.o \
-	${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc_ex.o \
+	${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_comp.o \
 	${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_cortex.o \
 	${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_dma.o \
 	${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash.o \
@@ -119,15 +118,10 @@ ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal.o: Drivers/STM32L1xx
 	${RM} "$@.d"
 	$(COMPILE.c) -g -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_FULL_ASSERT -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal.c
 
-${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc.o: Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc.c nbproject/Makefile-${CND_CONF}.mk
+${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_comp.o: Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_comp.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src
 	${RM} "$@.d"
-	$(COMPILE.c) -g -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_FULL_ASSERT -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc.c
-
-${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc_ex.o: Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc_ex.c nbproject/Makefile-${CND_CONF}.mk
-	${MKDIR} -p ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src
-	${RM} "$@.d"
-	$(COMPILE.c) -g -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_FULL_ASSERT -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc_ex.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc_ex.c
+	$(COMPILE.c) -g -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_FULL_ASSERT -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_comp.o Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_comp.c
 
 ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_cortex.o: Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_cortex.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src

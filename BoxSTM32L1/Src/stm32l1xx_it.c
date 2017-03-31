@@ -40,7 +40,8 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-extern ADC_HandleTypeDef hadc;
+extern COMP_HandleTypeDef hcomp1;
+extern COMP_HandleTypeDef hcomp2;
 extern TIM_HandleTypeDef htim2;
 extern DMA_HandleTypeDef hdma_uart4_rx;
 extern DMA_HandleTypeDef hdma_uart4_tx;
@@ -163,17 +164,18 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
-* @brief This function handles ADC global interrupt.
+* @brief This function handles COMP1 and COMP2 wake-up interrupts through EXTI lines 21 and 22.
 */
-void ADC1_IRQHandler(void)
+void COMP_IRQHandler(void)
 {
-  /* USER CODE BEGIN ADC1_IRQn 0 */
+  /* USER CODE BEGIN COMP_IRQn 0 */
 
-  /* USER CODE END ADC1_IRQn 0 */
-  HAL_ADC_IRQHandler(&hadc);
-  /* USER CODE BEGIN ADC1_IRQn 1 */
+  /* USER CODE END COMP_IRQn 0 */
+  HAL_COMP_IRQHandler(&hcomp1);
+  HAL_COMP_IRQHandler(&hcomp2);
+  /* USER CODE BEGIN COMP_IRQn 1 */
 
-  /* USER CODE END ADC1_IRQn 1 */
+  /* USER CODE END COMP_IRQn 1 */
 }
 
 /**
