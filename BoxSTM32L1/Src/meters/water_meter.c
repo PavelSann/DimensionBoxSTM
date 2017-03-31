@@ -31,59 +31,48 @@
 #define MIN_PAUSE_IMPULSE 300
 #define MIN_VOLT 500
 
-static ADC_HandleTypeDef * hADC;
-static uint8_t awd = 0;
+static COMP_HandleTypeDef *pCmp1;
+static COMP_HandleTypeDef *pCmp2;
+
 static uint32_t lastTick = 0;
 static uint32_t value = 0;
 static WaterMeteError error = WaterMete_OK;
 
-void WaterMeter_Init(ADC_HandleTypeDef * hadc, uint32_t adcChannel) {
+void WaterMeter_Init(COMP_HandleTypeDef *pComp1, COMP_HandleTypeDef *pComp2) {
 
-	hADC = hadc;
-	/**
-	 * Включаем analog watchdog
-	 */
-	ADC_AnalogWDGConfTypeDef AnalogWDGConfig;
-	AnalogWDGConfig.WatchdogMode = ADC_ANALOGWATCHDOG_SINGLE_REG;
-	AnalogWDGConfig.Channel = adcChannel;
-	AnalogWDGConfig.ITMode = ENABLE;
-	AnalogWDGConfig.HighThreshold = WDG_HIGH_THRESHOLD;
-	AnalogWDGConfig.LowThreshold = WDG_LOW_THRESHOLD;
-	if (HAL_ADC_AnalogWDGConfig(hadc, &AnalogWDGConfig) != HAL_OK) {
-		LOGERR("Error init AnalogWDGConfig %x", HAL_ADC_GetError(hadc));
+	pCmp1 = pComp1;
+	pCmp2 = pComp2;
+	HAL_StatusTypeDef stat1 = HAL_COMP_Start_IT(pComp1);
+	HAL_StatusTypeDef stat2 = HAL_COMP_Start_IT(pComp2);
+	if (stat1 != HAL_OK || stat2 != HAL_OK) {
+		LOGERR("WaterMeter init error COMP1:0x%x COMP2:0x%x", stat1, stat2);
 	}
+	LOG("WaterMeter Init: Comp1:0x%x Comp2:0x%x", pComp1->Instance, pComp2->Instance);
 
-	HAL_StatusTypeDef status = HAL_ADC_Start_IT(hADC);
-	if (status != HAL_OK) {
-		LOGERR("WaterMeter init error 0x%x", status);
+	//проверяем на обрыв провода
+	if (HAL_COMP_GetOutputLevel(pCmp2) == COMP_OUTPUTLEVEL_LOW) {
+		error = WaterMete_ERR_NOT_CONNECT;
 	}
-	LOG("WaterMeter Init: ADC:0x%x Channel:0x%x", hadc->Instance, adcChannel);
 }
 
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
+void HAL_COMP_TriggerCallback(COMP_HandleTypeDef *hcomp) {
 	//В прерывании нельзя делать длинные операции, даже print
-	
-	uint32_t val12Bit = HAL_ADC_GetValue(hadc);
-	uint32_t waterVolt = EX_ADC_VOLTAGE_FROM_12BITS(val12Bit);
-	
-	if (__HAL_ADC_GET_FLAG(hadc, ADC_FLAG_AWD)) {
-		if (waterVolt < MIN_VOLT) {
-			error = WaterMete_ERR_NOT_CONNECT;
-		}else{
-			error=WaterMete_OK;
-		}
-		uint32_t tick = HAL_GetTick(); //In the default implementation, this variable is incremented each 1ms
-		if (lastTick == 0 || (tick - lastTick) > MIN_PAUSE_IMPULSE) {
-			lastTick = tick;
-			awd = 1;
-		}
 
-	} else {
-		if (awd == 1) {
+	if (HAL_COMP_GetOutputLevel(pCmp1) == COMP_OUTPUTLEVEL_HIGH) {
+		//импульс
+		uint32_t tick = HAL_GetTick(); //In the default implementation, this variable is incremented each 1ms
+		if (lastTick == 0 || (tick - lastTick) > MIN_PAUSE_IMPULSE) {//защита от дребезга контактов
+			lastTick = tick;
 			ATOMIC_BLOCK{
 				value++;}
 		}
-		awd = 0;
+	}
+
+	//состояние подключения датчика
+	if (HAL_COMP_GetOutputLevel(pCmp2) == COMP_OUTPUTLEVEL_HIGH) {
+		error = WaterMete_OK;
+	} else {
+		error = WaterMete_ERR_NOT_CONNECT;
 	}
 }
 

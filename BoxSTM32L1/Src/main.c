@@ -117,6 +117,7 @@ int main(void) {
 	HAL_TIM_Base_Start_IT(&htim2);
 	TRANS_Init(&huart4, CONFIG_LOCAL_ADDRESS);
 	ElectroMeter_Init(&huart5, MAX484RD_GPIO_Port, MAX484RD_Pin);
+	WaterMeter_Init(&hcomp1, &hcomp2);
 
 	/* USER CODE END 2 */
 

@@ -18,7 +18,6 @@
 extern "C" {
 #endif
 #include "stm32l1xx_hal.h"
-#include "stm32l1xx_hal_adc.h"
 
 	typedef enum {
 		WaterMete_OK = 0,
@@ -26,7 +25,7 @@ extern "C" {
 		WaterMete_ERR_NOT_CONNECT = 1,
 	} WaterMeteError;
 
-	void WaterMeter_Init(ADC_HandleTypeDef * hadc, uint32_t adcChannel);
+	void WaterMeter_Init(COMP_HandleTypeDef *pComp1,COMP_HandleTypeDef *pComp2);
 	void WaterMeter_subValue(uint32_t delta);
 	uint32_t WaterMeter_getValue();
 	WaterMeteError WaterMeter_getError();
