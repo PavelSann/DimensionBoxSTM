@@ -23,7 +23,7 @@ extern "C" {
 	typedef struct {
 		uint8_t package[TRANS_PACKAGE_SIZE];
 
-		enum {
+		volatile enum {
 			/**Нода свободна*/
 			PQ_NODE_FREE = 0,
 			/**Нода в данный момент используется*/
@@ -33,7 +33,7 @@ extern "C" {
 		} status;
 	} PACKAGE_QUEUE_NODE;
 
-	typedef struct {
+	typedef volatile struct {
 		uint32_t size;
 		PACKAGE_QUEUE_NODE *packetQueue;
 		uint32_t useIndex;

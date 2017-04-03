@@ -331,7 +331,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
 }
 
 void TRANS_OnProcessPackage(TRANS_PACKAGE *pPackage) {
-	LOG("TRANS: ReceivePackage: type:%d source:0x%x target:0x%x", pPackage->type, pPackage->sourceAddress, pPackage->targetAddress);
+	LOG("TRANS: OnProcessPackage: type:%d source:0x%x target:0x%x", pPackage->type, pPackage->sourceAddress, pPackage->targetAddress);
 	//
 	//	if (pPackage->type == TRANS_TYPE_METERS) {
 	//		TRANS_DATA_METERS *pMeters = &pPackage->data.meters;

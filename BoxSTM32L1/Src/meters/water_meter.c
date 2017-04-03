@@ -34,9 +34,8 @@
 static COMP_HandleTypeDef *pCmp1;
 static COMP_HandleTypeDef *pCmp2;
 
-static uint32_t lastTick = 0;
-static uint32_t value = 0;
-static WaterMeteError error = WaterMete_OK;
+static volatile uint32_t value = 0;
+static volatile WaterMeteError error = WaterMete_OK;
 
 void WaterMeter_Init(COMP_HandleTypeDef *pComp1, COMP_HandleTypeDef *pComp2) {
 
@@ -56,6 +55,7 @@ void WaterMeter_Init(COMP_HandleTypeDef *pComp1, COMP_HandleTypeDef *pComp2) {
 }
 
 void HAL_COMP_TriggerCallback(COMP_HandleTypeDef *hcomp) {
+	static uint32_t lastTick = 0; //защита от дребезга контактов
 	//В прерывании нельзя делать длинные операции, даже print
 
 	if (HAL_COMP_GetOutputLevel(pCmp1) == COMP_OUTPUTLEVEL_HIGH) {

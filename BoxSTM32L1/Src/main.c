@@ -58,8 +58,7 @@ DMA_HandleTypeDef hdma_uart4_tx;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-static volatile uint8_t readMeters = 0;
-#define DISCONNECT_METER_VALUE 0xFFFFFFFF
+static volatile bool readMeters = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -127,13 +126,14 @@ int main(void) {
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
+
 		TRANS_ProcessPackage();
-		if (readMeters == 1) {
+		if (readMeters == true) {
 			//			HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_SET);
-			uint32_t waterValue = DISCONNECT_METER_VALUE;
+			uint32_t waterValue = TRANS_DISCONNECT_METER_VALUE;
 			if (!WaterMeter_getError()) {
 				waterValue = WaterMeter_getValue();
-//				LOG("Water value: %d ", waterValue);
+				//				LOG("Water value: %d ", waterValue);
 			} else {
 				LOG("Water meter not connect");
 			}
@@ -143,10 +143,10 @@ int main(void) {
 				//LOG("Electro values: t1=%d t2=%d t3=%d t4=%d ", values.tariff1, values.tariff2, values.tariff3, values.tariff4);
 			} else {
 				LOG("Electro meter not connect");
-				values.tariff1 = DISCONNECT_METER_VALUE;
-				values.tariff2 = DISCONNECT_METER_VALUE;
-				values.tariff3 = DISCONNECT_METER_VALUE;
-				values.tariff4 = DISCONNECT_METER_VALUE;
+				values.tariff1 = TRANS_DISCONNECT_METER_VALUE;
+				values.tariff2 = TRANS_DISCONNECT_METER_VALUE;
+				values.tariff3 = TRANS_DISCONNECT_METER_VALUE;
+				values.tariff4 = TRANS_DISCONNECT_METER_VALUE;
 			}
 
 			TRANS_DATA_METERS meters = {
@@ -157,7 +157,7 @@ int main(void) {
 			TRANS_SendDataMeters(CONFIG_GATE_ADDRESS, &meters);
 
 			//HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_RESET);
-			readMeters = 0;
+			readMeters = false;
 		}
 		//		__WFI;
 	}
@@ -399,7 +399,7 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-	readMeters = 1;
+	readMeters = true;
 }
 
 void TRANS_OnProcessPackage(TRANS_PACKAGE* pPackage) {

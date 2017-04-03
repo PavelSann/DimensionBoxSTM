@@ -22,15 +22,15 @@ static TRANS_ADDRESS localAddress;
 #define PACKAGE_QUEUE_SIZE 100
 static PACKAGE_QUEUE_NODE queueBuffer[PACKAGE_QUEUE_SIZE];
 static PACKAGE_QUEUE queue;
-static bool queueOverflow = false;
-static HAL_StatusTypeDef lastReceiveStatus = HAL_OK;
-static uint32_t lastSendTime = 0;
+static volatile bool queueOverflow = false;
+static volatile HAL_StatusTypeDef lastReceiveStatus = HAL_OK;
 
 TRANS_PACKAGE TRANS_NewLocalPackage(TRANS_ADDRESS targetAddress, TRANS_PACKAGE_TYPE type) {
 	return TRANS_NewPackage(localAddress, targetAddress, type);
 }
 
 static void sendBytes(uint8_t *bytes, int len) {
+	static uint32_t lastSendTime = 0;
 #if LOG_PACKAGE
 	LOG("TRANS: sendBytes:");
 	LOGMEM(bytes, TRANS_PACKAGE_SIZE);
@@ -131,7 +131,7 @@ void TRANS_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
 	if (nodeBuffer != NULL) {
 		lastReceiveStatus = HAL_UART_Receive_DMA(hUART, nodeBuffer, TRANS_PACKAGE_SIZE);
 	} else {
-		queueOverflow=true;
+		queueOverflow = true;
 	}
 }
 

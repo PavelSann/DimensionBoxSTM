@@ -39,6 +39,8 @@ extern "C" {
 		uint32_t value6;
 		uint32_t value7;
 	} TRANS_DATA_METERS;
+	/**Значение для не подключённого счётчика*/
+	#define TRANS_DISCONNECT_METER_VALUE 0xFFFFFFFF
 
 	enum TRANS_COMMANDS {
 		TRANS_COMMAND_VALVE_OPEN = 1,

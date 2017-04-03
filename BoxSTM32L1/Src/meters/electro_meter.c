@@ -27,20 +27,22 @@
 #define EM_nak 0x15
 
 /*Запрос к устройству или поиск устройств*/
-static uint8_t cmdRequest[] = {'/', '?', '!', EM_cr, EM_lf};
+static const uint8_t cmdRequest[] = {'/', '?', '!', EM_cr, EM_lf};
 #define cmdRequestLn sizeof(cmdRequest)
 //static const uint8_t cmdRequest[] = {'/', '?', '1', '1', '1', '7', '5', '5', '0', '2', '3', '!', EM_cr, EM_lf};
 
 /*Режим чтения данных*/
-static uint8_t cmdReadData[] = {EM_ack, '0', '5', '0', EM_cr, EM_lf};
+static const uint8_t cmdReadData[] = {EM_ack, '0', '5', '0', EM_cr, EM_lf};
 #define cmdReadDataLn sizeof(cmdReadData)
 
 /*Режим программирования*/
-static uint8_t cmdProgramMode[] = {EM_ack, '0', '5', '1', EM_cr, EM_lf};
+static const uint8_t cmdProgramMode[] = {EM_ack, '0', '5', '1', EM_cr, EM_lf};
 #define cmdProgramModeLn sizeof(cmdProgramMode)
 /*Режим программирования*/
-static uint8_t cmdBreak[] = {EM_soh, 'B', '0', EM_etx, 'u'};
+static const uint8_t cmdBreak[] = {EM_soh, 'B', '0', EM_etx, 'u'};
 #define cmdBreakLn sizeof(cmdBreak)
+
+#define VAR_STR( str) (uint8_t *)str
 
 static const char *password = "777777";
 
@@ -49,7 +51,7 @@ static UART_HandleTypeDef *hUART;
 static GPIO_TypeDef* MAX484_RD_Port;
 static uint16_t MAX484_RD_Pin;
 
-static inline uint8_t calcLRC(uint8_t *data, uint16_t ln) {
+static inline uint8_t calcLRC(uint8_t const *data, uint16_t ln) {
 	/**
 	  Calculates one byte Longitudinal Redundancy Checksum (LRC). The LRC is an
 	  exclusive-or calculation on all data bytes. The LRC is calculated from the
@@ -147,7 +149,7 @@ void ElectroMeter_CMD() {
 	//	HAL_GPIO_TogglePin(LedGreen_GPIO_Port, LedGreen_Pin);
 }
  */
-static uint16_t send(uint8_t *command, uint16_t commandLn, uint8_t *result, uint16_t maxResultLn) {
+static uint16_t send(const uint8_t *command, const uint16_t commandLn, uint8_t *result, const uint16_t maxResultLn) {
 	for (uint16_t i = 0; i < maxResultLn; i++) {
 		result[i] = 0;
 	}
@@ -156,7 +158,7 @@ static uint16_t send(uint8_t *command, uint16_t commandLn, uint8_t *result, uint
 	LOGMEM(command, commandLn);
 #endif
 	HAL_GPIO_WritePin(MAX484_RD_Port, MAX484_RD_Pin, GPIO_PIN_SET); //вкл на передачу
-	HAL_UART_Transmit(hUART, command, commandLn, UART_TRANSMIT_TIMEOUT);
+	HAL_UART_Transmit(hUART, VAR_STR(command), commandLn, UART_TRANSMIT_TIMEOUT);
 
 	HAL_GPIO_WritePin(MAX484_RD_Port, MAX484_RD_Pin, GPIO_PIN_RESET); //вкл на приём
 	HAL_UART_Receive(hUART, result, maxResultLn, UART_RECEIVE_TIMEOUT);
@@ -177,6 +179,7 @@ static uint16_t sendCmd(char cmd, char cmdMod, const char *addr, const char *val
 	return send(cmdBuff, buffLn, result, maxResultLn);
 }
 
+#if 0
 static void dumpData(uint8_t *result, uint16_t resultLn) {
 	/*
 Блок данных состоит из последовательности строк данных, отделяемых символами: CR, возврат
@@ -200,6 +203,7 @@ static void dumpData(uint8_t *result, uint16_t resultLn) {
 		}
 	}
 }
+#endif
 
 typedef struct {
 	uint8_t *pBegin;
@@ -415,9 +419,9 @@ ElectroMeterData ElectroMeter_ReadData() {
 			while (!data.error && data.pNextRow) {
 				EM_DataRow row = nextDataRow(&data);
 
-				if (strcmp("STAT_",(const char*) row.pAddr)==0) {
+				if (strcmp("STAT_", (const char*) row.pAddr) == 0) {
 					result.stat = strToInt(row.pValue);
-				} else if (strcmp("VOLTA",(const char*) row.pAddr)==0) {
+				} else if (strcmp("VOLTA", (const char*) row.pAddr) == 0) {
 					result.volta = strToInt(row.pValue);
 				}
 #if TRACE_LOG

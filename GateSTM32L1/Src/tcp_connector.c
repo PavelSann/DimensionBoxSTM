@@ -11,8 +11,8 @@
 static UART_HandleTypeDef *hUART;
 static PACKAGE_QUEUE_NODE packetBuffer[PACKAGE_QUEUE_SIZE];
 static PACKAGE_QUEUE queue;
-static uint8_t queueOverflow = 0;
-static HAL_StatusTypeDef lastReceiveStatus = HAL_OK;
+static volatile uint8_t queueOverflow = 0;
+static volatile HAL_StatusTypeDef lastReceiveStatus = HAL_OK;
 
 static GPIO_TypeDef *gpioPort;
 static uint16_t configPin;
