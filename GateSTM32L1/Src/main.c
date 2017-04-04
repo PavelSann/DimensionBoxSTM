@@ -104,9 +104,19 @@ int main(void) {
 	LOG("Start Gate ID: 0x%x DEVID:0x%x REVID:0x%x HAL:0x%x", CONFIG_ID, HAL_GetDEVID(), HAL_GetREVID(), HAL_GetHalVersion());
 #endif
 
-	TRANS_Init(&huart4, CONFIG_LOCAL_ADDRESS);
+	TRANS_Config conf = {
+		.hUART = &huart4,
+		.localAddress = CONFIG_LOCAL_ADDRESS,
+	};
+	TRANS_Init(conf);
 	//использую одинаковый порт для TCPNotConnect и TCPConfig
-	TCP_Init(&huart5, TCPConfig_GPIO_Port, TCPConfig_Pin, TCPNotConnect_Pin);
+	TCP_Config config = {
+		.hUART = &huart5,
+		.port = TCPConfig_GPIO_Port,
+		.pinConfig = TCPConfig_Pin,
+		.pinNotConnect = TCPNotConnect_Pin
+	};
+	TCP_Init(config);
 
 	/* USER CODE END 2 */
 
@@ -421,6 +431,10 @@ void assert_failed(uint8_t* file, uint32_t line) {
 	/* User can add his own implementation to report the file name and line number,
 	  ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
 	LOG("assert_failed: Wrong parameters value: file %s on line %d\r\n", file, line);
+	while (1) {
+		HAL_GPIO_TogglePin(LedGreen_GPIO_Port, LedGreen_Pin);
+		HAL_Delay(500);
+	}
 	/* USER CODE END 6 */
 
 }

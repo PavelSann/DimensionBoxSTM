@@ -114,7 +114,11 @@ int main(void) {
 #endif
 	//запускаем таймер 2
 	HAL_TIM_Base_Start_IT(&htim2);
-	TRANS_Init(&huart4, CONFIG_LOCAL_ADDRESS);
+	TRANS_Config conf = {
+		.hUART = &huart4,
+		.localAddress = CONFIG_LOCAL_ADDRESS,
+	};
+	TRANS_Init(conf);
 	ElectroMeter_Init(&huart5, MAX484RD_GPIO_Port, MAX484RD_Pin);
 	WaterMeter_Init(&hcomp1, &hcomp2);
 

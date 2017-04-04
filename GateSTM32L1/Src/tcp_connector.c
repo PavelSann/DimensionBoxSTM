@@ -7,25 +7,20 @@
 #define SEND_TIMEOUT 1000
 #define PACKAGE_QUEUE_SIZE 100
 
-
-static UART_HandleTypeDef *hUART;
 static PACKAGE_QUEUE_NODE packetBuffer[PACKAGE_QUEUE_SIZE];
 static PACKAGE_QUEUE queue;
 static volatile uint8_t queueOverflow = 0;
+
+static TCP_Config conf;
 static volatile HAL_StatusTypeDef lastReceiveStatus = HAL_OK;
 
-static GPIO_TypeDef *gpioPort;
-static uint16_t configPin;
-static uint16_t notConnectPin;
-
 static TCP_Status sendBytes(uint8_t *pData, uint16_t size) {
-	//TODO: проверить есть ли соединение
-	//
+	//если нет связи, у модуля есть свой буфер, и когда появится связь он отправит пакеты, которые влезли в буфер
 #if LOG_PACKAGE
 	LOG("TCP: sendBytes:");
 	LOGMEM(pData, size);
 #endif
-	HAL_StatusTypeDef tStatus = HAL_UART_Transmit(hUART, pData, size, SEND_TIMEOUT);
+	HAL_StatusTypeDef tStatus = HAL_UART_Transmit(conf.hUART, pData, size, SEND_TIMEOUT);
 	if (tStatus == HAL_OK) {
 		return TCP_OK;
 	} else {
@@ -34,28 +29,29 @@ static TCP_Status sendBytes(uint8_t *pData, uint16_t size) {
 }
 
 void setWorkMode(bool workMode) {// режим работы или конфигурации
-	HAL_GPIO_WritePin(gpioPort, configPin, workMode);
+	HAL_GPIO_WritePin(conf.port, conf.pinConfig, workMode);
 }
 
-void TCP_Init(UART_HandleTypeDef *UARTHandle, GPIO_TypeDef *GPIO_Port, uint16_t config_Pin, uint16_t notConnect_Pin) {
+void TCP_Init(TCP_Config configuration) {
 	queue = QUEUE_NewQueue(packetBuffer, PACKAGE_QUEUE_SIZE);
-	hUART = UARTHandle;
-	gpioPort = GPIO_Port;
-	configPin = config_Pin;
-	notConnectPin = notConnect_Pin;
+	conf = configuration;
+	assert_param(conf.hUART != NULL);
+	assert_param(conf.port != NULL);
+	assert_param(conf.pinConfig > 0);
+	assert_param(conf.pinNotConnect > 0);
 	setWorkMode(true);
 
 	uint8_t *nodeBuffer = QUEUE_UseNode(&queue);
-	lastReceiveStatus = HAL_UART_Receive_DMA(hUART, nodeBuffer, TRANS_PACKAGE_SIZE);
+	lastReceiveStatus = HAL_UART_Receive_DMA(conf.hUART, nodeBuffer, TRANS_PACKAGE_SIZE);
 	if (lastReceiveStatus != HAL_OK) {
 		LOGERR("Not start HAL_UART_Receive_IT status:%d", lastReceiveStatus);
 	}
 
-	LOG("TCP connector init UART:0x%x TRANS_PACKAGE_SIZE:%d", hUART->Instance, TRANS_PACKAGE_SIZE);
+	LOG("TCP connector init UART:0x%x TRANS_PACKAGE_SIZE:%d",conf.hUART->Instance, TRANS_PACKAGE_SIZE);
 }
 
 bool TCP_IsConnect() {
-	return HAL_GPIO_ReadPin(gpioPort, notConnectPin) == GPIO_PIN_RESET;
+	return HAL_GPIO_ReadPin(conf.port, conf.pinNotConnect) == GPIO_PIN_RESET;
 }
 
 TCP_Status TCP_SendTransPackage(TRANS_PACKAGE *pPackage) {
@@ -74,13 +70,13 @@ __weak void TCP_OnError(uint8_t queueOverflow, uint8_t receiveStatusError) {
 }
 
 void TCP_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
-	if (huart->Instance != hUART->Instance) {
+	if (huart->Instance != conf.hUART->Instance) {
 		return;
 	}
 	QUEUE_ReceiveNode(&queue);
 	uint8_t *nodeBuffer = QUEUE_UseNode(&queue);
 	if (nodeBuffer != NULL) {
-		lastReceiveStatus = HAL_UART_Receive_DMA(hUART, nodeBuffer, TRANS_PACKAGE_SIZE);
+		lastReceiveStatus = HAL_UART_Receive_DMA(conf.hUART, nodeBuffer, TRANS_PACKAGE_SIZE);
 	} else {
 		queueOverflow++;
 	}
@@ -113,9 +109,9 @@ void TCP_ProcessPackage() {
 	if (queueOverflow) {
 		queueOverflow = 0;
 		uint8_t *nodeBuffer = QUEUE_UseNode(&queue);
-		lastReceiveStatus = HAL_UART_Receive_DMA(hUART, nodeBuffer, TRANS_PACKAGE_SIZE);
+		lastReceiveStatus = HAL_UART_Receive_DMA(conf.hUART, nodeBuffer, TRANS_PACKAGE_SIZE);
 		LOG("Overflow Receive 0x%x", lastReceiveStatus);
-		LOGERR("НЕ РАБОТАЕТ!");
+		LOGERR("ПАНИКА ПАНИКА ПАНИКА!");
 	}
 
 #if LOG_PACKAGE

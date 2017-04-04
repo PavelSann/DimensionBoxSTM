@@ -52,6 +52,20 @@ extern UART_HandleTypeDef huart5;
 /******************************************************************************/
 
 /**
+* @brief This function handles Non maskable interrupt.
+*/
+void NMI_Handler(void)
+{
+  /* USER CODE BEGIN NonMaskableInt_IRQn 0 */
+	HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin,GPIO_PIN_SET);
+	LOGERR("Non maskable interrupt");
+  /* USER CODE END NonMaskableInt_IRQn 0 */
+  /* USER CODE BEGIN NonMaskableInt_IRQn 1 */
+
+  /* USER CODE END NonMaskableInt_IRQn 1 */
+}
+
+/**
 * @brief This function handles Hard fault interrupt.
 */
 void HardFault_Handler(void)

@@ -22,11 +22,18 @@ extern "C" {
 #include "trans_package.h"
 #include <stdbool.h>
 
+	typedef struct {
+		UART_HandleTypeDef* hUART;
+		TRANS_ADDRESS localAddress;
+//		GPIO_TypeDef *port;
+//		uint16_t pinReset;
+	} TRANS_Config;
+
 	/**
 	 * Инициализация модуля связи TRANS
 	 * @param UARTHandle
 	 */
-	void TRANS_Init(UART_HandleTypeDef* UARTHandle, TRANS_ADDRESS address);
+	void TRANS_Init(TRANS_Config configuration);
 
 	/**
 	 * Создаёт новый пакет, заполняет основные поля

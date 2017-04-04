@@ -28,7 +28,14 @@ extern "C" {
 		TCP_ERROR = 0x01,
 	} TCP_Status;
 
-	void TCP_Init(UART_HandleTypeDef *UARTHandle, GPIO_TypeDef *GPIO_Port, uint16_t config_Pin, uint16_t notConnect_Pin);
+	typedef struct {
+		UART_HandleTypeDef *hUART;
+		GPIO_TypeDef *port;
+		uint16_t pinConfig;
+		uint16_t pinNotConnect;
+	} TCP_Config;
+
+	void TCP_Init(TCP_Config configuration);
 	bool TCP_IsConnect();
 	TCP_Status TCP_SendTransPackage(TRANS_PACKAGE *pPackage);
 	void TCP_OnProcessPackage(TRANS_PACKAGE *pPackage);
