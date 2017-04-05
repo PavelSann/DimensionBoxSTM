@@ -88,7 +88,14 @@ extern "C" {
 		uint32_t volta;
 	} ElectroMeterData;
 
-	void ElectroMeter_Init(UART_HandleTypeDef * huart, GPIO_TypeDef* GPIO_MAX484_RD_Port, uint16_t GPIO_MAX484_RD_Pin);
+	typedef struct {
+		UART_HandleTypeDef *hUART;
+		GPIO_TypeDef* portMAX484;
+		uint16_t pinRD;
+		char *password;
+	} ElectroMeterConfig;
+
+	void ElectroMeter_Init(ElectroMeterConfig config);
 	ElectroMeterValues ElectroMeter_GetValues();
 	ElectroMeterData ElectroMeter_ReadData();
 

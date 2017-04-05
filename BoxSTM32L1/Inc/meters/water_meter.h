@@ -25,7 +25,12 @@ extern "C" {
 		WaterMete_ERR_NOT_CONNECT = 1,
 	} WaterMeteError;
 
-	void WaterMeter_Init(COMP_HandleTypeDef *pComp1,COMP_HandleTypeDef *pComp2);
+	typedef struct {
+		COMP_HandleTypeDef *pComp1;
+		COMP_HandleTypeDef *pComp2;
+	} WaterMeterConfig;
+
+	void WaterMeter_Init(WaterMeterConfig config);
 	void WaterMeter_subValue(uint32_t delta);
 	uint32_t WaterMeter_getValue();
 	WaterMeteError WaterMeter_getError();

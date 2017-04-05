@@ -23,17 +23,17 @@ extern "C" {
 #include <stdbool.h>
 
 	typedef struct {
-		UART_HandleTypeDef* hUART;
+		UART_HandleTypeDef *hUART;
 		TRANS_ADDRESS localAddress;
 //		GPIO_TypeDef *port;
 //		uint16_t pinReset;
-	} TRANS_Config;
+	} TRANSConfig;
 
 	/**
 	 * Инициализация модуля связи TRANS
 	 * @param UARTHandle
 	 */
-	void TRANS_Init(TRANS_Config configuration);
+	void TRANS_Init(TRANSConfig configuration);
 
 	/**
 	 * Создаёт новый пакет, заполняет основные поля

@@ -11,7 +11,7 @@ static PACKAGE_QUEUE_NODE packetBuffer[PACKAGE_QUEUE_SIZE];
 static PACKAGE_QUEUE queue;
 static volatile uint8_t queueOverflow = 0;
 
-static TCP_Config conf;
+static TCPConfig conf;
 static volatile HAL_StatusTypeDef lastReceiveStatus = HAL_OK;
 
 static TCP_Status sendBytes(uint8_t *pData, uint16_t size) {
@@ -32,13 +32,11 @@ void setWorkMode(bool workMode) {// режим работы или конфиг�
 	HAL_GPIO_WritePin(conf.port, conf.pinConfig, workMode);
 }
 
-void TCP_Init(TCP_Config configuration) {
+void TCP_Init(TCPConfig configuration) {
 	queue = QUEUE_NewQueue(packetBuffer, PACKAGE_QUEUE_SIZE);
 	conf = configuration;
 	assert_param(conf.hUART != NULL);
 	assert_param(conf.port != NULL);
-	assert_param(conf.pinConfig > 0);
-	assert_param(conf.pinNotConnect > 0);
 	setWorkMode(true);
 
 	uint8_t *nodeBuffer = QUEUE_UseNode(&queue);

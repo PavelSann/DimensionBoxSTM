@@ -114,13 +114,29 @@ int main(void) {
 #endif
 	//запускаем таймер 2
 	HAL_TIM_Base_Start_IT(&htim2);
-	TRANS_Config conf = {
+
+	//Инициализируем радио модуль
+	TRANSConfig transConf = {
 		.hUART = &huart4,
 		.localAddress = CONFIG_LOCAL_ADDRESS,
 	};
-	TRANS_Init(conf);
-	ElectroMeter_Init(&huart5, MAX484RD_GPIO_Port, MAX484RD_Pin);
-	WaterMeter_Init(&hcomp1, &hcomp2);
+	TRANS_Init(transConf);
+
+	//Инициализируем счётчик электричества
+	ElectroMeterConfig emConf = {
+		.hUART = &huart5,
+		.portMAX484 = MAX484RD_GPIO_Port,
+		.pinRD = MAX484RD_Pin,
+		.password = "777777"
+	};
+	ElectroMeter_Init(emConf);
+
+	//Инициализируем счётчик воды
+	WaterMeterConfig wmConf = {
+		.pComp1 = &hcomp1,
+		.pComp2 = &hcomp2
+	};
+	WaterMeter_Init(wmConf);
 
 	/* USER CODE END 2 */
 
@@ -486,6 +502,10 @@ void assert_failed(uint8_t* file, uint32_t line) {
 	/* User can add his own implementation to report the file name and line number,
 	  ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
 	LOG("assert_failed: Wrong parameters value: file %s on line %d\r\n", file, line);
+	while (1) {
+		HAL_GPIO_TogglePin(LedGreen_GPIO_Port, LedGreen_Pin);
+		HAL_Delay(500);
+	}
 	/* USER CODE END 6 */
 
 }

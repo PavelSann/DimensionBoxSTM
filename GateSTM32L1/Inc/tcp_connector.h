@@ -33,9 +33,9 @@ extern "C" {
 		GPIO_TypeDef *port;
 		uint16_t pinConfig;
 		uint16_t pinNotConnect;
-	} TCP_Config;
+	} TCPConfig;
 
-	void TCP_Init(TCP_Config configuration);
+	void TCP_Init(TCPConfig configuration);
 	bool TCP_IsConnect();
 	TCP_Status TCP_SendTransPackage(TRANS_PACKAGE *pPackage);
 	void TCP_OnProcessPackage(TRANS_PACKAGE *pPackage);

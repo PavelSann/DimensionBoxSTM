@@ -44,12 +44,7 @@ static const uint8_t cmdBreak[] = {EM_soh, 'B', '0', EM_etx, 'u'};
 
 #define VAR_STR( str) (uint8_t *)str
 
-static const char *password = "777777";
-
-
-static UART_HandleTypeDef *hUART;
-static GPIO_TypeDef* MAX484_RD_Port;
-static uint16_t MAX484_RD_Pin;
+static ElectroMeterConfig conf;
 
 static inline uint8_t calcLRC(uint8_t const *data, uint16_t ln) {
 	/**
@@ -157,11 +152,11 @@ static uint16_t send(const uint8_t *command, const uint16_t commandLn, uint8_t *
 	LOG("->");
 	LOGMEM(command, commandLn);
 #endif
-	HAL_GPIO_WritePin(MAX484_RD_Port, MAX484_RD_Pin, GPIO_PIN_SET); //вкл на передачу
-	HAL_UART_Transmit(hUART, VAR_STR(command), commandLn, UART_TRANSMIT_TIMEOUT);
+	HAL_GPIO_WritePin(conf.portMAX484, conf.pinRD, GPIO_PIN_SET); //вкл на передачу
+	HAL_UART_Transmit(conf.hUART, VAR_STR(command), commandLn, UART_TRANSMIT_TIMEOUT);
 
-	HAL_GPIO_WritePin(MAX484_RD_Port, MAX484_RD_Pin, GPIO_PIN_RESET); //вкл на приём
-	HAL_UART_Receive(hUART, result, maxResultLn, UART_RECEIVE_TIMEOUT);
+	HAL_GPIO_WritePin(conf.portMAX484, conf.pinRD, GPIO_PIN_RESET); //вкл на приём
+	HAL_UART_Receive(conf.hUART, result, maxResultLn, UART_RECEIVE_TIMEOUT);
 	uint16_t resultLn = maxResultLn;
 	for (resultLn = 0; (result[resultLn] != 0) && resultLn < maxResultLn; resultLn++);
 #if TRACE_LOG
@@ -180,6 +175,7 @@ static uint16_t sendCmd(char cmd, char cmdMod, const char *addr, const char *val
 }
 
 #if 0
+
 static void dumpData(uint8_t *result, uint16_t resultLn) {
 	/*
 Блок данных состоит из последовательности строк данных, отделяемых символами: CR, возврат
@@ -326,12 +322,14 @@ static ElectroMeterError getErrorCode(uint8_t *result, uint16_t resultLn) {
 	return err;
 }
 
-void ElectroMeter_Init(UART_HandleTypeDef * huart, GPIO_TypeDef* GPIO_MAX484_RD_Port, uint16_t GPIO_MAX484_RD_Pin) {
-	hUART = huart;
-	MAX484_RD_Port = GPIO_MAX484_RD_Port;
-	MAX484_RD_Pin = GPIO_MAX484_RD_Pin;
+void ElectroMeter_Init(ElectroMeterConfig config) {
+	conf = config;
+	assert_param(conf.hUART != NULL);
+	assert_param(conf.portMAX484 != NULL);
+	assert_param(conf.password != NULL);
+
 	//	huart->Init.BaudRate = 9600;
-	LOG("ElectroMeter Init: UART:0x%x MAX484_Port:0x%x MAX484_Pin:0x%x", huart->Instance, *MAX484_RD_Port, MAX484_RD_Pin);
+	LOG("ElectroMeter Init: UART:0x%x MAX484_Port:0x%x MAX484_Pin:0x%x", conf.hUART->Instance, *(conf.portMAX484), conf.pinRD);
 }
 
 ElectroMeterValues ElectroMeter_GetValues() {
@@ -350,7 +348,7 @@ ElectroMeterValues ElectroMeter_GetValues() {
 		//в ответ должна придти контрольная строка
 
 		//отправляем пароль
-		ln = sendCmd('P', '1', "", password, buff, buffLn);
+		ln = sendCmd('P', '1', "", conf.password, buff, buffLn);
 		if (ln == 1 && buff[0] == EM_ack) { //в ответ должен придти один байт EM_ack
 			//запрос на чтение ET0PE
 			//запрос показаний энергии, учётной нарастающим итогом по всем регистрам счётного механизма

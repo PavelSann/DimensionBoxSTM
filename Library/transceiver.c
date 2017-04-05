@@ -22,7 +22,7 @@ static PACKAGE_QUEUE_NODE queueBuffer[PACKAGE_QUEUE_SIZE];
 static PACKAGE_QUEUE queue;
 static volatile bool queueOverflow = false;
 
-static TRANS_Config conf;
+static TRANSConfig conf;
 static volatile HAL_StatusTypeDef lastReceiveStatus = HAL_OK;
 
 TRANS_PACKAGE TRANS_NewLocalPackage(TRANS_ADDRESS targetAddress, TRANS_PACKAGE_TYPE type) {
@@ -88,9 +88,9 @@ static void config_SP1ML() {
 #endif
 
 
-void TRANS_Init(TRANS_Config configuration) {
+void TRANS_Init(TRANSConfig configuration) {
 	conf = configuration;
-	assert_param(conf.hUART != 0);
+	assert_param(conf.hUART != NULL);
 	assert_param(conf.localAddress > 0);
 	//	assert_param(conf.port != 0);
 	//	assert_param(conf.pinReset > 0);

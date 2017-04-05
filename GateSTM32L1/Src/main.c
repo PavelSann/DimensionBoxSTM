@@ -104,13 +104,13 @@ int main(void) {
 	LOG("Start Gate ID: 0x%x DEVID:0x%x REVID:0x%x HAL:0x%x", CONFIG_ID, HAL_GetDEVID(), HAL_GetREVID(), HAL_GetHalVersion());
 #endif
 
-	TRANS_Config conf = {
+	TRANSConfig conf = {
 		.hUART = &huart4,
 		.localAddress = CONFIG_LOCAL_ADDRESS,
 	};
 	TRANS_Init(conf);
 	//использую одинаковый порт для TCPNotConnect и TCPConfig
-	TCP_Config config = {
+	TCPConfig config = {
 		.hUART = &huart5,
 		.port = TCPConfig_GPIO_Port,
 		.pinConfig = TCPConfig_Pin,
