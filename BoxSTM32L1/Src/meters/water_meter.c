@@ -3,7 +3,7 @@
 #include "xprint.h"
 #include "atomic.h"
 
-#define MIN_PAUSE_IMPULSE 300
+#define MIN_PAUSE_IMPULSE 1000
 
 static WaterMeterConfig conf;
 static volatile uint32_t value = 0;

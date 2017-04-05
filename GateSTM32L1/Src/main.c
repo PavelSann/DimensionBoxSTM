@@ -334,23 +334,7 @@ static void MX_GPIO_Init(void) {
 }
 
 /* USER CODE BEGIN 4 */
-void LedErrorSet() {
-	HAL_GPIO_WritePin(LedErr_GPIO_Port, LedErr_Pin, GPIO_PIN_SET);
-}
 
-void LedErrorSoftWhile() {
-	while (1) {
-		HAL_GPIO_TogglePin(LedErr_GPIO_Port, LedErr_Pin);
-		HAL_Delay(2000);
-	}
-}
-
-void LedErrorHardWhile() {
-	while (1) {
-		HAL_GPIO_TogglePin(LedErr_GPIO_Port, LedErr_Pin);
-		HAL_Delay(500);
-	}
-}
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
 	TCP_UART_RxCpltCallback(huart);
@@ -404,6 +388,34 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	}
 }
 
+void LedErrorSet() {
+	HAL_GPIO_WritePin(LedErr_GPIO_Port, LedErr_Pin, GPIO_PIN_SET);
+}
+
+void LedErrorSoftWhile() {
+	while (1) {
+		HAL_GPIO_TogglePin(LedErr_GPIO_Port, LedErr_Pin);
+		HAL_Delay(2000);
+	}
+}
+
+void LedErrorHardWhile() {
+	while (1) {
+		HAL_GPIO_TogglePin(LedErr_GPIO_Port, LedErr_Pin);
+		HAL_Delay(500);
+	}
+}
+
+void TRANS_OnError(_Bool queueOverflow, HAL_StatusTypeDef lastReceiveStatus) {
+	LOGERR("TRANS error: queueOverflow:%d, lastReceiveStatus:%d", queueOverflow, lastReceiveStatus);
+	LedErrorSet();
+}
+
+void TCP_OnError(uint8_t queueOverflow, uint8_t receiveStatusError) {
+	LOGERR("TCP error: queueOverflow:%d, receiveStatusError:%d", queueOverflow, receiveStatusError);
+	LedErrorSet();
+}
+
 void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
 	uint32_t uartErrorCode = HAL_UART_GetError(huart);
 	LOGERR("UART %x Error %x", huart->Instance, uartErrorCode);
@@ -411,11 +423,6 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
 	//UART4 0x40004C00 SP1ML
 	//UART5 0x40005000 TCP
 	// see HAL_UART_ERROR_
-}
-
-void TCP_OnError(uint8_t queueOverflow, uint8_t receiveStatusError) {
-	LOGERR("TCP error: queueOverflow:%d, receiveStatusError:%d", queueOverflow, receiveStatusError);
-	LedErrorSet();
 }
 /* USER CODE END 4 */
 

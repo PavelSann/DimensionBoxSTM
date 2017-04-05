@@ -408,33 +408,10 @@ static void MX_GPIO_Init(void) {
 
 /* USER CODE BEGIN 4 */
 
-void LedErrorSet() {
-	HAL_GPIO_WritePin(LedErr_GPIO_Port, LedErr_Pin, GPIO_PIN_SET);
-}
 
-void LedErrorSoftWhile() {
-	while (1) {
-		HAL_GPIO_TogglePin(LedErr_GPIO_Port, LedErr_Pin);
-		HAL_Delay(2000);
-	}
-}
-
-void LedErrorHardWhile() {
-	while (1) {
-		HAL_GPIO_TogglePin(LedErr_GPIO_Port, LedErr_Pin);
-		HAL_Delay(500);
-	}
-}
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
 	TRANS_UART_RxCpltCallback(huart);
-}
-
-void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
-	uint32_t uartErrorCode = HAL_UART_GetError(huart);
-	LOGERR("UART %x Error %x", huart->Instance, uartErrorCode);
-	//SEE HAL_UART_ERROR_
-	LedErrorSet();
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
@@ -473,10 +450,6 @@ void TRANS_OnProcessPackage(TRANS_PACKAGE* pPackage) {
 	}
 }
 
-void TRANS_OnError(bool queueOverflow, HAL_StatusTypeDef lastReceiveStatus) {
-	LOGERR("TRANS Error: Overflow:%d lastReceiveStatus:%0x%x", queueOverflow, lastReceiveStatus);
-	LedErrorSet();
-}
 //
 //void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 //
@@ -489,6 +462,35 @@ void TRANS_OnError(bool queueOverflow, HAL_StatusTypeDef lastReceiveStatus) {
 //	}
 //}
 
+void LedErrorSet() {
+	HAL_GPIO_WritePin(LedErr_GPIO_Port, LedErr_Pin, GPIO_PIN_SET);
+}
+
+void LedErrorSoftWhile() {
+	while (1) {
+		HAL_GPIO_TogglePin(LedErr_GPIO_Port, LedErr_Pin);
+		HAL_Delay(2000);
+	}
+}
+
+void LedErrorHardWhile() {
+	while (1) {
+		HAL_GPIO_TogglePin(LedErr_GPIO_Port, LedErr_Pin);
+		HAL_Delay(500);
+	}
+}
+
+void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
+	uint32_t uartErrorCode = HAL_UART_GetError(huart);
+	LOGERR("UART %x Error %x", huart->Instance, uartErrorCode);
+	//SEE HAL_UART_ERROR_
+	LedErrorSet();
+}
+
+void TRANS_OnError(bool queueOverflow, HAL_StatusTypeDef lastReceiveStatus) {
+	LOGERR("TRANS Error: Overflow:%d lastReceiveStatus:%0x%x", queueOverflow, lastReceiveStatus);
+	LedErrorSet();
+}
 
 /* USER CODE END 4 */
 
