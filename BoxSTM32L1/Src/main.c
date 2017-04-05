@@ -378,7 +378,7 @@ static void MX_GPIO_Init(void) {
 	__HAL_RCC_GPIOB_CLK_ENABLE();
 
 	/*Configure GPIO pin Output Level */
-	HAL_GPIO_WritePin(GPIOA, Valve1_Pin | LedGreen_Pin | MAX484RD_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GPIOA, Valve1_Pin | Valve2_Pin | LedErr_Pin | MAX484RD_Pin, GPIO_PIN_RESET);
 
 	/*Configure GPIO pin : ButtonBlue_Pin */
 	GPIO_InitStruct.Pin = ButtonBlue_Pin;
@@ -386,19 +386,19 @@ static void MX_GPIO_Init(void) {
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	HAL_GPIO_Init(ButtonBlue_GPIO_Port, &GPIO_InitStruct);
 
-	/*Configure GPIO pins : Valve1_Pin MAX484RD_Pin */
-	GPIO_InitStruct.Pin = Valve1_Pin | MAX484RD_Pin;
+	/*Configure GPIO pins : Valve1_Pin Valve2_Pin MAX484RD_Pin */
+	GPIO_InitStruct.Pin = Valve1_Pin | Valve2_Pin | MAX484RD_Pin;
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Pull = GPIO_PULLDOWN;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-	/*Configure GPIO pin : LedGreen_Pin */
-	GPIO_InitStruct.Pin = LedGreen_Pin;
+	/*Configure GPIO pin : LedErr_Pin */
+	GPIO_InitStruct.Pin = LedErr_Pin;
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-	HAL_GPIO_Init(LedGreen_GPIO_Port, &GPIO_InitStruct);
+	HAL_GPIO_Init(LedErr_GPIO_Port, &GPIO_InitStruct);
 
 	/* EXTI interrupt init*/
 	HAL_NVIC_SetPriority(EXTI15_10_IRQn, 5, 0);
@@ -408,6 +408,24 @@ static void MX_GPIO_Init(void) {
 
 /* USER CODE BEGIN 4 */
 
+void LedErrorSet() {
+	HAL_GPIO_WritePin(LedErr_GPIO_Port, LedErr_Pin, GPIO_PIN_SET);
+}
+
+void LedErrorSoftWhile() {
+	while (1) {
+		HAL_GPIO_TogglePin(LedErr_GPIO_Port, LedErr_Pin);
+		HAL_Delay(2000);
+	}
+}
+
+void LedErrorHardWhile() {
+	while (1) {
+		HAL_GPIO_TogglePin(LedErr_GPIO_Port, LedErr_Pin);
+		HAL_Delay(500);
+	}
+}
+
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
 	TRANS_UART_RxCpltCallback(huart);
 }
@@ -416,6 +434,7 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
 	uint32_t uartErrorCode = HAL_UART_GetError(huart);
 	LOGERR("UART %x Error %x", huart->Instance, uartErrorCode);
 	//SEE HAL_UART_ERROR_
+	LedErrorSet();
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
@@ -448,7 +467,7 @@ void TRANS_OnProcessPackage(TRANS_PACKAGE* pPackage) {
 			HAL_GPIO_WritePin(Valve1_GPIO_Port, Valve1_Pin, state);
 		}
 		if (valve == 2) {
-			HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, state);
+			HAL_GPIO_WritePin(Valve2_GPIO_Port, Valve2_Pin, state);
 		}
 
 	}
@@ -456,6 +475,7 @@ void TRANS_OnProcessPackage(TRANS_PACKAGE* pPackage) {
 
 void TRANS_OnError(bool queueOverflow, HAL_StatusTypeDef lastReceiveStatus) {
 	LOGERR("TRANS Error: Overflow:%d lastReceiveStatus:%0x%x", queueOverflow, lastReceiveStatus);
+	LedErrorSet();
 }
 //
 //void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
@@ -481,10 +501,7 @@ void Error_Handler(void) {
 	/* USER CODE BEGIN Error_Handler */
 	/* User can add his own implementation to report the HAL error return state */
 	LOGERR("HAL Error_Handler");
-	while (1) {
-		HAL_GPIO_TogglePin(LedGreen_GPIO_Port, LedGreen_Pin);
-		HAL_Delay(500);
-	}
+	LedErrorSoftWhile();
 	/* USER CODE END Error_Handler */
 }
 
@@ -502,10 +519,7 @@ void assert_failed(uint8_t* file, uint32_t line) {
 	/* User can add his own implementation to report the file name and line number,
 	  ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
 	LOG("assert_failed: Wrong parameters value: file %s on line %d\r\n", file, line);
-	while (1) {
-		HAL_GPIO_TogglePin(LedGreen_GPIO_Port, LedGreen_Pin);
-		HAL_Delay(500);
-	}
+	LedErrorSoftWhile();
 	/* USER CODE END 6 */
 
 }

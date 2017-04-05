@@ -58,6 +58,7 @@ void NMI_Handler(void)
 {
   /* USER CODE BEGIN NonMaskableInt_IRQn 0 */
 	LOGERR("Non maskable interrupt");
+	LedErrorHardWhile();
   /* USER CODE END NonMaskableInt_IRQn 0 */
   /* USER CODE BEGIN NonMaskableInt_IRQn 1 */
 
@@ -71,10 +72,11 @@ void HardFault_Handler(void)
 {
   /* USER CODE BEGIN HardFault_IRQn 0 */
 	LOGERR("Hard fault interrupt");
+	LedErrorHardWhile();
   /* USER CODE END HardFault_IRQn 0 */
   while (1)
   {
-  }
+	}
   /* USER CODE BEGIN HardFault_IRQn 1 */
 
   /* USER CODE END HardFault_IRQn 1 */
@@ -86,11 +88,12 @@ void HardFault_Handler(void)
 void MemManage_Handler(void)
 {
   /* USER CODE BEGIN MemoryManagement_IRQn 0 */
-LOGERR("Memory management fault");
+	LOGERR("Memory management fault");
+	LedErrorHardWhile();
   /* USER CODE END MemoryManagement_IRQn 0 */
   while (1)
   {
-  }
+	}
   /* USER CODE BEGIN MemoryManagement_IRQn 1 */
 
   /* USER CODE END MemoryManagement_IRQn 1 */
@@ -103,10 +106,11 @@ void BusFault_Handler(void)
 {
   /* USER CODE BEGIN BusFault_IRQn 0 */
 	LOGERR("Pre-fetch fault, memory access fault");
+	LedErrorHardWhile();
   /* USER CODE END BusFault_IRQn 0 */
   while (1)
   {
-  }
+	}
   /* USER CODE BEGIN BusFault_IRQn 1 */
 
   /* USER CODE END BusFault_IRQn 1 */
@@ -119,10 +123,11 @@ void UsageFault_Handler(void)
 {
   /* USER CODE BEGIN UsageFault_IRQn 0 */
 	LOGERR("Undefined instruction or illegal state");
+	LedErrorHardWhile();
   /* USER CODE END UsageFault_IRQn 0 */
   while (1)
   {
-  }
+	}
   /* USER CODE BEGIN UsageFault_IRQn 1 */
 
   /* USER CODE END UsageFault_IRQn 1 */

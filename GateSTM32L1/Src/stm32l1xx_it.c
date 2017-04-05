@@ -57,8 +57,8 @@ extern UART_HandleTypeDef huart5;
 void NMI_Handler(void)
 {
   /* USER CODE BEGIN NonMaskableInt_IRQn 0 */
-	HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin,GPIO_PIN_SET);
 	LOGERR("Non maskable interrupt");
+	LedErrorHardWhile();
   /* USER CODE END NonMaskableInt_IRQn 0 */
   /* USER CODE BEGIN NonMaskableInt_IRQn 1 */
 
@@ -71,12 +71,12 @@ void NMI_Handler(void)
 void HardFault_Handler(void)
 {
   /* USER CODE BEGIN HardFault_IRQn 0 */
-	HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin,GPIO_PIN_SET);
 	LOGERR("Hard fault interrupt");
+	LedErrorHardWhile();
   /* USER CODE END HardFault_IRQn 0 */
   while (1)
   {
-  }
+	}
   /* USER CODE BEGIN HardFault_IRQn 1 */
 
   /* USER CODE END HardFault_IRQn 1 */
@@ -88,12 +88,12 @@ void HardFault_Handler(void)
 void MemManage_Handler(void)
 {
   /* USER CODE BEGIN MemoryManagement_IRQn 0 */
-	HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin,GPIO_PIN_SET);
 	LOGERR("Memory management fault");
+	LedErrorHardWhile();
   /* USER CODE END MemoryManagement_IRQn 0 */
   while (1)
   {
-  }
+	}
   /* USER CODE BEGIN MemoryManagement_IRQn 1 */
 
   /* USER CODE END MemoryManagement_IRQn 1 */
@@ -105,12 +105,12 @@ void MemManage_Handler(void)
 void BusFault_Handler(void)
 {
   /* USER CODE BEGIN BusFault_IRQn 0 */
-	HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin,GPIO_PIN_SET);
 	LOGERR("Pre-fetch fault, memory access fault");
+	LedErrorHardWhile();
   /* USER CODE END BusFault_IRQn 0 */
   while (1)
   {
-  }
+	}
   /* USER CODE BEGIN BusFault_IRQn 1 */
 
   /* USER CODE END BusFault_IRQn 1 */
@@ -122,12 +122,12 @@ void BusFault_Handler(void)
 void UsageFault_Handler(void)
 {
   /* USER CODE BEGIN UsageFault_IRQn 0 */
-	HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin,GPIO_PIN_SET);
 	LOGERR("Undefined instruction or illegal state");
+	LedErrorHardWhile();
   /* USER CODE END UsageFault_IRQn 0 */
   while (1)
   {
-  }
+	}
   /* USER CODE BEGIN UsageFault_IRQn 1 */
 
   /* USER CODE END UsageFault_IRQn 1 */

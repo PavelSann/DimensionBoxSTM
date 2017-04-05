@@ -289,7 +289,7 @@ static void MX_GPIO_Init(void) {
 	HAL_GPIO_WritePin(TCPConfig_GPIO_Port, TCPConfig_Pin, GPIO_PIN_RESET);
 
 	/*Configure GPIO pin Output Level */
-	HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(LedErr_GPIO_Port, LedErr_Pin, GPIO_PIN_RESET);
 
 	/*Configure GPIO pin Output Level */
 	HAL_GPIO_WritePin(ConnectLED_GPIO_Port, ConnectLED_Pin, GPIO_PIN_RESET);
@@ -313,12 +313,12 @@ static void MX_GPIO_Init(void) {
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	HAL_GPIO_Init(TCPNotConnect_GPIO_Port, &GPIO_InitStruct);
 
-	/*Configure GPIO pin : LedGreen_Pin */
-	GPIO_InitStruct.Pin = LedGreen_Pin;
+	/*Configure GPIO pin : LedErr_Pin */
+	GPIO_InitStruct.Pin = LedErr_Pin;
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-	HAL_GPIO_Init(LedGreen_GPIO_Port, &GPIO_InitStruct);
+	HAL_GPIO_Init(LedErr_GPIO_Port, &GPIO_InitStruct);
 
 	/*Configure GPIO pin : ConnectLED_Pin */
 	GPIO_InitStruct.Pin = ConnectLED_Pin;
@@ -334,6 +334,23 @@ static void MX_GPIO_Init(void) {
 }
 
 /* USER CODE BEGIN 4 */
+void LedErrorSet() {
+	HAL_GPIO_WritePin(LedErr_GPIO_Port, LedErr_Pin, GPIO_PIN_SET);
+}
+
+void LedErrorSoftWhile() {
+	while (1) {
+		HAL_GPIO_TogglePin(LedErr_GPIO_Port, LedErr_Pin);
+		HAL_Delay(2000);
+	}
+}
+
+void LedErrorHardWhile() {
+	while (1) {
+		HAL_GPIO_TogglePin(LedErr_GPIO_Port, LedErr_Pin);
+		HAL_Delay(500);
+	}
+}
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
 	TCP_UART_RxCpltCallback(huart);
@@ -390,7 +407,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
 	uint32_t uartErrorCode = HAL_UART_GetError(huart);
 	LOGERR("UART %x Error %x", huart->Instance, uartErrorCode);
-	HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_SET);
+	LedErrorSet();
 	//UART4 0x40004C00 SP1ML
 	//UART5 0x40005000 TCP
 	// see HAL_UART_ERROR_
@@ -398,6 +415,7 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
 
 void TCP_OnError(uint8_t queueOverflow, uint8_t receiveStatusError) {
 	LOGERR("TCP error: queueOverflow:%d, receiveStatusError:%d", queueOverflow, receiveStatusError);
+	LedErrorSet();
 }
 /* USER CODE END 4 */
 
@@ -410,10 +428,7 @@ void Error_Handler(void) {
 	/* USER CODE BEGIN Error_Handler */
 	/* User can add his own implementation to report the HAL error return state */
 	xprintln("HAL Error_Handler");
-	while (1) {
-		HAL_GPIO_TogglePin(LedGreen_GPIO_Port, LedGreen_Pin);
-		HAL_Delay(500);
-	}
+	LedErrorSoftWhile();
 	/* USER CODE END Error_Handler */
 }
 
@@ -431,10 +446,7 @@ void assert_failed(uint8_t* file, uint32_t line) {
 	/* User can add his own implementation to report the file name and line number,
 	  ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
 	LOG("assert_failed: Wrong parameters value: file %s on line %d\r\n", file, line);
-	while (1) {
-		HAL_GPIO_TogglePin(LedGreen_GPIO_Port, LedGreen_Pin);
-		HAL_Delay(500);
-	}
+	LedErrorSoftWhile();
 	/* USER CODE END 6 */
 
 }

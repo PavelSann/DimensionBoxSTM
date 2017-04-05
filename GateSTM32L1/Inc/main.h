@@ -51,8 +51,8 @@
 #define USART_TX_GPIO_Port GPIOA
 #define USART_RX_Pin GPIO_PIN_3
 #define USART_RX_GPIO_Port GPIOA
-#define LedGreen_Pin GPIO_PIN_5
-#define LedGreen_GPIO_Port GPIOA
+#define LedErr_Pin GPIO_PIN_5
+#define LedErr_GPIO_Port GPIOA
 #define ConnectLED_Pin GPIO_PIN_0
 #define ConnectLED_GPIO_Port GPIOB
 #define TMS_Pin GPIO_PIN_13
@@ -67,7 +67,9 @@
 #define SWO_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
-
+void LedErrorSet();
+void LedErrorSoftWhile();
+void LedErrorHardWhile();
 /* USER CODE END Private defines */
 
 /**

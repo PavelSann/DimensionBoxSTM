@@ -151,6 +151,10 @@ static void processPackageNode(PACKAGE_QUEUE_NODE *node) {
 		LOGMEM(node->package, TRANS_PACKAGE_SIZE);
 		//		LOG("* * * * * ");
 		//		LOGMEM(queue.packetQueue, PACKAGE_QUEUE_SIZE*sizeof(PACKAGE_QUEUE_NODE));
+		/*
+		 Если получены кривые данные, можно поискать в пакете начало пакета, если он сдвинут, то записать в доп. буфер
+		 при получении следуюущих кривых данных, начало можно будет взять из доп буфера
+		 */
 	} else {
 #if LOG_PACKAGE 
 		LOG("TCP: ReceivePackage:");
