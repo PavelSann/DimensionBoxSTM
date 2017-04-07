@@ -25,9 +25,24 @@ extern "C" {
 	typedef struct {
 		UART_HandleTypeDef *hUART;
 		TRANS_ADDRESS localAddress;
-//		GPIO_TypeDef *port;
-//		uint16_t pinReset;
+		//		GPIO_TypeDef *port;
+		//		uint16_t pinReset;
 	} TRANSConfig;
+
+	typedef enum {
+		TRANS_ERR_NONE = 0,
+		TRANS_ERR_OVERFLOW_QUEUE = 1,
+		TRANS_ERR_BAD_PACKAGE = 2,
+		TRANS_ERR_UART_TRANSMIT = 3,
+		TRANS_ERR_UART_RECEIVE = 4,
+	} TRANSError;
+
+	typedef __IO struct {
+		uint16_t overflowQueueCount;
+		HAL_StatusTypeDef lastReceiveStatus;
+		HAL_StatusTypeDef lastTransmitStatus;
+		TRANSError lastError;
+	} TRANSStatus;
 
 	/**
 	 * Инициализация модуля связи TRANS
@@ -71,7 +86,7 @@ extern "C" {
 	 */
 	void TRANS_ProcessPackage();
 
-	void TRANS_OnError(bool queueOverflow, HAL_StatusTypeDef lastReceiveStatus);
+	void TRANS_OnError(TRANSStatus status);
 
 #ifdef __cplusplus
 }

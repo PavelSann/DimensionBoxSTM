@@ -19,6 +19,7 @@ extern "C" {
 #endif
 #include <stdint.h>
 #include "trans_package.h"
+#include <stdbool.h>
 
 	typedef struct {
 		uint8_t package[TRANS_PACKAGE_SIZE];
@@ -57,8 +58,9 @@ extern "C" {
 	/**
 	 * Помечает текущую используемую ноду, как содержащую принятые данные
 	 * @param queue
+	 * @return true если нода помечена, false если текущая нода не использовалась
 	 */
-	void QUEUE_ReceiveNode(PACKAGE_QUEUE *queue);
+	bool QUEUE_ReceiveNode(PACKAGE_QUEUE *queue);
 	/**
 	 * Обрабатывает 1 ноду с принятыми данными, если такая есть
 	 * вызывает callback, потом отмечает ноду как свободную

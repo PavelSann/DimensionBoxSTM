@@ -388,12 +388,12 @@ ElectroMeterValues ElectroMeter_GetValues() {
 			}
 		} else {
 			values.error = ElectroMeter_ERR_NOT_ASK;
-			LOGERR("Meter not response АСК");
+//			LOGERR("Meter not response АСК");
 		}
 
 	} else {
 		values.error = ElectroMeter_ERR_NOT_RESPONSE;
-		LOGERR("Meter not response");
+//		LOGERR("Meter not response");
 	}
 
 	return values;
@@ -433,7 +433,7 @@ ElectroMeterData ElectroMeter_ReadData() {
 
 	} else {
 		result.error = ElectroMeter_ERR_NOT_RESPONSE;
-		LOGERR("Meter not response");
+//		LOGERR("Meter not response");
 	}
 	return result;
 }

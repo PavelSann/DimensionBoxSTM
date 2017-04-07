@@ -162,7 +162,7 @@ int main(void) {
 			if (!values.error) {
 				//LOG("Electro values: t1=%d t2=%d t3=%d t4=%d ", values.tariff1, values.tariff2, values.tariff3, values.tariff4);
 			} else {
-				LOG("Electro meter not connect");
+//				LOG("Electro meter not connect");
 				values.tariff1 = TRANS_DISCONNECT_METER_VALUE;
 				values.tariff2 = TRANS_DISCONNECT_METER_VALUE;
 				values.tariff3 = TRANS_DISCONNECT_METER_VALUE;
@@ -437,6 +437,9 @@ void TRANS_OnProcessPackage(TRANS_PACKAGE* pPackage) {
 				valve = p1;
 				LOG("Close the valve %d", valve);
 				break;
+			case TRANS_COMMAND_RESET:
+				LOG("System reset");
+				HAL_NVIC_SystemReset();
 			default:
 				break;
 		}
@@ -487,8 +490,16 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
 	LedErrorSet();
 }
 
-void TRANS_OnError(bool queueOverflow, HAL_StatusTypeDef lastReceiveStatus) {
-	LOGERR("TRANS Error: Overflow:%d lastReceiveStatus:%0x%x", queueOverflow, lastReceiveStatus);
+void TRANS_OnError(TRANSStatus status) {
+	LOGERR("TRANS Error: "
+			"lastError:0x%x "
+			"lastReceiveStatus:0x%x "
+			"lastTransmitStatus:0x%x "
+			"overflowQueueCount:%d",
+			status.lastError,
+			status.lastReceiveStatus,
+			status.lastTransmitStatus,
+			status.overflowQueueCount);
 	LedErrorSet();
 }
 

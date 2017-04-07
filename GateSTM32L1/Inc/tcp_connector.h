@@ -24,9 +24,19 @@ extern "C" {
 #include "stdbool.h"
 
 	typedef enum {
-		TCP_OK = 0x00,
-		TCP_ERROR = 0x01,
-	} TCP_Status;
+		TCP_ERR_NONE = 0,
+		TCP_ERR_OVERFLOW_QUEUE = 1,
+		TCP_ERR_BAD_PACKAGE = 2,
+		TCP_ERR_UART_TRANSMIT = 3,
+		TCP_ERR_UART_RECEIVE = 4,
+	} TCPError;
+
+	typedef __IO struct {
+		uint16_t overflowQueueCount;
+		HAL_StatusTypeDef lastReceiveStatus;
+		HAL_StatusTypeDef lastTransmitStatus;
+		TCPError lastError;
+	} TCPStatus;
 
 	typedef struct {
 		UART_HandleTypeDef *hUART;
@@ -35,13 +45,15 @@ extern "C" {
 		uint16_t pinNotConnect;
 	} TCPConfig;
 
+
+
 	void TCP_Init(TCPConfig configuration);
 	bool TCP_IsConnect();
-	TCP_Status TCP_SendTransPackage(TRANS_PACKAGE *pPackage);
+	void TCP_SendTransPackage(TRANS_PACKAGE *pPackage);
 	void TCP_OnProcessPackage(TRANS_PACKAGE *pPackage);
 	void TCP_UART_RxCpltCallback(UART_HandleTypeDef* huart);
 	void TCP_ProcessPackage();
-	void TCP_OnError(uint8_t queueOverflow, uint8_t receiveStatusError);
+	void TCP_OnError(TCPStatus status);
 
 
 #ifdef __cplusplus

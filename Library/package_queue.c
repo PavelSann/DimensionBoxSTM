@@ -18,18 +18,23 @@ uint8_t *QUEUE_UseNode(PACKAGE_QUEUE *queue) {
 		node->status = PQ_NODE_USE;
 		return node->package;
 	} else {
-		LOGERR("Epic FAIL. Node status: %d", node->status);
 		return NULL;
 	}
 }
 
-void QUEUE_ReceiveNode(PACKAGE_QUEUE *queue) {
-	queue->packetQueue[queue->useIndex].status = PQ_NODE_RECEIVE;
+bool QUEUE_ReceiveNode(PACKAGE_QUEUE *queue) {
+	PACKAGE_QUEUE_NODE *node = &queue->packetQueue[queue->useIndex];
+	//если текущая нода не используется вернём false
+	if (node->status != PQ_NODE_USE) {
+		return false;
+	}
 
+	node->status = PQ_NODE_RECEIVE;
 	queue->useIndex++;
 	if (queue->useIndex == queue->size) {
 		queue->useIndex = 0;
 	}
+	return true;
 }
 
 void QUEUE_ProcessNode(PACKAGE_QUEUE *queue, void (*callback)(PACKAGE_QUEUE_NODE *)) {

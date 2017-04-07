@@ -342,41 +342,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
 }
 
 void TRANS_OnProcessPackage(TRANS_PACKAGE *pPackage) {
-	LOG("TRANS: OnProcessPackage: type:%d source:0x%x target:0x%x", pPackage->type, pPackage->sourceAddress, pPackage->targetAddress);
-	//
-	//	if (pPackage->type == TRANS_TYPE_METERS) {
-	//		TRANS_DATA_METERS *pMeters = &pPackage->data.meters;
-	//		LOG("Meters:\n"
-	//				"	value0:%d\n"
-	//				"	value1:%d\n"
-	//				"	value2:%d\n"
-	//				"	value3:%d\n"
-	//				"	value4:%d\n"
-	//				"	value5:%d\n"
-	//				"	value6:%d\n"
-	//				"	value7:%d\n",
-	//				pMeters->value0,
-	//				pMeters->value1,
-	//				pMeters->value2,
-	//				pMeters->value3,
-	//				pMeters->value4,
-	//				pMeters->value5,
-	//				pMeters->value6,
-	//				pMeters->value7);
-	//	} else {
-	//		LOG("Invalid type %d", pPackage->type);
-	//	}
-	//
-
-	TCP_Status status = TCP_SendTransPackage(pPackage);
-	if (status != TCP_OK) {
-		LOGERR("TCP error %d" + status);
-	}
-
+//	LOG("TRANS: ProcessPackage: type:%d source:0x%x target:0x%x", pPackage->type, pPackage->sourceAddress, pPackage->targetAddress);
+	TCP_SendTransPackage(pPackage);
 }
 
 void TCP_OnProcessPackage(TRANS_PACKAGE* pPackage) {
-	LOG("TCP: ProcessPackage: type:%d source:0x%x target:0x%x", pPackage->type, pPackage->sourceAddress, pPackage->targetAddress);
+//	LOG("TCP: ProcessPackage: type:%d source:0x%x target:0x%x", pPackage->type, pPackage->sourceAddress, pPackage->targetAddress);
 	TRANS_SendPackage(pPackage);
 }
 
@@ -406,14 +377,30 @@ void LedErrorHardWhile() {
 	}
 }
 
-void TRANS_OnError(_Bool queueOverflow, HAL_StatusTypeDef lastReceiveStatus) {
-	LOGERR("TRANS error: queueOverflow:%d, lastReceiveStatus:%d", queueOverflow, lastReceiveStatus);
+void TRANS_OnError(TRANSStatus status) {
+	LOGERR("TRANS Error: "
+			"lastError:0x%x "
+			"lastReceiveStatus:0x%x "
+			"lastTransmitStatus:0x%x "
+			"overflowQueueCount:%d",
+			status.lastError,
+			status.lastReceiveStatus,
+			status.lastTransmitStatus,
+			status.overflowQueueCount);
 	LedErrorSet();
 }
 
-void TCP_OnError(uint8_t queueOverflow, uint8_t receiveStatusError) {
-	LOGERR("TCP error: queueOverflow:%d, receiveStatusError:%d", queueOverflow, receiveStatusError);
-	LedErrorSet();
+void TCP_OnError(TCPStatus status) {
+	LOGERR("TCP Error: "
+			"error:0x%x "
+			"lastReceiveStatus:0x%x "
+			"lastTransmitStatus:0x%x "
+			"overflowQueueCount:%d",
+			status.lastError,
+			status.lastReceiveStatus,
+			status.lastTransmitStatus,
+			status.overflowQueueCount);
+ 	LedErrorSet();
 }
 
 void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
