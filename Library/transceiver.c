@@ -27,7 +27,8 @@ static TRANSStatus status = {
 	.lastError = TRANS_ERR_NONE,
 	.lastReceiveStatus = HAL_OK,
 	.lastTransmitStatus = HAL_OK,
-	.overflowQueueCount = 0
+	.overflowQueueCount = 0,
+	.uartState = HAL_UART_STATE_READY
 };
 
 TRANS_PACKAGE TRANS_NewLocalPackage(TRANS_ADDRESS targetAddress, TRANS_PACKAGE_TYPE type) {
@@ -35,7 +36,7 @@ TRANS_PACKAGE TRANS_NewLocalPackage(TRANS_ADDRESS targetAddress, TRANS_PACKAGE_T
 }
 
 static void sendBytes(uint8_t *bytes, int len) {
-	static uint32_t lastSendTime = 0;
+	static volatile uint32_t lastSendTime = 0;
 #if LOG_PACKAGE
 	LOG("TRANS: sendBytes:");
 	LOGMEM(bytes, TRANS_PACKAGE_SIZE);
@@ -62,12 +63,14 @@ static void sendCommand(char *str) {
 }
 	#define CONFIG_ARR_SIZE 9
 static char *(config[CONFIG_ARR_SIZE]) = {
-	"+++",
-	"ATR\r\n",
-	//	"ATS02=1000\r\n",
-	"ATS14=1\r\n",
-	"ATS19=1\r\n",
-	"ATS28=" SP1ML_PAYLOAD_SIZE_STR "\r\n",
+	"+++", //Command mode
+	"ATR\r\n", //Reset configuration to the default values
+	//"ATS00=500000\r\n", //General:Baud rate of the UART interface in bps. The baud rate is stored when the configuration is stored.
+	//"ATS02=500000\r\n", //Radio:Data rate in bps. The data rate for OOK and ASK modulation schemes is limited to 250000bps.
+	//"ATS13=0\r\n", //Packet:Data whitening mode.
+	//"ATS14=1\r\n", //Packet:Forward error correction.
+	"ATS19=1\r\n", //Address:Filter packets that have an invalid CRC.
+	"ATS28=" SP1ML_PAYLOAD_SIZE_STR "\r\n", //Packet: Packet payload size in bytes.
 	"AT/C\r\n",
 	"AT/S\r\n",
 	"ATO\r\n"
@@ -97,6 +100,7 @@ static void config_SP1ML() {
 
 static void inline ReceivePackage() {
 	QUEUE_ReceiveNode(&queue);
+//	queue.packetQueue[queue.useIndex]
 	uint8_t *nodeBuffer = QUEUE_UseNode(&queue);
 	if (nodeBuffer == NULL) {
 		//если нет места в очереди, то будем писать пакет в спец буфер,
@@ -118,6 +122,14 @@ static void inline ReceivePackage() {
 	}
 }
 
+static void tryError() {
+	status.uartState = HAL_UART_GetState(conf.hUART);
+	if (error) {
+		error = false;
+		TRANS_OnError(status);
+	}
+}
+
 void TRANS_Init(TRANSConfig configuration) {
 	conf = configuration;
 	assert_param(conf.hUART != NULL);
@@ -131,16 +143,40 @@ void TRANS_Init(TRANSConfig configuration) {
 	queue = QUEUE_NewQueue(queueBuffer, PACKAGE_QUEUE_SIZE);
 
 	ReceivePackage();
-	if (error) {
-		error = false;
-		TRANS_OnError(status);
-	}
+	tryError();
 	LOG("Transceiver init UART:0x%x TRANS_PACKAGE_SIZE:%d", conf.hUART->Instance, TRANS_PACKAGE_SIZE);
 }
 
 void TRANS_SendPackage(TRANS_PACKAGE *pPackage) {
 	uint8_t *bytes = TRANS_PackageToByte(pPackage);
+#if 1
 	sendBytes(bytes, TRANS_PACKAGE_SIZE);
+#else
+	static uint8_t byteBuffer[TRANS_PACKAGE_SIZE];
+	//ждём пока освободится линия передачи данных
+		HAL_UART_StateTypeDef uartStat = HAL_UART_GetState(conf.hUART);
+		while (uartStat == HAL_UART_STATE_BUSY_TX || uartStat == HAL_UART_STATE_BUSY_TX_RX) {
+			//	while ((uartStat != HAL_UART_STATE_READY) && (uartStat != HAL_UART_STATE_BUSY_RX)) {
+			uartStat = HAL_UART_GetState(conf.hUART);
+		}
+
+		if (uartStat == HAL_UART_STATE_ERROR || uartStat == HAL_UART_STATE_RESET) {
+			status.lastError = TRANS_ERR_UART_TRANSMIT;
+			error = true;
+			return;
+		}
+	//копируем пакет во временный буфер
+	for (size_t i = 0; i < TRANS_PACKAGE_SIZE; i++) {
+		byteBuffer[i] = bytes[i];
+	}
+	//запускаем отправку
+	status.lastTransmitStatus = HAL_UART_Transmit_IT(conf.hUART, byteBuffer, TRANS_PACKAGE_SIZE);
+	//	status.lastTransmitStatus = HAL_UART_Transmit_DMA(conf.hUART, byteBuffer, TRANS_PACKAGE_SIZE);
+	if (status.lastTransmitStatus != HAL_OK) {
+		status.lastError = TRANS_ERR_UART_TRANSMIT;
+		error = true;
+	}
+#endif
 }
 
 void TRANS_SendDataMeters(TRANS_ADDRESS targetAddress, TRANS_DATA_METERS *dataMeters) {
@@ -191,11 +227,7 @@ static void processPackageNode(PACKAGE_QUEUE_NODE *node) {
 }
 
 void TRANS_ProcessPackage() {
-	if (error) {
-		error = false;
-		TRANS_OnError(status);
-	}
-
+	tryError();
 	QUEUE_ProcessNode(&queue, processPackageNode);
 
 #if LOG_PACKAGE

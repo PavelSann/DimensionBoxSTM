@@ -54,7 +54,6 @@ UART_HandleTypeDef huart4;
 UART_HandleTypeDef huart5;
 UART_HandleTypeDef huart2;
 DMA_HandleTypeDef hdma_uart4_rx;
-DMA_HandleTypeDef hdma_uart4_tx;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
@@ -162,7 +161,7 @@ int main(void) {
 			if (!values.error) {
 				//LOG("Electro values: t1=%d t2=%d t3=%d t4=%d ", values.tariff1, values.tariff2, values.tariff3, values.tariff4);
 			} else {
-//				LOG("Electro meter not connect");
+				//				LOG("Electro meter not connect");
 				values.tariff1 = TRANS_DISCONNECT_METER_VALUE;
 				values.tariff2 = TRANS_DISCONNECT_METER_VALUE;
 				values.tariff3 = TRANS_DISCONNECT_METER_VALUE;
@@ -351,11 +350,8 @@ static void MX_DMA_Init(void) {
 
 	/* DMA interrupt init */
 	/* DMA2_Channel3_IRQn interrupt configuration */
-	HAL_NVIC_SetPriority(DMA2_Channel3_IRQn, 2, 0);
+	HAL_NVIC_SetPriority(DMA2_Channel3_IRQn, 1, 0);
 	HAL_NVIC_EnableIRQ(DMA2_Channel3_IRQn);
-	/* DMA2_Channel5_IRQn interrupt configuration */
-	HAL_NVIC_SetPriority(DMA2_Channel5_IRQn, 2, 0);
-	HAL_NVIC_EnableIRQ(DMA2_Channel5_IRQn);
 
 }
 
@@ -401,7 +397,7 @@ static void MX_GPIO_Init(void) {
 	HAL_GPIO_Init(LedErr_GPIO_Port, &GPIO_InitStruct);
 
 	/* EXTI interrupt init*/
-	HAL_NVIC_SetPriority(EXTI15_10_IRQn, 5, 0);
+	HAL_NVIC_SetPriority(EXTI15_10_IRQn, 4, 0);
 	HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
 }
@@ -415,7 +411,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-	readMeters = true;
+	//	readMeters = true;
+
 }
 
 void TRANS_OnProcessPackage(TRANS_PACKAGE* pPackage) {
@@ -453,17 +450,17 @@ void TRANS_OnProcessPackage(TRANS_PACKAGE* pPackage) {
 	}
 }
 
-//
-//void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-//
-//	if (GPIO_Pin == Counter_Pin) {
-//		//incCount();
-//	}
-//
-//	if (GPIO_Pin == ButtonBlue_Pin) {
-//		//doShow();
-//	}
-//}
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+	if (GPIO_Pin == ButtonBlue_Pin) {
+		HAL_GPIO_TogglePin(LedErr_GPIO_Port, LedErr_Pin);
+		LOG("Toggle error led");
+
+		LOG("Send data");
+
+		TRANS_DATA_METERS meters = {0xABCDEF, 0xABCDEF, 0xABCDEF, 0xABCDEF, 0xABCDEF};
+		TRANS_SendDataMeters(CONFIG_GATE_ADDRESS, &meters);
+	}
+}
 
 void LedErrorSet() {
 	HAL_GPIO_WritePin(LedErr_GPIO_Port, LedErr_Pin, GPIO_PIN_SET);

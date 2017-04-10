@@ -11,8 +11,8 @@
  * Created on 27 февраля 2017 г., 11:42
  */
 
-#ifndef SPIRIT_H
-#define SPIRIT_H
+#ifndef TRANSCEIVER_H
+#define TRANSCEIVER_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,6 +42,7 @@ extern "C" {
 		HAL_StatusTypeDef lastReceiveStatus;
 		HAL_StatusTypeDef lastTransmitStatus;
 		TRANSError lastError;
+		HAL_UART_StateTypeDef uartState;
 	} TRANSStatus;
 
 	/**
@@ -92,5 +93,5 @@ extern "C" {
 }
 #endif
 
-#endif /* SPIRIT_H */
+#endif /* TRANSCEIVER_H */
 

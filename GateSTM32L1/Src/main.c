@@ -49,9 +49,7 @@ UART_HandleTypeDef huart4;
 UART_HandleTypeDef huart5;
 UART_HandleTypeDef huart2;
 DMA_HandleTypeDef hdma_uart4_rx;
-DMA_HandleTypeDef hdma_uart4_tx;
 DMA_HandleTypeDef hdma_uart5_rx;
-DMA_HandleTypeDef hdma_uart5_tx;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
@@ -252,18 +250,12 @@ static void MX_DMA_Init(void) {
 	__HAL_RCC_DMA2_CLK_ENABLE();
 
 	/* DMA interrupt init */
-	/* DMA2_Channel1_IRQn interrupt configuration */
-	HAL_NVIC_SetPriority(DMA2_Channel1_IRQn, 0, 0);
-	HAL_NVIC_EnableIRQ(DMA2_Channel1_IRQn);
 	/* DMA2_Channel2_IRQn interrupt configuration */
 	HAL_NVIC_SetPriority(DMA2_Channel2_IRQn, 0, 0);
 	HAL_NVIC_EnableIRQ(DMA2_Channel2_IRQn);
 	/* DMA2_Channel3_IRQn interrupt configuration */
 	HAL_NVIC_SetPriority(DMA2_Channel3_IRQn, 0, 0);
 	HAL_NVIC_EnableIRQ(DMA2_Channel3_IRQn);
-	/* DMA2_Channel5_IRQn interrupt configuration */
-	HAL_NVIC_SetPriority(DMA2_Channel5_IRQn, 0, 0);
-	HAL_NVIC_EnableIRQ(DMA2_Channel5_IRQn);
 
 }
 
@@ -342,20 +334,20 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
 }
 
 void TRANS_OnProcessPackage(TRANS_PACKAGE *pPackage) {
-//	LOG("TRANS: ProcessPackage: type:%d source:0x%x target:0x%x", pPackage->type, pPackage->sourceAddress, pPackage->targetAddress);
+	//	LOG("TRANS: ProcessPackage: type:%d source:0x%x target:0x%x", pPackage->type, pPackage->sourceAddress, pPackage->targetAddress);
 	TCP_SendTransPackage(pPackage);
 }
 
 void TCP_OnProcessPackage(TRANS_PACKAGE* pPackage) {
-//	LOG("TCP: ProcessPackage: type:%d source:0x%x target:0x%x", pPackage->type, pPackage->sourceAddress, pPackage->targetAddress);
+	//	LOG("TCP: ProcessPackage: type:%d source:0x%x target:0x%x", pPackage->type, pPackage->sourceAddress, pPackage->targetAddress);
 	TRANS_SendPackage(pPackage);
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 	if (GPIO_Pin == ButtonBlue_Pin) {
-		//		TRANS_PACKAGE package = TRANS_newPackage(0, 0, TRANS_TYPE_METERS);
-		//		TCP_SendTransPackage(&package);
+		HAL_GPIO_TogglePin(LedErr_GPIO_Port, LedErr_Pin);
+		LOG("Toggle error led");
 	}
 }
 
@@ -380,10 +372,12 @@ void LedErrorHardWhile() {
 void TRANS_OnError(TRANSStatus status) {
 	LOGERR("TRANS Error: "
 			"lastError:0x%x "
+			"uartState:0x%x "
 			"lastReceiveStatus:0x%x "
 			"lastTransmitStatus:0x%x "
 			"overflowQueueCount:%d",
 			status.lastError,
+			status.uartState,
 			status.lastReceiveStatus,
 			status.lastTransmitStatus,
 			status.overflowQueueCount);
@@ -392,15 +386,17 @@ void TRANS_OnError(TRANSStatus status) {
 
 void TCP_OnError(TCPStatus status) {
 	LOGERR("TCP Error: "
-			"error:0x%x "
+			"lastError:0x%x "
+			"uartState:0x%x "
 			"lastReceiveStatus:0x%x "
 			"lastTransmitStatus:0x%x "
 			"overflowQueueCount:%d",
 			status.lastError,
+			status.uartState,
 			status.lastReceiveStatus,
 			status.lastTransmitStatus,
 			status.overflowQueueCount);
- 	LedErrorSet();
+	LedErrorSet();
 }
 
 void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {

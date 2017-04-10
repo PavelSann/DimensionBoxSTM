@@ -36,6 +36,7 @@ extern "C" {
 		HAL_StatusTypeDef lastReceiveStatus;
 		HAL_StatusTypeDef lastTransmitStatus;
 		TCPError lastError;
+		HAL_UART_StateTypeDef uartState;
 	} TCPStatus;
 
 	typedef struct {
