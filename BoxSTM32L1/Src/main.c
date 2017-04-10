@@ -42,6 +42,7 @@
 #include "meters/water_meter.h"
 #include "meters/electro_meter.h"
 #include <stdbool.h>
+#include "../Test/sp1ml_uart_test.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -111,6 +112,12 @@ int main(void) {
 	xprint_init_UART(&huart2);
 	LOG("Start Box ID:0x%x DEVID:0x%x REVID:0x%x HAL:0x%x", CONFIG_ID, HAL_GetDEVID(), HAL_GetREVID(), HAL_GetHalVersion());
 #endif
+#define TEST 1
+
+#if TEST
+	SP1MLTest();
+#endif
+
 	//запускаем таймер 2
 	HAL_TIM_Base_Start_IT(&htim2);
 
@@ -404,7 +411,7 @@ static void MX_GPIO_Init(void) {
 
 /* USER CODE BEGIN 4 */
 
-
+#if !TEST
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
 	TRANS_UART_RxCpltCallback(huart);
@@ -461,6 +468,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		TRANS_SendDataMeters(CONFIG_GATE_ADDRESS, &meters);
 	}
 }
+#endif
 
 void LedErrorSet() {
 	HAL_GPIO_WritePin(LedErr_GPIO_Port, LedErr_Pin, GPIO_PIN_SET);
@@ -482,7 +490,7 @@ void LedErrorHardWhile() {
 
 void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
 	uint32_t uartErrorCode = HAL_UART_GetError(huart);
-	LOGERR("UART %x Error %x", huart->Instance, uartErrorCode);
+	LOGERR("UART 0x%x Error 0x%x", huart->Instance, uartErrorCode);
 	//SEE HAL_UART_ERROR_
 	LedErrorSet();
 }

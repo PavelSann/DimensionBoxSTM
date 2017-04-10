@@ -40,6 +40,7 @@ OBJECTFILES= \
 	${OBJECTDIR}/_ext/8f63f4c/transceiver.o \
 	${OBJECTDIR}/_ext/8f63f4c/xprint.o \
 	${OBJECTDIR}/_ext/8f63f4c/xprintf.o \
+	${OBJECTDIR}/_ext/d29b9ba1/sp1ml_uart_test.o \
 	${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal.o \
 	${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_comp.o \
 	${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_cortex.o \
@@ -112,6 +113,11 @@ ${OBJECTDIR}/_ext/8f63f4c/xprintf.o: ../Library/xprintf.c nbproject/Makefile-${C
 	${MKDIR} -p ${OBJECTDIR}/_ext/8f63f4c
 	${RM} "$@.d"
 	$(COMPILE.c) -w -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -DX_PRINT_NO_LOG -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/8f63f4c/xprintf.o ../Library/xprintf.c
+
+${OBJECTDIR}/_ext/d29b9ba1/sp1ml_uart_test.o: ../Test/sp1ml_uart_test.c nbproject/Makefile-${CND_CONF}.mk
+	${MKDIR} -p ${OBJECTDIR}/_ext/d29b9ba1
+	${RM} "$@.d"
+	$(COMPILE.c) -w -DARM_MATH_CM3 -DSTM32L152xE -DUSE_HAL_DRIVER -DX_PRINT_NO_LOG -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/d29b9ba1/sp1ml_uart_test.o ../Test/sp1ml_uart_test.c
 
 ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal.o: Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/Drivers/STM32L1xx_HAL_Driver/Src
