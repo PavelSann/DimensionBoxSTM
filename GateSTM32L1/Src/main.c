@@ -45,6 +45,7 @@
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
+CRC_HandleTypeDef hcrc;
 UART_HandleTypeDef huart4;
 UART_HandleTypeDef huart5;
 UART_HandleTypeDef huart2;
@@ -64,6 +65,7 @@ static void MX_DMA_Init(void);
 static void MX_UART4_Init(void);
 static void MX_UART5_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_CRC_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -94,12 +96,17 @@ int main(void) {
 	MX_UART4_Init();
 	MX_UART5_Init();
 	MX_USART2_UART_Init();
+	MX_CRC_Init();
 
 	/* USER CODE BEGIN 2 */
 #if X_PRINT_LOG
 	//	xprint_init_SWO();
 	xprint_init_UART(&huart2);
 	LOG("Start Gate ID: 0x%x DEVID:0x%x REVID:0x%x HAL:0x%x", CONFIG_ID, HAL_GetDEVID(), HAL_GetREVID(), HAL_GetHalVersion());
+#endif
+
+#if TEST
+	SP1MLTest();
 #endif
 
 	TRANSConfig conf = {
@@ -189,6 +196,16 @@ void SystemClock_Config(void) {
 
 	/* SysTick_IRQn interrupt configuration */
 	HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
+}
+
+/* CRC init function */
+static void MX_CRC_Init(void) {
+
+	hcrc.Instance = CRC;
+	if (HAL_CRC_Init(&hcrc) != HAL_OK) {
+		Error_Handler();
+	}
+
 }
 
 /* UART4 init function */
@@ -327,10 +344,13 @@ static void MX_GPIO_Init(void) {
 
 /* USER CODE BEGIN 4 */
 
-
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
 	TCP_UART_RxCpltCallback(huart);
 	TRANS_UART_RxCpltCallback(huart);
+}
+
+void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef* huart) {
+	TRANS_UART_RxHalfCpltCallback(huart);
 }
 
 void TRANS_OnProcessPackage(TRANS_PACKAGE *pPackage) {
@@ -348,21 +368,24 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	if (GPIO_Pin == ButtonBlue_Pin) {
 		HAL_GPIO_TogglePin(LedErr_GPIO_Port, LedErr_Pin);
 		LOG("Toggle error led");
+
+		TRANSStatus status = TRANS_GetStatus();
+		LOG("TRANSStatus: good:%d bad:%d", status.countGoodPackage, status.countBadPackage);
 	}
 }
 
-void LedErrorSet() {
+void inline LedErrorSet() {
 	HAL_GPIO_WritePin(LedErr_GPIO_Port, LedErr_Pin, GPIO_PIN_SET);
 }
 
-void LedErrorSoftWhile() {
+void inline LedErrorSoftWhile() {
 	while (1) {
 		HAL_GPIO_TogglePin(LedErr_GPIO_Port, LedErr_Pin);
 		HAL_Delay(2000);
 	}
 }
 
-void LedErrorHardWhile() {
+void inline LedErrorHardWhile() {
 	while (1) {
 		HAL_GPIO_TogglePin(LedErr_GPIO_Port, LedErr_Pin);
 		HAL_Delay(500);
@@ -372,13 +395,9 @@ void LedErrorHardWhile() {
 void TRANS_OnError(TRANSStatus status) {
 	LOGERR("TRANS Error: "
 			"lastError:0x%x "
-			"uartState:0x%x "
-			"lastReceiveStatus:0x%x "
 			"lastTransmitStatus:0x%x "
 			"overflowQueueCount:%d",
 			status.lastError,
-			status.uartState,
-			status.lastReceiveStatus,
 			status.lastTransmitStatus,
 			status.overflowQueueCount);
 	LedErrorSet();

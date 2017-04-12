@@ -4,9 +4,9 @@
 #include "package_queue.h"
 
 #define LOG_PACKAGE 0
-#define LOG_QUEUE 1
+#define LOG_QUEUE 0
 #define SEND_TIMEOUT 1000
-#define PACKAGE_QUEUE_SIZE 100
+#define PACKAGE_QUEUE_SIZE 1000
 
 static PACKAGE_QUEUE_NODE packetBuffer[PACKAGE_QUEUE_SIZE];
 static PACKAGE_QUEUE queue;

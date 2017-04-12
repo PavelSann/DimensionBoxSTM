@@ -2,28 +2,31 @@
 #include <string.h>
 #define __STR(val) #val
 #define DEF_TO_STR(X) __STR(X)
-extern UART_HandleTypeDef huart4;
-#define PACKAGE_SIZE 96
-#define BUFFER_SIZE_STR DEF_TO_STR(PACKAGE_SIZE)
-//#define UART_SPEED 9600
-//#define UART_SPEED_STR DEF_TO_STR(UART_SPEED)
 
-#define RECEIVE 1
 #define RECEIVE_DMA 1
 #define CONFIG 0
 #define CALLBACK_RECEIVE 1
 #define TRANSMIT_TIMEOUT 200
-
-#if RECEIVE
-static const char *mode = "Rx&Tx";
-#else
-static const char *mode = "Tx";
+#define PACKAGE_SIZE 48
+#define BUFFER_SIZE_STR DEF_TO_STR(PACKAGE_SIZE)
+#define CHECK_CRC 1
+//#define UART_SPEED 9600
+//#define UART_SPEED_STR DEF_TO_STR(UART_SPEED)
+#if RECEIVE_DMA
+	#define BUFFER_DMA_PACKAGE_COUNT 32
+	#define BUFFER_DMA_SIZE (PACKAGE_SIZE*BUFFER_DMA_PACKAGE_COUNT)
 #endif
+
+extern UART_HandleTypeDef huart4;
+#if CHECK_CRC
+extern CRC_HandleTypeDef hcrc;
+static volatile uint32_t baseCRC;
+#endif
+
 
 #if RECEIVE_DMA
 extern DMA_HandleTypeDef hdma_uart4_rx;
-	#define BUFFER_DMA_PACKAGE_COUNT 16
-	#define BUFFER_DMA_SIZE (PACKAGE_SIZE*BUFFER_DMA_PACKAGE_COUNT)
+
 static uint8_t bufferDma[BUFFER_DMA_SIZE];
 #else
 static uint8_t buffer[PACKAGE_SIZE];
@@ -31,7 +34,8 @@ static uint8_t buffer[PACKAGE_SIZE];
 static volatile uint32_t good = 0;
 static volatile uint32_t bad = 0;
 static volatile uint32_t send = 0;
-static volatile uint32_t busy = 0;
+static volatile uint32_t countCplt = 0;
+static volatile uint32_t countHalfCplt = 0;
 static volatile bool run = false;
 static volatile bool dmaFirst = false;
 static volatile bool dmaLast = false;
@@ -83,22 +87,31 @@ static void config_SP1ML() {
 #endif
 
 static void StartReceive() {
-#if RECEIVE
-	#if RECEIVE_DMA
+#if RECEIVE_DMA
 	HAL_UART_Receive_DMA(&huart4, bufferDma, BUFFER_DMA_SIZE);
-	#else
+#else
 	HAL_UART_Receive_IT(&huart4, buffer, PACKAGE_SIZE);
-	#endif
+#endif
 	//	while (HAL_UART_Receive_IT(&huart4, buffer, BUFFER_SIZE) == HAL_BUSY) {
 	//		busy++;
 	//	}
-#endif
 }
 
 bool checkPackage(const uint8_t *pPackage) {
 	if (pPackage[0] == 0xCA && pPackage[1] == 0xFE && pPackage[PACKAGE_SIZE - 2] == 0xBA && pPackage[PACKAGE_SIZE - 1] == 0xBE) {
+#if CHECK_CRC
+		uint32_t crc = HAL_CRC_Calculate(&hcrc, (uint32_t*) pPackage, PACKAGE_SIZE / 4);
+		if (crc == baseCRC) {
+			good++;
+			return true;
+		} else {
+			bad++;
+			return false;
+		}
+#else
 		good++;
 		return true;
+#endif
 	} else {
 		bad++;
 		return false;
@@ -138,14 +151,17 @@ void SP1MLTest() {
 	//	HAL_UART_DeInit(&huart4);
 	//	HAL_UART_Init(&huart4);
 #endif
+#if CHECK_CRC
+	baseCRC = HAL_CRC_Calculate(&hcrc, (uint32_t*) dataToSend, PACKAGE_SIZE / 4);
+#endif
+
 	StartReceive();
 	//	hdma_uart4_rx.Instance->CNDTR
 	//	HAL_DMA_PollForTransfer()
 	uint32_t lastLog = 0;
 	uint32_t lastTransmit = 0;
-	uint32_t lastMem = 0;
 	while (true) {
-#if !CALLBACK_RECEIVE
+#if !RECEIVE_DMA && !CALLBACK_RECEIVE
 		if (receive) {
 			if (buffer[0] == 0xCA && buffer[1] == 0xFE && buffer[PACKAGE_SIZE - 2] == 0xBA && buffer[PACKAGE_SIZE - 1] == 0xBE) {
 				good++;
@@ -157,7 +173,7 @@ void SP1MLTest() {
 		}
 #endif
 
-#if RECEIVE_DMA
+#if RECEIVE_DMA && !CALLBACK_RECEIVE
 		if (dmaFirst) {
 			dmaFirst = false;
 			checkPackages(true);
@@ -165,22 +181,16 @@ void SP1MLTest() {
 			dmaLast = false;
 			checkPackages(false);
 		}
-
-
 #endif
 
-
-		//		HAL_Delay(200);
 		if ((HAL_GetTick() - lastLog) > 1000) {
-			LOG("send=%d good=%d bad=%d busy=%d %s", send, good, bad, busy, mode);
+			LOG("send=%d good=%d bad=%d countHalfCplt=%d countCplt=%d", send, good, bad, countHalfCplt, countCplt);
 			lastLog = HAL_GetTick();
+			DMA_Channel_TypeDef *pDMC = huart4.hdmarx->Instance;
+			// pDMC->CMAR адрес буфера
+			// pDMC->CNDTR смещение
+//			LOG("DMA: CMAR:0x%x CNDTR:0x%x CPAR:0x%x bufferDma:0x%x", pDMC->CMAR, pDMC->CNDTR, pDMC->CPAR,&bufferDma);
 		}
-
-		//		if ((HAL_GetTick() - lastMem) > 5000) {
-		//			LOGMEM(bufferDma, BUFFER_DMA_SIZE);
-		//			lastMem = HAL_GetTick();
-		//		}
-
 		if (run && (HAL_GetTick() - lastTransmit) > TRANSMIT_TIMEOUT) {
 			HAL_UART_Transmit(&huart4, dataToSend, PACKAGE_SIZE, 1000000);
 			//			HAL_UART_Transmit_IT(&huart4, dataToSend, BUFFER_SIZE);
@@ -188,7 +198,6 @@ void SP1MLTest() {
 			send++;
 			lastTransmit = HAL_GetTick();
 		}
-
 	}
 }
 
@@ -202,20 +211,23 @@ void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef* huart) {
 	//	checkPackages(true);
 	dmaLast = false;
 	dmaFirst = true;
+	countHalfCplt++;
+	#if CALLBACK_RECEIVE
+	checkPackages(true);
+	#endif
 
 }
 #endif
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
 	if (huart->Instance == huart4.Instance) {
-
 #if RECEIVE_DMA
-		//		for (int i = BUFFER_DMA_PACKAGE_COUNT / 2; i < BUFFER_DMA_PACKAGE_COUNT; i++) {
-		//			checkPackage(bufferDma + i * PACKAGE_SIZE);
-		//		}
-		//		checkPackages(false);
+		countCplt++;
 		dmaFirst = false;
 		dmaLast = true;
+	#if CALLBACK_RECEIVE
+		checkPackages(false);
+	#endif
 #elif CALLBACK_RECEIVE
 		checkPackage(bufferDma);
 		StartReceive();
@@ -229,6 +241,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	if (GPIO_Pin == ButtonBlue_Pin) {
 		run = !run;
 		LOG("Send loop run=%d", run);
-		//		LOGMEM(bufferDma, BUFFER_DMA_SIZE);
+		//LOGMEM(bufferDma, BUFFER_DMA_SIZE);
 	}
 }

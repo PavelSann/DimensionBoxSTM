@@ -35,14 +35,15 @@ extern "C" {
 		TRANS_ERR_BAD_PACKAGE = 2,
 		TRANS_ERR_UART_TRANSMIT = 3,
 		TRANS_ERR_UART_RECEIVE = 4,
+		TRANS_ERR_UART_DMA = 5,
 	} TRANSError;
 
 	typedef __IO struct {
-		uint16_t overflowQueueCount;
-		HAL_StatusTypeDef lastReceiveStatus;
+//		uint16_t overflowQueueCount;
 		HAL_StatusTypeDef lastTransmitStatus;
 		TRANSError lastError;
-		HAL_UART_StateTypeDef uartState;
+		uint32_t countGoodPackage;
+		uint32_t countBadPackage;
 	} TRANSStatus;
 
 	/**
@@ -71,11 +72,17 @@ extern "C" {
 	 */
 	void TRANS_SendDataMeters(TRANS_ADDRESS targetAddress, TRANS_DATA_METERS *dataMeters);
 	/**
-	 * Обработчик для  HAL_UART_TxCpltCallback
-	 * для приёма пакетов, нужно вызывать в HAL_UART_TxCpltCallback
+	 * Обработчик для  HAL_UART_RxCpltCallback
+	 * для приёма пакетов, нужно вызывать в HAL_UART_RxCpltCallback
 	 * @param huart
 	 */
 	void TRANS_UART_RxCpltCallback(UART_HandleTypeDef* huart);
+	/**
+	 * Обработчик для  HAL_UART_RxHalfCpltCallback
+	 * для приёма пакетов, нужно вызывать в HAL_UART_RxHalfCpltCallback
+	 * @param huart
+	 */
+	void TRANS_UART_RxHalfCpltCallback(UART_HandleTypeDef* huart);
 	/**
 	 * __weak Callback, вызывается при обработке пакетов, через TRANS_ProcessPackage
 	 * 
@@ -86,7 +93,11 @@ extern "C" {
 	 * Обрабатывает 1 пакет из очереди, вызывает TRANS_OnProcessPackage
 	 */
 	void TRANS_ProcessPackage();
-
+	/**
+	 * Информация о состоянии
+	 * @return
+	 */
+	TRANSStatus TRANS_GetStatus();
 	void TRANS_OnError(TRANSStatus status);
 
 #ifdef __cplusplus

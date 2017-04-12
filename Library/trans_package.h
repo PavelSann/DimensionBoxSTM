@@ -19,6 +19,7 @@ extern "C" {
 #endif
 #include <stdint.h>
 #include <limits.h>
+#include <stdbool.h>
 
 	typedef uint32_t TRANS_ADDRESS;
 
@@ -40,7 +41,7 @@ extern "C" {
 		uint32_t value7;
 	} TRANS_DATA_METERS;
 	/**Значение для не подключённого счётчика*/
-	#define TRANS_DISCONNECT_METER_VALUE 0xFFFFFFFF
+#define TRANS_DISCONNECT_METER_VALUE 0xFFFFFFFF
 
 	enum TRANS_COMMANDS {
 		TRANS_COMMAND_NOP = 0,
@@ -95,10 +96,19 @@ extern "C" {
 	 * @return
 	 */
 	uint8_t *TRANS_PackageToByte(TRANS_PACKAGE *pPackage);
+	/**
+	 *Возвращает true если переданы первый и второй байты пакета
+	 * @param byteFirst первый байт
+	 * @param byteSecond второй байт
+	 * @return
+	 */
+	bool TRANS_IsMarkBeginPackage(uint8_t byteFirst, uint8_t byteSecond);
 
 
 	/**Размер пакета в байтах*/
 #define TRANS_PACKAGE_SIZE sizeof(TRANS_PACKAGE)
+	/**Длина метки начала пакета*/
+#define TRANS_PACKAGE_MARK_SIZE 2
 
 #ifdef __cplusplus
 }

@@ -30,8 +30,19 @@ extern "C" {
 		return 0;
 	}
 
-#define ATOMIC_BLOCK for(int mask = _iDisGetPrimask(), flag = 1;flag;flag = _iSetPrimask(mask))
+	/**Блок в котором запрещены все прерывания*/
+#define ATOMIC_BLOCK() for(int mask = _iDisGetPrimask(), flag = 1; flag; flag = _iSetPrimask(mask))
 
+//	__attribute__ ( (always_inline)) __STATIC_INLINE uint8_t CompareAndSet(uint32_t * ptr, uint32_t oldValue, uint32_t newValue) {
+//		// эксклюзивно читаем значение переменной и сравниваем со старым значением
+//		if (__LDREXW(ptr) == oldValue) {
+//			// пытаемся эксклюзивно записать в переменную новое значение
+//			return __STREXW(newValue, ptr) == 0;
+//		}
+//		// кто-то изменил ячейку до нас
+//		__CLREX();
+//		return 0;
+//	}
 
 #ifdef __cplusplus
 }

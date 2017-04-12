@@ -42,12 +42,17 @@
 #include "meters/water_meter.h"
 #include "meters/electro_meter.h"
 #include <stdbool.h>
-#include "../Test/sp1ml_uart_test.h"
+#define TEST 0
+#if TEST
+	#include "../Test/sp1ml_uart_test.h"
+#endif
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
 COMP_HandleTypeDef hcomp1;
 COMP_HandleTypeDef hcomp2;
+
+CRC_HandleTypeDef hcrc;
 
 TIM_HandleTypeDef htim2;
 
@@ -72,6 +77,7 @@ static void MX_USART2_UART_Init(void);
 static void MX_UART5_Init(void);
 static void MX_COMP2_Init(void);
 static void MX_COMP1_Init(void);
+static void MX_CRC_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -105,6 +111,7 @@ int main(void) {
 	MX_UART5_Init();
 	MX_COMP2_Init();
 	MX_COMP1_Init();
+	MX_CRC_Init();
 
 	/* USER CODE BEGIN 2 */
 #if X_PRINT_LOG
@@ -112,7 +119,7 @@ int main(void) {
 	xprint_init_UART(&huart2);
 	LOG("Start Box ID:0x%x DEVID:0x%x REVID:0x%x HAL:0x%x", CONFIG_ID, HAL_GetDEVID(), HAL_GetREVID(), HAL_GetHalVersion());
 #endif
-#define TEST 1
+
 
 #if TEST
 	SP1MLTest();
@@ -269,6 +276,16 @@ static void MX_COMP2_Init(void) {
 
 }
 
+/* CRC init function */
+static void MX_CRC_Init(void) {
+
+	hcrc.Instance = CRC;
+	if (HAL_CRC_Init(&hcrc) != HAL_OK) {
+		Error_Handler();
+	}
+
+}
+
 /* TIM2 init function */
 static void MX_TIM2_Init(void) {
 
@@ -417,8 +434,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
 	TRANS_UART_RxCpltCallback(huart);
 }
 
+void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef* huart) {
+	TRANS_UART_RxHalfCpltCallback(huart);
+}
+
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-	//	readMeters = true;
+	readMeters = true;
 
 }
 
@@ -462,26 +483,24 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		HAL_GPIO_TogglePin(LedErr_GPIO_Port, LedErr_Pin);
 		LOG("Toggle error led");
 
-		LOG("Send data");
-
-		TRANS_DATA_METERS meters = {0xABCDEF, 0xABCDEF, 0xABCDEF, 0xABCDEF, 0xABCDEF};
-		TRANS_SendDataMeters(CONFIG_GATE_ADDRESS, &meters);
+		TRANSStatus status = TRANS_GetStatus();
+		LOG("TRANSStatus: good:%d bad:%d", status.countGoodPackage, status.countBadPackage);
 	}
 }
 #endif
 
-void LedErrorSet() {
+void inline LedErrorSet() {
 	HAL_GPIO_WritePin(LedErr_GPIO_Port, LedErr_Pin, GPIO_PIN_SET);
 }
 
-void LedErrorSoftWhile() {
+void inline LedErrorSoftWhile() {
 	while (1) {
 		HAL_GPIO_TogglePin(LedErr_GPIO_Port, LedErr_Pin);
 		HAL_Delay(2000);
 	}
 }
 
-void LedErrorHardWhile() {
+void inline LedErrorHardWhile() {
 	while (1) {
 		HAL_GPIO_TogglePin(LedErr_GPIO_Port, LedErr_Pin);
 		HAL_Delay(500);
@@ -498,13 +517,16 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
 void TRANS_OnError(TRANSStatus status) {
 	LOGERR("TRANS Error: "
 			"lastError:0x%x "
-			"lastReceiveStatus:0x%x "
 			"lastTransmitStatus:0x%x "
-			"overflowQueueCount:%d",
+			//"overflowQueueCount:%d",
+			"countGoodPackage:%d "
+			"countBadPackage:%d"
 			status.lastError,
-			status.lastReceiveStatus,
 			status.lastTransmitStatus,
-			status.overflowQueueCount);
+			//status.overflowQueueCount
+			status.countGoodPackage,
+			status.countBadPackage
+			);
 	LedErrorSet();
 }
 
