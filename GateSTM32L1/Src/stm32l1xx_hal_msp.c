@@ -78,6 +78,40 @@ void HAL_MspInit(void)
   /* USER CODE END MspInit 1 */
 }
 
+void HAL_CRC_MspInit(CRC_HandleTypeDef* hcrc)
+{
+
+  if(hcrc->Instance==CRC)
+  {
+  /* USER CODE BEGIN CRC_MspInit 0 */
+
+  /* USER CODE END CRC_MspInit 0 */
+    /* Peripheral clock enable */
+    __HAL_RCC_CRC_CLK_ENABLE();
+  /* USER CODE BEGIN CRC_MspInit 1 */
+
+  /* USER CODE END CRC_MspInit 1 */
+  }
+
+}
+
+void HAL_CRC_MspDeInit(CRC_HandleTypeDef* hcrc)
+{
+
+  if(hcrc->Instance==CRC)
+  {
+  /* USER CODE BEGIN CRC_MspDeInit 0 */
+
+  /* USER CODE END CRC_MspDeInit 0 */
+    /* Peripheral clock disable */
+    __HAL_RCC_CRC_CLK_DISABLE();
+  }
+  /* USER CODE BEGIN CRC_MspDeInit 1 */
+
+  /* USER CODE END CRC_MspDeInit 1 */
+
+}
+
 void HAL_UART_MspInit(UART_HandleTypeDef* huart)
 {
 
@@ -109,7 +143,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
     hdma_uart4_rx.Init.MemInc = DMA_MINC_ENABLE;
     hdma_uart4_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
     hdma_uart4_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
-    hdma_uart4_rx.Init.Mode = DMA_NORMAL;
+    hdma_uart4_rx.Init.Mode = DMA_CIRCULAR;
     hdma_uart4_rx.Init.Priority = DMA_PRIORITY_LOW;
     if (HAL_DMA_Init(&hdma_uart4_rx) != HAL_OK)
     {

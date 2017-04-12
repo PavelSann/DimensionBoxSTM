@@ -25,10 +25,6 @@
             </sourceRootList>
             <confList>
                 <confElem>
-                    <name>Release</name>
-                    <type>1</type>
-                </confElem>
-                <confElem>
                     <name>Debug</name>
                     <type>1</type>
                 </confElem>

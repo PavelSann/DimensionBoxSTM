@@ -18,6 +18,7 @@
                        projectFiles="true">
           <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal.c</itemPath>
           <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_cortex.c</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_crc.c</itemPath>
           <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_dma.c</itemPath>
           <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash.c</itemPath>
           <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ex.c</itemPath>
@@ -38,6 +39,8 @@
         <itemPath>../Library/transceiver.c</itemPath>
         <itemPath>../Library/xprint.c</itemPath>
         <itemPath>../Library/xprintf.c</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f1" displayName="Test" projectFiles="true">
       </logicalFolder>
       <itemPath>Src/main.c</itemPath>
       <itemPath>startup/startup_stm32l152xe.s</itemPath>
@@ -85,6 +88,7 @@
           </logicalFolder>
           <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal.h</itemPath>
           <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_cortex.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_crc.h</itemPath>
           <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_def.h</itemPath>
           <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_dma.h</itemPath>
           <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_flash.h</itemPath>
@@ -107,6 +111,8 @@
         <itemPath>../Library/transceiver.h</itemPath>
         <itemPath>../Library/xprint.h</itemPath>
         <itemPath>../Library/xprintf.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f1" displayName="Test" projectFiles="true">
       </logicalFolder>
       <itemPath>Inc/config.h</itemPath>
       <itemPath>Inc/main.h</itemPath>
@@ -139,317 +145,6 @@
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
-    <conf name="Release" type="1">
-      <toolsSet>
-        <compilerSet>GNUToolsARMEmbedded|MinGW</compilerSet>
-        <dependencyChecking>true</dependencyChecking>
-        <rebuildPropChanged>true</rebuildPropChanged>
-      </toolsSet>
-      <compileType>
-        <cTool>
-          <developmentMode>0</developmentMode>
-          <standard>3</standard>
-          <incDir>
-            <pElem>Inc</pElem>
-            <pElem>Drivers/STM32L1xx_HAL_Driver/Inc</pElem>
-            <pElem>Drivers/STM32L1xx_HAL_Driver/Inc/Legacy</pElem>
-            <pElem>Drivers/CMSIS/Device/ST/STM32L1xx/Include</pElem>
-            <pElem>Drivers/CMSIS/Include</pElem>
-            <pElem>../Library</pElem>
-          </incDir>
-          <commandLine>-mcpu=cortex-m3 -mthumb -mfloat-abi=soft -Os -g3 -fmessage-length=0 -ffunction-sections -c -fmessage-length=0 -MMD -MP</commandLine>
-          <preprocessorList>
-            <Elem>ARM_MATH_CM3</Elem>
-            <Elem>STM32L152xE</Elem>
-            <Elem>USE_HAL_DRIVER</Elem>
-          </preprocessorList>
-          <useLinkerLibraries>false</useLinkerLibraries>
-          <warningLevel>2</warningLevel>
-        </cTool>
-        <ccTool>
-          <developmentMode>5</developmentMode>
-        </ccTool>
-        <fortranCompilerTool>
-          <developmentMode>5</developmentMode>
-        </fortranCompilerTool>
-        <asmTool>
-          <developmentMode>5</developmentMode>
-        </asmTool>
-        <linkerTool>
-          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/stm32l1</output>
-          <commandlineTool>arm-none-eabi-gcc</commandlineTool>
-          <commandLine>-mcpu=cortex-m3 -mthumb -mfloat-abi=soft -specs=nosys.specs -specs=nano.specs -TSTM32L152RETx_FLASH.ld -Wl,-Map=output.map -Wl,--gc-sections -lm</commandLine>
-        </linkerTool>
-      </compileType>
-      <item path="../Library/package_queue.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="../Library/package_queue.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="../Library/trans_package.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="../Library/trans_package.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="../Library/transceiver.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="../Library/transceiver.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="../Library/xprint.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="../Library/xprint.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="../Library/xprintf.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="../Library/xprintf.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="Drivers/CMSIS/Device/ST/STM32L1xx/Include/stm32l152xe.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="Drivers/CMSIS/Device/ST/STM32L1xx/Include/stm32l1xx.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="Drivers/CMSIS/Device/ST/STM32L1xx/Include/system_stm32l1xx.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="Drivers/CMSIS/Include/arm_common_tables.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="Drivers/CMSIS/Include/arm_const_structs.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="Drivers/CMSIS/Include/arm_math.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="Drivers/CMSIS/Include/cmsis_armcc.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="Drivers/CMSIS/Include/cmsis_armcc_V6.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="Drivers/CMSIS/Include/cmsis_gcc.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="Drivers/CMSIS/Include/core_cm0.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="Drivers/CMSIS/Include/core_cm0plus.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="Drivers/CMSIS/Include/core_cm3.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="Drivers/CMSIS/Include/core_cm4.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="Drivers/CMSIS/Include/core_cm7.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="Drivers/CMSIS/Include/core_cmFunc.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="Drivers/CMSIS/Include/core_cmInstr.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="Drivers/CMSIS/Include/core_cmSimd.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="Drivers/CMSIS/Include/core_sc000.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="Drivers/CMSIS/Include/core_sc300.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_cortex.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_def.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_dma.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_flash.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_flash_ex.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_flash_ramfunc.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_gpio.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_gpio_ex.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_pwr.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_pwr_ex.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_rcc.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_rcc_ex.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_tim.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_tim_ex.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_uart.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal.c"
-            ex="false"
-            tool="0"
-            flavor2="0">
-      </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_cortex.c"
-            ex="false"
-            tool="0"
-            flavor2="0">
-      </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_dma.c"
-            ex="false"
-            tool="0"
-            flavor2="0">
-      </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash.c"
-            ex="false"
-            tool="0"
-            flavor2="0">
-      </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ex.c"
-            ex="false"
-            tool="0"
-            flavor2="0">
-      </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ramfunc.c"
-            ex="false"
-            tool="0"
-            flavor2="0">
-      </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_gpio.c"
-            ex="false"
-            tool="0"
-            flavor2="0">
-      </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr.c"
-            ex="false"
-            tool="0"
-            flavor2="0">
-      </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr_ex.c"
-            ex="false"
-            tool="0"
-            flavor2="0">
-      </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc.c"
-            ex="false"
-            tool="0"
-            flavor2="0">
-      </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc_ex.c"
-            ex="false"
-            tool="0"
-            flavor2="0">
-      </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_tim.c"
-            ex="false"
-            tool="0"
-            flavor2="0">
-      </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_tim_ex.c"
-            ex="false"
-            tool="0"
-            flavor2="0">
-      </item>
-      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_uart.c"
-            ex="false"
-            tool="0"
-            flavor2="0">
-      </item>
-      <item path="Inc/config.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="Inc/main.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="Inc/stm32l1xx_hal_conf.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="Inc/stm32l1xx_it.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="Inc/tcp_connector.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="Src/main.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="Src/stm32l1xx_hal_msp.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="Src/stm32l1xx_it.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="Src/system_stm32l1xx.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="Src/tcp_connector.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="startup/startup_stm32l152xe.s" ex="false" tool="4" flavor2="0">
-      </item>
-    </conf>
     <conf name="Debug" type="1">
       <toolsSet>
         <compilerSet>GNUToolsARMEmbedded|MinGW</compilerSet>
@@ -458,6 +153,7 @@
       </toolsSet>
       <compileType>
         <cTool>
+          <developmentMode>0</developmentMode>
           <incDir>
             <pElem>Inc</pElem>
             <pElem>Drivers/STM32L1xx_HAL_Driver/Inc</pElem>
@@ -466,7 +162,7 @@
             <pElem>Drivers/CMSIS/Include</pElem>
             <pElem>../Library</pElem>
           </incDir>
-          <commandLine>-mcpu=cortex-m3 -mthumb -mfloat-abi=soft -Os -g3 -fmessage-length=0 -ffunction-sections -c -fmessage-length=0 -MMD -MP</commandLine>
+          <commandLine>-Og -ggdb3 -mcpu=cortex-m3 -mthumb -mfloat-abi=soft -fmessage-length=0 -ffunction-sections -c -fmessage-length=0 -MMD -MP</commandLine>
           <preprocessorList>
             <Elem>ARM_MATH_CM3</Elem>
             <Elem>STM32L152xE</Elem>
@@ -597,6 +293,11 @@
             tool="3"
             flavor2="0">
       </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_crc.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
       <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_def.h"
             ex="false"
             tool="3"
@@ -673,6 +374,11 @@
             flavor2="0">
       </item>
       <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_cortex.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_crc.c"
             ex="false"
             tool="0"
             flavor2="0">
