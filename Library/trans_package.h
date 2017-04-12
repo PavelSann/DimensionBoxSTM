@@ -81,7 +81,7 @@ extern "C" {
 	 * @param type
 	 * @return
 	 */
-	TRANS_PACKAGE TRANS_NewPackage(TRANS_ADDRESS sourceAddress, TRANS_ADDRESS targetAddress, TRANS_PACKAGE_TYPE type);
+	TRANS_PACKAGE PACK_NewPackage(TRANS_ADDRESS sourceAddress, TRANS_ADDRESS targetAddress, TRANS_PACKAGE_TYPE type);
 
 	/**
 	 * Преобразует набор байт в TRANS_PACKAGE, заполняет указатель pPackage
@@ -89,20 +89,20 @@ extern "C" {
 	 * @param pPackage указатель на пакет
 	 * @return код ошибки, 0 если нет ошибок
 	 */
-	uint8_t TRANS_ByteToPackage(uint8_t *bytes, TRANS_PACKAGE **pPackage);
+	uint8_t PACK_ByteToPackage(uint8_t *bytes, TRANS_PACKAGE **pPackage);
 	/**
 	 *
 	 * @param pPackage
 	 * @return
 	 */
-	uint8_t *TRANS_PackageToByte(TRANS_PACKAGE *pPackage);
+	uint8_t *PACK_PackageToByte(TRANS_PACKAGE *pPackage);
 	/**
 	 *Возвращает true если переданы первый и второй байты пакета
 	 * @param byteFirst первый байт
 	 * @param byteSecond второй байт
 	 * @return
 	 */
-	bool TRANS_IsMarkBeginPackage(uint8_t byteFirst, uint8_t byteSecond);
+	bool PACK_IsMarkBeginPackage(uint8_t byteFirst, uint8_t byteSecond);
 
 
 	/**Размер пакета в байтах*/

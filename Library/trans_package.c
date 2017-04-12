@@ -18,7 +18,7 @@ typedef union {
 	uint8_t *bytes;
 } TRANS_PACKAGE_BYTES;
 
-inline TRANS_PACKAGE TRANS_NewPackage(TRANS_ADDRESS sourceAddress, TRANS_ADDRESS targetAddress, TRANS_PACKAGE_TYPE type) {
+inline TRANS_PACKAGE PACK_NewPackage(TRANS_ADDRESS sourceAddress, TRANS_ADDRESS targetAddress, TRANS_PACKAGE_TYPE type) {
 	TRANS_PACKAGE package = {
 		.magicMark = TRANS_PACKAGE_MAGIC,
 		.sign = TRANS_PACKAGE_SIGN,
@@ -30,7 +30,7 @@ inline TRANS_PACKAGE TRANS_NewPackage(TRANS_ADDRESS sourceAddress, TRANS_ADDRESS
 	return package;
 }
 
-uint8_t TRANS_ByteToPackage(uint8_t *bytes, TRANS_PACKAGE **pPackage) {
+uint8_t PACK_ByteToPackage(uint8_t *bytes, TRANS_PACKAGE **pPackage) {
 	TRANS_PACKAGE_BYTES p2bytes;
 	p2bytes.bytes = bytes;
 	uint8_t error = 0;
@@ -47,12 +47,12 @@ uint8_t TRANS_ByteToPackage(uint8_t *bytes, TRANS_PACKAGE **pPackage) {
 	return error;
 }
 
-uint8_t *TRANS_PackageToByte(TRANS_PACKAGE *pPackage) {
+uint8_t *PACK_PackageToByte(TRANS_PACKAGE *pPackage) {
 	TRANS_PACKAGE_BYTES bytes;
 	bytes.package = pPackage;
 	return bytes.bytes;
 }
 
-bool inline TRANS_IsMarkBeginPackage(uint8_t byteFirst, uint8_t byteSecond) {
+bool inline PACK_IsMarkBeginPackage(uint8_t byteFirst, uint8_t byteSecond) {
 	return byteFirst == TRANS_PACKAGE_MAGIC_FIRST_BYTE && byteSecond == TRANS_PACKAGE_MAGIC_SECOND_BYTE;
 }

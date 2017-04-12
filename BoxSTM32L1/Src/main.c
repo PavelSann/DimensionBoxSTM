@@ -520,7 +520,7 @@ void TRANS_OnError(TRANSStatus status) {
 			"lastTransmitStatus:0x%x "
 			//"overflowQueueCount:%d",
 			"countGoodPackage:%d "
-			"countBadPackage:%d"
+			"countBadPackage:%d",
 			status.lastError,
 			status.lastTransmitStatus,
 			//status.overflowQueueCount

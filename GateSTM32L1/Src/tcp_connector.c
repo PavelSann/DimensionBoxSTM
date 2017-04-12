@@ -88,7 +88,7 @@ bool TCP_IsConnect() {
 
 void TCP_SendTransPackage(TRANS_PACKAGE *pPackage) {
 	//пакет в байты
-	uint8_t* bytes = TRANS_PackageToByte(pPackage);
+	uint8_t* bytes = PACK_PackageToByte(pPackage);
 	sendBytes(bytes, TRANS_PACKAGE_SIZE);
 }
 
@@ -110,7 +110,7 @@ void TCP_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
 static void processPackageNode(PACKAGE_QUEUE_NODE *node) {
 
 	TRANS_PACKAGE *pPackage = NULL;
-	uint8_t errCode = TRANS_ByteToPackage(node->package, &pPackage);
+	uint8_t errCode = PACK_ByteToPackage(node->package, &pPackage);
 	if (errCode) {
 		//		LOGERR("Receive data error %d. NodeStatus:%d QUEUE:%d:%d:%d", errCode, node->status, queue.size, queue.useIndex, queue.processIndex);
 		//		LOGMEM(node->package, TRANS_PACKAGE_SIZE);

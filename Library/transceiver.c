@@ -42,15 +42,8 @@ static uint8_t *useDmaNodePackage;
 static uint8_t dmaBuffer[DMA_BUFFER_SIZE];
 static uint8_t *dmaBufferEnd = dmaBuffer + DMA_BUFFER_SIZE;
 
-static enum {
-	/*Запись в первую часть буфера*/
-	DMA_BUFFER_FIRST_PART,
-	/*Запись во вторую часть буфера*/
-	DMA_BUFFER_SECOND_PART,
-} dmaWritePart = DMA_BUFFER_FIRST_PART;
-
 TRANS_PACKAGE TRANS_NewLocalPackage(TRANS_ADDRESS targetAddress, TRANS_PACKAGE_TYPE type) {
-	return TRANS_NewPackage(conf.localAddress, targetAddress, type);
+	return PACK_NewPackage(conf.localAddress, targetAddress, type);
 }
 
 static void sendBytes(uint8_t *bytes, int len) {
@@ -212,7 +205,7 @@ static void processDmaBuffer() {
 		}
 		if (proc.state == PP_CHECK) {
 			TRANS_PACKAGE *pPackage;
-			uint8_t err = TRANS_ByteToPackage(useDmaNodePackage, &pPackage);
+			uint8_t err = PACK_ByteToPackage(useDmaNodePackage, &pPackage);
 			if (!err) {
 				QUEUE_ReceiveNode(&queue);
 				useDmaNodePackage = QUEUE_UseNode(&queue);
@@ -235,7 +228,7 @@ static void processDmaBuffer() {
 			continue;
 		}
 
-		if (proc.state == PP_FIND && TRANS_IsMarkBeginPackage(proc.byteFirst, *begin)) {
+		if (proc.state == PP_FIND && PACK_IsMarkBeginPackage(proc.byteFirst, *begin)) {
 			useDmaNodePackage[0] = proc.byteFirst;
 			useDmaNodePackage[1] = *begin;
 			proc.packByteNumber = 1;
@@ -289,7 +282,7 @@ void TRANS_Init(TRANSConfig configuration) {
 }
 
 void TRANS_SendPackage(TRANS_PACKAGE *pPackage) {
-	uint8_t *bytes = TRANS_PackageToByte(pPackage);
+	uint8_t *bytes = PACK_PackageToByte(pPackage);
 #if 1
 	sendBytes(bytes, TRANS_PACKAGE_SIZE);
 #else
@@ -338,7 +331,6 @@ void TRANS_UART_RxHalfCpltCallback(UART_HandleTypeDef* huart) {
 	if (huart->Instance != conf.hUART->Instance) {
 		return;
 	}
-	dmaWritePart = DMA_BUFFER_SECOND_PART;
 	processDmaBuffer();
 }
 
@@ -346,14 +338,13 @@ void TRANS_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
 	if (huart->Instance != conf.hUART->Instance) {
 		return;
 	}
-	dmaWritePart = DMA_BUFFER_FIRST_PART;
 	processDmaBuffer();
 }
 
 static void processPackageNode(PACKAGE_QUEUE_NODE *node) {
 
 	TRANS_PACKAGE *pPackage = NULL;
-	uint8_t errCode = TRANS_ByteToPackage(node->package, &pPackage);
+	uint8_t errCode = PACK_ByteToPackage(node->package, &pPackage);
 	if (errCode) {
 		LOGERR("Receive data error %d. NodeStatus:%d QUEUE:%d:%d:%d", errCode, node->status, queue.size, queue.useIndex, queue.processIndex);
 		LOGMEM(node->package, TRANS_PACKAGE_SIZE);

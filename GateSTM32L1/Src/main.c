@@ -396,10 +396,15 @@ void TRANS_OnError(TRANSStatus status) {
 	LOGERR("TRANS Error: "
 			"lastError:0x%x "
 			"lastTransmitStatus:0x%x "
-			"overflowQueueCount:%d",
+			//"overflowQueueCount:%d",
+			"countGoodPackage:%d "
+			"countBadPackage:%d",
 			status.lastError,
 			status.lastTransmitStatus,
-			status.overflowQueueCount);
+			//status.overflowQueueCount
+			status.countGoodPackage,
+			status.countBadPackage
+			);
 	LedErrorSet();
 }
 
