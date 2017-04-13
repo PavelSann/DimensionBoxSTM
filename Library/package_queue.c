@@ -25,16 +25,16 @@ uint8_t *QUEUE_UseNode(PACKAGE_QUEUE *queue) {
 bool QUEUE_ReceiveNode(PACKAGE_QUEUE *queue) {
 	PACKAGE_QUEUE_NODE *node = &queue->packetQueue[queue->useIndex];
 	//если текущая нода не используется вернём false
-	if (node->status != PQ_NODE_USE) {
+	if (node->status == PQ_NODE_USE) {
+		queue->useIndex++;
+		if (queue->useIndex == queue->size) {
+			queue->useIndex = 0;
+		}
+		node->status = PQ_NODE_RECEIVE;
+		return true;
+	} else {
 		return false;
 	}
-
-	node->status = PQ_NODE_RECEIVE;
-	queue->useIndex++;
-	if (queue->useIndex == queue->size) {
-		queue->useIndex = 0;
-	}
-	return true;
 }
 
 void QUEUE_ProcessNode(PACKAGE_QUEUE *queue, void (*callback)(PACKAGE_QUEUE_NODE *)) {
@@ -42,27 +42,26 @@ void QUEUE_ProcessNode(PACKAGE_QUEUE *queue, void (*callback)(PACKAGE_QUEUE_NODE
 		queue->processIndex = 0;
 	}
 
-	//	if (queue->processIndex == queue->useIndex) {
-	//		//больше нет элементов в очереди
-	//	} else {
 	PACKAGE_QUEUE_NODE *node = &queue->packetQueue[queue->processIndex];
 	if (node->status == PQ_NODE_RECEIVE) {
 		//		LOG("QUEUE: size:%d useIndex:%d processIndex:%d count:%d", queue->size, queue->useIndex, queue->processIndex, QUEUE_getReceiveNodeCount(queue));
 		callback(node);
-		node->status = PQ_NODE_FREE;
 		queue->processIndex++;
+		node->status = PQ_NODE_FREE;
 	} else {
 		//текущая нода свободна или используется
 	}
-	//	}
 }
 
 uint32_t QUEUE_GetReceiveNodeCount(PACKAGE_QUEUE *queue) {
+	uint32_t useIndex = queue->useIndex;
+	uint32_t processIndex = queue->processIndex;
+	uint32_t size = queue->size;
 
-	if (queue->useIndex >= queue->processIndex) {
-		return queue->useIndex - queue->processIndex;
+	if (useIndex >= processIndex) {
+		return useIndex - processIndex;
 	} else {
-		return (queue->size - queue->processIndex)+queue->useIndex;
+		return (size - processIndex)+useIndex;
 	}
 }
 

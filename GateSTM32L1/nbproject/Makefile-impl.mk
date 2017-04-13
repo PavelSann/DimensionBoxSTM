@@ -27,11 +27,11 @@ CLEAN_SUBPROJECTS=${CLEAN_SUBPROJECTS_${SUBPROJECTS}}
 PROJECTNAME=GateSTM32L1
 
 # Active Configuration
-DEFAULTCONF=Release
+DEFAULTCONF=Debug
 CONF=${DEFAULTCONF}
 
 # All Configurations
-ALLCONFS=Release Debug 
+ALLCONFS=Debug 
 
 
 # build

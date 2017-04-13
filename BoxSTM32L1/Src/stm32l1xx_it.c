@@ -44,7 +44,6 @@ extern COMP_HandleTypeDef hcomp1;
 extern COMP_HandleTypeDef hcomp2;
 extern TIM_HandleTypeDef htim2;
 extern DMA_HandleTypeDef hdma_uart4_rx;
-extern DMA_HandleTypeDef hdma_uart4_tx;
 extern UART_HandleTypeDef huart4;
 
 /******************************************************************************/
@@ -76,7 +75,7 @@ void HardFault_Handler(void)
   /* USER CODE END HardFault_IRQn 0 */
   while (1)
   {
-	}
+  }
   /* USER CODE BEGIN HardFault_IRQn 1 */
 
   /* USER CODE END HardFault_IRQn 1 */
@@ -93,7 +92,7 @@ void MemManage_Handler(void)
   /* USER CODE END MemoryManagement_IRQn 0 */
   while (1)
   {
-	}
+  }
   /* USER CODE BEGIN MemoryManagement_IRQn 1 */
 
   /* USER CODE END MemoryManagement_IRQn 1 */
@@ -110,7 +109,7 @@ void BusFault_Handler(void)
   /* USER CODE END BusFault_IRQn 0 */
   while (1)
   {
-	}
+  }
   /* USER CODE BEGIN BusFault_IRQn 1 */
 
   /* USER CODE END BusFault_IRQn 1 */
@@ -127,7 +126,7 @@ void UsageFault_Handler(void)
   /* USER CODE END UsageFault_IRQn 0 */
   while (1)
   {
-	}
+  }
   /* USER CODE BEGIN UsageFault_IRQn 1 */
 
   /* USER CODE END UsageFault_IRQn 1 */
@@ -250,20 +249,6 @@ void DMA2_Channel3_IRQHandler(void)
   /* USER CODE BEGIN DMA2_Channel3_IRQn 1 */
 
   /* USER CODE END DMA2_Channel3_IRQn 1 */
-}
-
-/**
-* @brief This function handles DMA2 channel5 global interrupt.
-*/
-void DMA2_Channel5_IRQHandler(void)
-{
-  /* USER CODE BEGIN DMA2_Channel5_IRQn 0 */
-
-  /* USER CODE END DMA2_Channel5_IRQn 0 */
-  HAL_DMA_IRQHandler(&hdma_uart4_tx);
-  /* USER CODE BEGIN DMA2_Channel5_IRQn 1 */
-
-  /* USER CODE END DMA2_Channel5_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

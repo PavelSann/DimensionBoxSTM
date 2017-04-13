@@ -36,7 +36,10 @@ void HAL_COMP_TriggerCallback(COMP_HandleTypeDef *hcomp) {
 		uint32_t tick = HAL_GetTick(); //In the default implementation, this variable is incremented each 1ms
 		if (lastTick == 0 || (tick - lastTick) > MIN_PAUSE_IMPULSE) {//защита от дребезга контактов
 			lastTick = tick;
-			ATOMIC_BLOCK{value++;}
+
+			ATOMIC_BLOCK() {
+				value++;
+			}
 		}
 	}
 
@@ -49,7 +52,10 @@ void HAL_COMP_TriggerCallback(COMP_HandleTypeDef *hcomp) {
 }
 
 void WaterMeter_subValue(uint32_t delta) {
-	ATOMIC_BLOCK{value -= delta;}
+
+	ATOMIC_BLOCK() {
+		value -= delta;
+	}
 }
 
 uint32_t WaterMeter_getValue() {

@@ -36,6 +36,7 @@ extern "C" {
 		HAL_StatusTypeDef lastReceiveStatus;
 		HAL_StatusTypeDef lastTransmitStatus;
 		TCPError lastError;
+		HAL_UART_StateTypeDef uartState;
 	} TCPStatus;
 
 	typedef struct {
@@ -49,8 +50,8 @@ extern "C" {
 
 	void TCP_Init(TCPConfig configuration);
 	bool TCP_IsConnect();
-	void TCP_SendTransPackage(TRANS_PACKAGE *pPackage);
-	void TCP_OnProcessPackage(TRANS_PACKAGE *pPackage);
+	void TCP_SendTransPackage(TRANSPackage *pPackage);
+	void TCP_OnProcessPackage(TRANSPackage *pPackage);
 	void TCP_UART_RxCpltCallback(UART_HandleTypeDef* huart);
 	void TCP_ProcessPackage();
 	void TCP_OnError(TCPStatus status);
