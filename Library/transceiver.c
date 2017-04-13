@@ -1,3 +1,5 @@
+// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "transceiver.h"
 #include <string.h>
 #include <assert.h>
@@ -130,15 +132,14 @@ static inline uint8_t getDmaBufferByte(size_t base, size_t offset) {
 static void processDmaBuffer() {
 
 	static volatile struct {
-		/**Защита при одновременном использовании processDmaBuffer из прерывания и основного потока*/
-		uint8_t lock;
 		/**Номер последнего обработанного байта*/
 		uint32_t lastDmaPos;
 		/**Номер последнего записанного к пакет байта*/
 		size_t packByteNumber;
 		/**Первый байт пакета */
 		uint8_t byteFirst;
-
+		/**Защита при одновременном использовании processDmaBuffer из прерывания и основного потока*/
+		uint8_t lock;
 		/**текущее состояние*/
 		enum {
 			PP_FIND,
