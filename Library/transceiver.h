@@ -24,7 +24,7 @@ extern "C" {
 
 	typedef struct {
 		UART_HandleTypeDef *hUART;
-		TRANS_ADDRESS localAddress;
+		TRANSAddress localAddress;
 		//		GPIO_TypeDef *port;
 		//		uint16_t pinReset;
 	} TRANSConfig;
@@ -58,19 +58,19 @@ extern "C" {
 	 * @param type TRANS_PACKAGE_TYPE
 	 * @return
 	 */
-	TRANS_PACKAGE TRANS_NewLocalPackage(TRANS_ADDRESS targetAddress, TRANS_PACKAGE_TYPE type);
+	TRANSPackage TRANS_NewLocalPackage(TRANSAddress targetAddress, TRANSPackageType type);
 
 	/**
 	 * Отправляет произвольный пакет
 	 * @param pPackage
 	 */
-	void TRANS_SendPackage(TRANS_PACKAGE *pPackage);
+	void TRANS_SendPackage(TRANSPackage *pPackage);
 	/**
 	 * Отправка показаний с счётчиков
 	 * @param targetAddress
 	 * @param dataMeters
 	 */
-	void TRANS_SendDataMeters(TRANS_ADDRESS targetAddress, TRANS_DATA_METERS *dataMeters);
+	void TRANS_SendDataMeters(TRANSAddress targetAddress, TRANSDataMeters *dataMeters);
 	/**
 	 * Обработчик для  HAL_UART_RxCpltCallback
 	 * для приёма пакетов, нужно вызывать в HAL_UART_RxCpltCallback
@@ -88,7 +88,7 @@ extern "C" {
 	 * 
 	 * @param pPackage
 	 */
-	void TRANS_OnProcessPackage(TRANS_PACKAGE *pPackage);
+	void TRANS_OnProcessPackage(TRANSPackage *pPackage);
 	/**
 	 * Обрабатывает 1 пакет из очереди, вызывает TRANS_OnProcessPackage
 	 */

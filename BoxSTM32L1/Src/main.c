@@ -124,7 +124,7 @@ int main(void) {
 #if TEST
 	SP1MLTest();
 #endif
-
+	PACK_Init(&hcrc);
 	//запускаем таймер 2
 	HAL_TIM_Base_Start_IT(&htim2);
 
@@ -182,7 +182,7 @@ int main(void) {
 				values.tariff4 = TRANS_DISCONNECT_METER_VALUE;
 			}
 
-			TRANS_DATA_METERS meters = {
+			TRANSDataMeters meters = {
 				values.tariff1, values.tariff2, values.tariff3, values.tariff4,
 				waterValue
 			};
@@ -443,7 +443,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
 }
 
-void TRANS_OnProcessPackage(TRANS_PACKAGE* pPackage) {
+void TRANS_OnProcessPackage(TRANSPackage* pPackage) {
 	//	LOG("OnReceivePackage: source:0x%x type:%d", pPackage->sourceAddress, pPackage->type);
 	if (pPackage->type == TRANS_TYPE_COMMAND) {
 		uint32_t command = pPackage->data.command.command;

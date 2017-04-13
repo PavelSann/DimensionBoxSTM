@@ -42,6 +42,7 @@
 #include "xprint.h"
 #include "package_queue.h"
 #include <assert.h>
+#include "trans_package.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -108,7 +109,7 @@ int main(void) {
 #if TEST
 	SP1MLTest();
 #endif
-
+	PACK_Init(&hcrc);
 	TRANSConfig conf = {
 		.hUART = &huart4,
 		.localAddress = CONFIG_LOCAL_ADDRESS,
@@ -353,12 +354,12 @@ void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef* huart) {
 	TRANS_UART_RxHalfCpltCallback(huart);
 }
 
-void TRANS_OnProcessPackage(TRANS_PACKAGE *pPackage) {
+void TRANS_OnProcessPackage(TRANSPackage *pPackage) {
 	//	LOG("TRANS: ProcessPackage: type:%d source:0x%x target:0x%x", pPackage->type, pPackage->sourceAddress, pPackage->targetAddress);
 	TCP_SendTransPackage(pPackage);
 }
 
-void TCP_OnProcessPackage(TRANS_PACKAGE* pPackage) {
+void TCP_OnProcessPackage(TRANSPackage* pPackage) {
 	//	LOG("TCP: ProcessPackage: type:%d source:0x%x target:0x%x", pPackage->type, pPackage->sourceAddress, pPackage->targetAddress);
 	TRANS_SendPackage(pPackage);
 }

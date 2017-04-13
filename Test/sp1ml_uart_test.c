@@ -10,8 +10,10 @@
 #define PACKAGE_SIZE 48
 #define BUFFER_SIZE_STR DEF_TO_STR(PACKAGE_SIZE)
 #define CHECK_CRC 1
+#define CRC_TEST 0
 //#define UART_SPEED 9600
 //#define UART_SPEED_STR DEF_TO_STR(UART_SPEED)
+
 #if RECEIVE_DMA
 	#define BUFFER_DMA_PACKAGE_COUNT 32
 	#define BUFFER_DMA_SIZE (PACKAGE_SIZE*BUFFER_DMA_PACKAGE_COUNT)
@@ -141,6 +143,31 @@ void checkPackages(bool first) {
 
 }
 
+#if CRC_TEST
+
+
+uint32_t CRC_Calculate(CRC_HandleTypeDef *hcrc, uint32_t pBuffer[], uint32_t BufferLength) {
+	uint32_t index = 0;
+
+	/* Change CRC peripheral state */
+	hcrc->State = HAL_CRC_STATE_BUSY;
+
+	/* Reset CRC Calculation Unit */
+	__HAL_CRC_DR_RESET(hcrc);
+
+	/* Enter Data to the CRC calculator */
+	for (index = 0; index < BufferLength; index++) {
+		hcrc->Instance->DR = __RBIT(pBuffer[index]);
+	}
+
+	/* Change CRC peripheral state */
+	hcrc->State = HAL_CRC_STATE_READY;
+
+	/* Return the CRC computed value */
+	return ~__RBIT(hcrc->Instance->DR);
+}
+#endif
+
 void SP1MLTest() {
 	//	__HAL_RCC_DMA1_CLK_DISABLE();
 	//	__HAL_RCC_DMA2_CLK_DISABLE();
@@ -151,6 +178,29 @@ void SP1MLTest() {
 	//	HAL_UART_DeInit(&huart4);
 	//	HAL_UART_Init(&huart4);
 #endif
+
+#if CRC_TEST
+	{
+		LOG("CRC TEST ");
+
+		uint8_t arr[8] = {0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38};
+		const uint32_t arrSize=sizeof(arr);
+		uint32_t crc=0;
+		crc = HAL_CRC_Calculate(&hcrc, (uint32_t*) arr,arrSize / 4);
+		LOG("CRC arr=0x%x", crc);//CRC arr=0xa3141bda
+//		uint32_t rCrc=__RBIT(crc);
+//		LOG("__RBIT(0x%x)=0x%x", crc,rCrc);
+//		LOG("0x%x^0xffffffff=0x%x",rCrc,rCrc^0xffffffff);
+
+
+		crc = CRC_Calculate(&hcrc, (uint32_t*) arr, arrSize / 4);
+		LOG("CRC_Calculate arr=0x%x", crc);
+
+
+	}
+
+#endif
+
 #if CHECK_CRC
 	baseCRC = HAL_CRC_Calculate(&hcrc, (uint32_t*) dataToSend, PACKAGE_SIZE / 4);
 #endif
@@ -189,7 +239,7 @@ void SP1MLTest() {
 			DMA_Channel_TypeDef *pDMC = huart4.hdmarx->Instance;
 			// pDMC->CMAR адрес буфера
 			// pDMC->CNDTR смещение
-//			LOG("DMA: CMAR:0x%x CNDTR:0x%x CPAR:0x%x bufferDma:0x%x", pDMC->CMAR, pDMC->CNDTR, pDMC->CPAR,&bufferDma);
+			//			LOG("DMA: CMAR:0x%x CNDTR:0x%x CPAR:0x%x bufferDma:0x%x", pDMC->CMAR, pDMC->CNDTR, pDMC->CPAR,&bufferDma);
 		}
 		if (run && (HAL_GetTick() - lastTransmit) > TRANSMIT_TIMEOUT) {
 			HAL_UART_Transmit(&huart4, dataToSend, PACKAGE_SIZE, 1000000);

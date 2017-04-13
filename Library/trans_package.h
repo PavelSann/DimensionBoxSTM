@@ -20,14 +20,16 @@ extern "C" {
 #include <stdint.h>
 #include <limits.h>
 #include <stdbool.h>
+#include "stm32l1xx_hal.h"
+#include "stm32l1xx_hal_crc.h"
 
-	typedef uint32_t TRANS_ADDRESS;
+	typedef uint32_t TRANSAddress;
 
 	/**Тип содержимого пакета*/
 	typedef enum {
 		TRANS_TYPE_METERS = 1,
 		TRANS_TYPE_COMMAND = 2,
-	} TRANS_PACKAGE_TYPE;
+	} TRANSPackageType;
 
 	/** Пакет с измерениями со счётчиков	 */
 	typedef struct __packed {
@@ -39,11 +41,11 @@ extern "C" {
 		uint32_t value5;
 		uint32_t value6;
 		uint32_t value7;
-	} TRANS_DATA_METERS;
+	} TRANSDataMeters;
 	/**Значение для не подключённого счётчика*/
 #define TRANS_DISCONNECT_METER_VALUE 0xFFFFFFFF
 
-	enum TRANS_COMMANDS {
+	enum TRANSCommand {
 		TRANS_COMMAND_NOP = 0,
 		TRANS_COMMAND_VALVE_OPEN = 1,
 		TRANS_COMMAND_VALVE_CLOSE = 2,
@@ -55,24 +57,32 @@ extern "C" {
 		uint32_t command;
 		uint32_t parametr1;
 		uint32_t parametr2;
-	} TRANS_DATA_COMMAND;
+	} TRANSDataCommand;
 
 	/**Пакет*/
 	typedef struct __packed {
 		uint16_t magicMark;
-		uint32_t sign;
-		TRANS_ADDRESS sourceAddress;
-		TRANS_ADDRESS targetAddress;
-		TRANS_PACKAGE_TYPE type; //размер который занимает enum не специфицированно, в trans_package.h есть assert
+		TRANSAddress sourceAddress;
+		TRANSAddress targetAddress;
+		TRANSPackageType type; //размер который занимает enum не специфицированно, в trans_package.h есть assert
 
 		/**Данные, тип данных зависит от значения поля type*/
 		union {
-			TRANS_DATA_METERS meters;
-			TRANS_DATA_COMMAND command;
+			TRANSDataMeters meters;
+			TRANSDataCommand command;
 		} data;
 		uint8_t end;
-	} TRANS_PACKAGE;
+		uint32_t crc;
+	} TRANSPackage;
 
+	typedef enum {
+		PACK_ERR_NONE=0,
+		PACK_ERR_BAD_MARK=1,
+		PACK_ERR_BAD_END_BYTE=2,
+		PACK_ERR_BAD_CRC=3,
+	} PACKError;
+
+	void PACK_Init(CRC_HandleTypeDef *hcrc);
 
 	/**
 	 * Создаёт новый пакет
@@ -81,7 +91,7 @@ extern "C" {
 	 * @param type
 	 * @return
 	 */
-	TRANS_PACKAGE PACK_NewPackage(TRANS_ADDRESS sourceAddress, TRANS_ADDRESS targetAddress, TRANS_PACKAGE_TYPE type);
+	TRANSPackage PACK_NewPackage(TRANSAddress sourceAddress, TRANSAddress targetAddress, TRANSPackageType type);
 
 	/**
 	 * Преобразует набор байт в TRANS_PACKAGE, заполняет указатель pPackage
@@ -89,13 +99,13 @@ extern "C" {
 	 * @param pPackage указатель на пакет
 	 * @return код ошибки, 0 если нет ошибок
 	 */
-	uint8_t PACK_ByteToPackage(uint8_t *bytes, TRANS_PACKAGE **pPackage);
+	PACKError PACK_ByteToPackage(uint8_t *bytes, TRANSPackage **pPackage);
 	/**
 	 *
 	 * @param pPackage
 	 * @return
 	 */
-	uint8_t *PACK_PackageToByte(TRANS_PACKAGE *pPackage);
+	uint8_t *PACK_PackageToByte(TRANSPackage *pPackage);
 	/**
 	 *Возвращает true если переданы первый и второй байты пакета
 	 * @param byteFirst первый байт
@@ -106,7 +116,7 @@ extern "C" {
 
 
 	/**Размер пакета в байтах*/
-#define TRANS_PACKAGE_SIZE sizeof(TRANS_PACKAGE)
+#define TRANS_PACKAGE_SIZE sizeof(TRANSPackage)
 	/**Длина метки начала пакета*/
 #define TRANS_PACKAGE_MARK_SIZE 2
 

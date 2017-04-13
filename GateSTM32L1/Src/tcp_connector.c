@@ -89,13 +89,13 @@ bool TCP_IsConnect() {
 	return HAL_GPIO_ReadPin(conf.port, conf.pinNotConnect) == GPIO_PIN_RESET;
 }
 
-void TCP_SendTransPackage(TRANS_PACKAGE *pPackage) {
+void TCP_SendTransPackage(TRANSPackage *pPackage) {
 	//пакет в байты
 	uint8_t* bytes = PACK_PackageToByte(pPackage);
 	sendBytes(bytes, TRANS_PACKAGE_SIZE);
 }
 
-__weak void TCP_OnProcessPackage(TRANS_PACKAGE *pPackage) {
+__weak void TCP_OnProcessPackage(TRANSPackage *pPackage) {
 	UNUSED(pPackage);
 }
 
@@ -112,7 +112,7 @@ void TCP_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
 
 static void processPackageNode(PACKAGE_QUEUE_NODE *node) {
 
-	TRANS_PACKAGE *pPackage = NULL;
+	TRANSPackage *pPackage = NULL;
 	uint8_t errCode = PACK_ByteToPackage(node->package, &pPackage);
 	if (errCode) {
 		//		LOGERR("Receive data error %d. NodeStatus:%d QUEUE:%d:%d:%d", errCode, node->status, queue.size, queue.useIndex, queue.processIndex);

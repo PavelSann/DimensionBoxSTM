@@ -15,8 +15,8 @@
 
 #define SP1ML_PAYLOAD_SIZE 48
 #define SP1ML_PAYLOAD_SIZE_STR DEF_TO_STR(SP1ML_PAYLOAD_SIZE)
-static_assert(sizeof (TRANS_PACKAGE) == SP1ML_PAYLOAD_SIZE, "sizeof(TRANS_PACKAGE) != SP1ML_PAYLOAD_SIZE");
-static_assert(sizeof (TRANS_PACKAGE) < 96, "Max PAYLOAD_SIZE SP1ML 96");
+static_assert(sizeof (TRANSPackage) == SP1ML_PAYLOAD_SIZE, "sizeof(TRANS_PACKAGE) != SP1ML_PAYLOAD_SIZE");
+static_assert(sizeof (TRANSPackage) < 96, "Max PAYLOAD_SIZE SP1ML 96");
 
 #define SEND_TIMEOUT 10000
 #define SEND_PAUSE   200
@@ -42,7 +42,7 @@ static uint8_t *useDmaNodePackage;
 static uint8_t dmaBuffer[DMA_BUFFER_SIZE];
 static uint8_t *dmaBufferEnd = dmaBuffer + DMA_BUFFER_SIZE;
 
-TRANS_PACKAGE TRANS_NewLocalPackage(TRANS_ADDRESS targetAddress, TRANS_PACKAGE_TYPE type) {
+TRANSPackage TRANS_NewLocalPackage(TRANSAddress targetAddress, TRANSPackageType type) {
 	return PACK_NewPackage(conf.localAddress, targetAddress, type);
 }
 
@@ -204,7 +204,7 @@ static void processDmaBuffer() {
 			}
 		}
 		if (proc.state == PP_CHECK) {
-			TRANS_PACKAGE *pPackage;
+			TRANSPackage *pPackage;
 			uint8_t err = PACK_ByteToPackage(useDmaNodePackage, &pPackage);
 			if (!err) {
 				QUEUE_ReceiveNode(&queue);
@@ -281,7 +281,8 @@ void TRANS_Init(TRANSConfig configuration) {
 	LOG("Transceiver init UART:0x%x TRANS_PACKAGE_SIZE:%d", conf.hUART->Instance, TRANS_PACKAGE_SIZE);
 }
 
-void TRANS_SendPackage(TRANS_PACKAGE *pPackage) {
+void TRANS_SendPackage(TRANSPackage *pPackage) {
+
 	uint8_t *bytes = PACK_PackageToByte(pPackage);
 #if 1
 	sendBytes(bytes, TRANS_PACKAGE_SIZE);
@@ -313,13 +314,13 @@ void TRANS_SendPackage(TRANS_PACKAGE *pPackage) {
 #endif
 }
 
-void TRANS_SendDataMeters(TRANS_ADDRESS targetAddress, TRANS_DATA_METERS *dataMeters) {
-	TRANS_PACKAGE p = TRANS_NewLocalPackage(targetAddress, TRANS_TYPE_METERS);
+void TRANS_SendDataMeters(TRANSAddress targetAddress, TRANSDataMeters *dataMeters) {
+	TRANSPackage p = TRANS_NewLocalPackage(targetAddress, TRANS_TYPE_METERS);
 	p.data.meters = *dataMeters;
 	TRANS_SendPackage(&p);
 }
 
-__weak void TRANS_OnProcessPackage(TRANS_PACKAGE *pPackage) {
+__weak void TRANS_OnProcessPackage(TRANSPackage *pPackage) {
 	UNUSED(pPackage);
 }
 
@@ -343,7 +344,7 @@ void TRANS_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
 
 static void processPackageNode(PACKAGE_QUEUE_NODE *node) {
 
-	TRANS_PACKAGE *pPackage = NULL;
+	TRANSPackage *pPackage = NULL;
 	uint8_t errCode = PACK_ByteToPackage(node->package, &pPackage);
 	if (errCode) {
 		LOGERR("Receive data error %d. NodeStatus:%d QUEUE:%d:%d:%d", errCode, node->status, queue.size, queue.useIndex, queue.processIndex);
