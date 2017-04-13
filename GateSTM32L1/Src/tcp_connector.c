@@ -52,10 +52,13 @@ static void inline ReceivePackage() {
 		error = true;
 	}
 
-	do {
+	status.lastReceiveStatus = HAL_UART_Receive_DMA(conf.hUART, nodeBuffer, TRANS_PACKAGE_SIZE);
+	if(status.lastReceiveStatus == HAL_BUSY){
+		//костыль против deadlock
+		//Тут может быть  многопоточная бага из за __HAL_LOCK в HAL_UART_Receive_DMA
+		__HAL_UNLOCK(conf.hUART);
 		status.lastReceiveStatus = HAL_UART_Receive_DMA(conf.hUART, nodeBuffer, TRANS_PACKAGE_SIZE);
-	} while (status.lastReceiveStatus == HAL_BUSY);
-
+	}
 	if (status.lastReceiveStatus != HAL_OK) {
 		status.lastError = TCP_ERR_UART_RECEIVE;
 		error = true;
