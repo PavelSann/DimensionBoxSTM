@@ -64,7 +64,7 @@ OBJECTFILES= \
 
 
 # C Compiler Flags
-CFLAGS=-Og -ggdb3 -mcpu=cortex-m3 -mthumb -mfloat-abi=soft -fmessage-length=0 -ffunction-sections -c -fmessage-length=0 -MMD -MP
+CFLAGS=-Og -ggdb3 -mcpu=cortex-m3 -mthumb -mfloat-abi=soft -ffunction-sections -c -MMD -MP
 
 # CC Compiler Flags
 CCFLAGS=
