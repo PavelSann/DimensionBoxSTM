@@ -39,11 +39,12 @@ extern "C" {
 	} TRANSError;
 
 	typedef __IO struct {
-//		uint16_t overflowQueueCount;
+		//		uint16_t overflowQueueCount;
 		HAL_StatusTypeDef lastTransmitStatus;
 		TRANSError lastError;
 		uint32_t countGoodPackage;
 		uint32_t countBadPackage;
+		uint32_t countSkipPackage;
 	} TRANSStatus;
 
 	/**
@@ -98,6 +99,10 @@ extern "C" {
 	 * @return
 	 */
 	TRANSStatus TRANS_GetStatus();
+	/**
+	 * Вызывается при ошибке
+	 * @param status
+	 */
 	void TRANS_OnError(TRANSStatus status);
 
 #ifdef __cplusplus

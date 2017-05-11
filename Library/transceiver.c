@@ -10,37 +10,51 @@
 #define __STR(val) #val
 #define DEF_TO_STR(X) __STR(X)
 
+/**Выводить входящие пакеты в лог*/
 #define LOG_PACKAGE 0
+/**Выводить статистику работы очереди в лог*/
 #define LOG_QUEUE 0
+/**Выводить сообщения об обработке DMA буфера в лог*/
 #define LOG_DMA_BUFFER 0
+/**При старте выполнить настройку модуля sp1ml */
 #define CONFIG_SP1ML 0
-
+/**Время, в течении которого будем пытаться отправить сообщение*/
+#define SEND_TIMEOUT 10000
+/**Пауза между отправками сообщений*/
+#define SEND_PAUSE   200
+/**Размер очереди сообщений.*/
+#define PACKAGE_QUEUE_SIZE 100
+/**Размер DMA буфера, в пакетах*/
+#define DMA_BUFFER_COUNT_PACKAGE 64
+/**Размер DMA буфера в байтах*/
+#define DMA_BUFFER_SIZE (DMA_BUFFER_COUNT_PACKAGE*TRANS_PACKAGE_SIZE)
+/**Размер пакета sp1ml, обычно равен размеру TRANSPackage*/
 #define SP1ML_PAYLOAD_SIZE 48
 #define SP1ML_PAYLOAD_SIZE_STR DEF_TO_STR(SP1ML_PAYLOAD_SIZE)
+/**Обрабатывать все корректные пакеты, даже предназначенные другим устройствам*/
+#define ACCEPT_ALL_PACKAGES 0
+
+
 static_assert(sizeof (TRANSPackage) == SP1ML_PAYLOAD_SIZE, "sizeof(TRANS_PACKAGE) != SP1ML_PAYLOAD_SIZE");
 static_assert(sizeof (TRANSPackage) < 96, "Max PAYLOAD_SIZE SP1ML 96");
-
-#define SEND_TIMEOUT 10000
-#define SEND_PAUSE   200
-#define PACKAGE_QUEUE_SIZE 100
-#define DMA_BUFFER_COUNT_PACKAGE 64
-#define DMA_BUFFER_SIZE (DMA_BUFFER_COUNT_PACKAGE*TRANS_PACKAGE_SIZE)
 
 static PACKAGE_QUEUE_NODE queueBuffer[PACKAGE_QUEUE_SIZE];
 static PACKAGE_QUEUE queue;
 static TRANSConfig conf;
-static DMA_HandleTypeDef *hDMArx;
+/**Указатель на область внутри queueBuffer, в которую в данный момент пишутся данные из dmaBuffer*/
+static uint8_t *useDmaNodePackage;
 static __IO bool error = false;
 static TRANSStatus status = {
 	.lastError = TRANS_ERR_NONE,
 	.lastTransmitStatus = HAL_OK,
-//	.overflowQueueCount = 0,
+	//	.overflowQueueCount = 0,
 	.countBadPackage = 0,
 	.countGoodPackage = 0
 };
-static uint8_t *useDmaNodePackage;
 
-
+/**Указатель на  dma канал для приёма данных по uart*/
+static DMA_HandleTypeDef *hDMArx;
+/**dma буфер для приёма данных*/
 static uint8_t dmaBuffer[DMA_BUFFER_SIZE];
 static uint8_t *dmaBufferEnd = dmaBuffer + DMA_BUFFER_SIZE;
 
@@ -129,6 +143,17 @@ static inline uint8_t getDmaBufferByte(size_t base, size_t offset) {
 
 }
 
+/**
+ * Проверяем, предназначен ли пакет данному устройству
+ */
+static inline bool isAcceptPackage(TRANSPackage *pPackage) {
+#if ACCEPT_ALL_PACKAGES
+	return true;
+#else
+	return pPackage->targetAddress == conf.localAddress;
+#endif
+}
+
 static void processDmaBuffer() {
 
 	static volatile struct {
@@ -140,6 +165,7 @@ static void processDmaBuffer() {
 		uint8_t byteFirst;
 		/**Защита при одновременном использовании processDmaBuffer из прерывания и основного потока*/
 		uint8_t lock;
+
 		/**текущее состояние*/
 		enum {
 			PP_FIND,
@@ -180,8 +206,8 @@ static void processDmaBuffer() {
 	bool logDmaBuffer = false;
 	if (begin != end) {
 		logDmaBuffer = true;
-		LOG("Begin processDmaBuffer: dmaBuffer:0x%x begin:0x%x end:0x%x dmaNumber:%d good:%d bad:%d",
-				dmaBuffer, begin, end, dmaNumber, status.countGoodPackage, status.countBadPackage);
+		LOG("Begin processDmaBuffer: dmaBuffer:0x%x begin:0x%x end:0x%x dmaNumber:%d good:%d bad:%d skip:%d",
+				dmaBuffer, begin, end, dmaNumber, status.countGoodPackage, status.countBadPackage, status.countSkipPackage);
 		//	LOGMEM(dmaBuffer, DMA_BUFFER_SIZE);
 	}
 #endif
@@ -208,9 +234,15 @@ static void processDmaBuffer() {
 			TRANSPackage *pPackage;
 			uint8_t err = PACK_ByteToPackage(useDmaNodePackage, &pPackage);
 			if (!err) {
-				QUEUE_ReceiveNode(&queue);
-				useDmaNodePackage = QUEUE_UseNode(&queue);
-				status.countGoodPackage++;
+				if (isAcceptPackage(pPackage)) {
+					QUEUE_ReceiveNode(&queue);
+					useDmaNodePackage = QUEUE_UseNode(&queue);
+					status.countGoodPackage++;
+				} else {
+					//пакет корректный но предназначен другому устройству, пропускаем
+					status.countSkipPackage++;
+				}
+
 			} else {
 				status.countBadPackage++;
 				//нужно вернутся на (TRANS_PACKAGE_SIZE-2), вдруг нам попался мусор начинающийся с  TRANS_PACKAGE_MAGIC
@@ -240,8 +272,8 @@ static void processDmaBuffer() {
 	}
 #if LOG_DMA_BUFFER
 	if (logDmaBuffer) {
-		LOG("End processDmaBuffer: good:%d bad:%d",
-				status.countGoodPackage, status.countBadPackage);
+		LOG("End processDmaBuffer: good:%d bad:%d skip:%d",
+				status.countGoodPackage, status.countBadPackage, status.countSkipPackage);
 	}
 #endif
 
@@ -352,10 +384,6 @@ static void processPackageNode(PACKAGE_QUEUE_NODE *node) {
 		LOGMEM(node->package, TRANS_PACKAGE_SIZE);
 		//		LOG("* * * * * ");
 		//		LOGMEM(queue.packetQueue, PACKAGE_QUEUE_SIZE*sizeof(PACKAGE_QUEUE_NODE));
-		/*
-		 Если получены кривые данные, можно поискать в пакете начало пакета, если он сдвинут, то записать в доп. буфер
-		 при получении следуюущих кривых данных, начало можно будет взять из доп буфера
-		 */
 		status.lastError = TRANS_ERR_BAD_PACKAGE;
 		error = true;
 	} else {
@@ -378,8 +406,8 @@ void TRANS_ProcessPackage() {
 
 #if LOG_QUEUE
 	if (count > 0) {
-		LOG("TRANS: ProcessPackage: node count %d QUEUE:%d:%d:%d DmaGood:%d DmaBad:%d",
-				count, queue.size, queue.useIndex, queue.processIndex, status.countGoodPackage, status.countBadPackage);
+		LOG("TRANS: ProcessPackage: node count %d QUEUE:%d:%d:%d DmaGood:%d DmaBad:%d DmaSkip:%d",
+				count, queue.size, queue.useIndex, queue.processIndex, status.countGoodPackage, status.countBadPackage, status.countSkipPackage);
 	}
 #endif
 

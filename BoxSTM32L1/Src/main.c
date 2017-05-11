@@ -164,37 +164,37 @@ int main(void) {
 
 		TRANS_ProcessPackage();
 		if (readMeters == true) {
-			//			HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_SET);
-			uint32_t waterValue = TRANS_DISCONNECT_METER_VALUE;
-			if (!WaterMeter_getError()) {
-				waterValue = WaterMeter_getValue();
-				//				LOG("Water value: %d ", waterValue);
-			} else {
-				LOG("Water meter not connect");
-			}
+			TRANSDataMeters meters = {
+				{.type = TRANS_METER_TYPE_NONE, .value = 0},
+				{.type = TRANS_METER_TYPE_NONE, .value = 0},
+				{.type = TRANS_METER_TYPE_NONE, .value = 0},
+				{.type = TRANS_METER_TYPE_NONE, .value = 0}
+			};
 
 			ElectroMeterValues values = ElectroMeter_GetValues();
 			if (!values.error) {
 				//LOG("Electro values: t1=%d t2=%d t3=%d t4=%d ", values.tariff1, values.tariff2, values.tariff3, values.tariff4);
+				meters.value0 = (TRANSDataMeterValue){.type = TRANS_METER_TYPE_ELECTRO_T1, .value = values.tariff1};
+				meters.value1 = (TRANSDataMeterValue){.type = TRANS_METER_TYPE_ELECTRO_T2, .value = values.tariff2};
 			} else {
-				//				LOG("Electro meter not connect");
-				values.tariff1 = TRANS_DISCONNECT_METER_VALUE;
-				values.tariff2 = TRANS_DISCONNECT_METER_VALUE;
-				values.tariff3 = TRANS_DISCONNECT_METER_VALUE;
-				values.tariff4 = TRANS_DISCONNECT_METER_VALUE;
+				//LOG("Electro meter not connect");
 			}
 
-			TRANSDataMeters meters = {
-				values.tariff1, values.tariff2, values.tariff3, values.tariff4,
-				waterValue
-			};
+			if (!WaterMeter_getError()) {
+				uint32_t waterValue = WaterMeter_getValue();
+				meters.value2 = (TRANSDataMeterValue){.type = TRANS_METER_TYPE_WATER_IMPULS, .value = waterValue};
+				//LOG("Water value: %d ", waterValue);
+			} else {
+				LOG("Water meter not connect");
+			}
 
 			TRANS_SendDataMeters(CONFIG_GATE_ADDRESS, &meters);
 
-			//HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_RESET);
 			readMeters = false;
 		}
-		//		__WFI;
+//		HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+//		HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+
 	}
 	/* USER CODE END 3 */
 
