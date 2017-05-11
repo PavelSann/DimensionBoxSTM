@@ -1,10 +1,13 @@
-// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 /**
  ******************************************************************************
  * File Name          : main.c
  * Description        : Main program body
  ******************************************************************************
+ ** This notice applies to any and all portions of this file
+ * that are not between comment pairs USER CODE BEGIN and
+ * USER CODE END. Other portions of this file, whether
+ * inserted by the user or by software development tools
+ * are owned by their respective copyright owners.
  *
  * COPYRIGHT(c) 2017 STMicroelectronics
  *
@@ -37,6 +40,8 @@
 #include "stm32l1xx_hal.h"
 
 /* USER CODE BEGIN Includes */
+// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "stm32l1xx_hal_uart.h"
 #include "config.h"
 #include "transceiver.h"
@@ -70,7 +75,6 @@ static volatile bool readMeters = 0;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-void Error_Handler(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_TIM2_Init(void);
@@ -101,8 +105,16 @@ int main(void) {
 	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
 	HAL_Init();
 
+	/* USER CODE BEGIN Init */
+
+	/* USER CODE END Init */
+
 	/* Configure the system clock */
 	SystemClock_Config();
+
+	/* USER CODE BEGIN SysInit */
+
+	/* USER CODE END SysInit */
 
 	/* Initialize all configured peripherals */
 	MX_GPIO_Init();
@@ -192,8 +204,8 @@ int main(void) {
 
 			readMeters = false;
 		}
-//		HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
-//		HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+		//		HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+		//		HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
 
 	}
 	/* USER CODE END 3 */
@@ -221,7 +233,7 @@ void SystemClock_Config(void) {
 	RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL4;
 	RCC_OscInitStruct.PLL.PLLDIV = RCC_PLL_DIV2;
 	if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
-		Error_Handler();
+		_Error_Handler(__FILE__, __LINE__);
 	}
 
 	/**Initializes the CPU, AHB and APB busses clocks
@@ -234,7 +246,7 @@ void SystemClock_Config(void) {
 	RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
 	if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK) {
-		Error_Handler();
+		_Error_Handler(__FILE__, __LINE__);
 	}
 
 	/**Configure the Systick interrupt time
@@ -257,7 +269,7 @@ static void MX_COMP1_Init(void) {
 	hcomp1.Init.TriggerMode = COMP_TRIGGERMODE_IT_RISING;
 	hcomp1.Init.NonInvertingInputPull = COMP_NONINVERTINGINPUT_NOPULL;
 	if (HAL_COMP_Init(&hcomp1) != HAL_OK) {
-		Error_Handler();
+		_Error_Handler(__FILE__, __LINE__);
 	}
 
 }
@@ -273,7 +285,7 @@ static void MX_COMP2_Init(void) {
 	hcomp2.Init.WindowMode = COMP_WINDOWMODE_ENABLE;
 	hcomp2.Init.TriggerMode = COMP_TRIGGERMODE_IT_RISING_FALLING;
 	if (HAL_COMP_Init(&hcomp2) != HAL_OK) {
-		Error_Handler();
+		_Error_Handler(__FILE__, __LINE__);
 	}
 
 }
@@ -283,7 +295,7 @@ static void MX_CRC_Init(void) {
 
 	hcrc.Instance = CRC;
 	if (HAL_CRC_Init(&hcrc) != HAL_OK) {
-		Error_Handler();
+		_Error_Handler(__FILE__, __LINE__);
 	}
 
 }
@@ -300,18 +312,18 @@ static void MX_TIM2_Init(void) {
 	htim2.Init.Period = 5000;
 	htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
 	if (HAL_TIM_Base_Init(&htim2) != HAL_OK) {
-		Error_Handler();
+		_Error_Handler(__FILE__, __LINE__);
 	}
 
 	sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
 	if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK) {
-		Error_Handler();
+		_Error_Handler(__FILE__, __LINE__);
 	}
 
 	sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
 	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
 	if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK) {
-		Error_Handler();
+		_Error_Handler(__FILE__, __LINE__);
 	}
 
 }
@@ -328,7 +340,7 @@ static void MX_UART4_Init(void) {
 	huart4.Init.HwFlowCtl = UART_HWCONTROL_NONE;
 	huart4.Init.OverSampling = UART_OVERSAMPLING_16;
 	if (HAL_UART_Init(&huart4) != HAL_OK) {
-		Error_Handler();
+		_Error_Handler(__FILE__, __LINE__);
 	}
 
 }
@@ -345,7 +357,7 @@ static void MX_UART5_Init(void) {
 	huart5.Init.HwFlowCtl = UART_HWCONTROL_NONE;
 	huart5.Init.OverSampling = UART_OVERSAMPLING_16;
 	if (HAL_UART_Init(&huart5) != HAL_OK) {
-		Error_Handler();
+		_Error_Handler(__FILE__, __LINE__);
 	}
 
 }
@@ -362,7 +374,7 @@ static void MX_USART2_UART_Init(void) {
 	huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
 	huart2.Init.OverSampling = UART_OVERSAMPLING_16;
 	if (HAL_UART_Init(&huart2) != HAL_OK) {
-		Error_Handler();
+		_Error_Handler(__FILE__, __LINE__);
 	}
 
 }
@@ -400,7 +412,7 @@ static void MX_GPIO_Init(void) {
 	__HAL_RCC_GPIOB_CLK_ENABLE();
 
 	/*Configure GPIO pin Output Level */
-	HAL_GPIO_WritePin(GPIOA, Valve1_Pin | Valve2_Pin | LedErr_Pin | MAX484RD_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GPIOA, Valve1Open_Pin | Valve1Close_Pin | LedErr_Pin | MAX484RD_Pin, GPIO_PIN_RESET);
 
 	/*Configure GPIO pin : ButtonBlue_Pin */
 	GPIO_InitStruct.Pin = ButtonBlue_Pin;
@@ -408,8 +420,8 @@ static void MX_GPIO_Init(void) {
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	HAL_GPIO_Init(ButtonBlue_GPIO_Port, &GPIO_InitStruct);
 
-	/*Configure GPIO pins : Valve1_Pin Valve2_Pin MAX484RD_Pin */
-	GPIO_InitStruct.Pin = Valve1_Pin | Valve2_Pin | MAX484RD_Pin;
+	/*Configure GPIO pins : Valve1Open_Pin Valve1Close_Pin MAX484RD_Pin */
+	GPIO_InitStruct.Pin = Valve1Open_Pin | Valve1Close_Pin | MAX484RD_Pin;
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Pull = GPIO_PULLDOWN;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -449,33 +461,28 @@ void TRANS_OnProcessPackage(TRANSPackage* pPackage) {
 	//	LOG("OnReceivePackage: source:0x%x type:%d", pPackage->sourceAddress, pPackage->type);
 	if (pPackage->type == TRANS_TYPE_COMMAND) {
 		uint32_t command = pPackage->data.command.command;
-		uint32_t p1 = pPackage->data.command.parametr1;
+		uint32_t valve = pPackage->data.command.parametr1;
 		//		uint32_t p2 = pPackage->data.command.parametr2;
-		uint8_t valve = 0;
-		GPIO_PinState state = GPIO_PIN_RESET;
-		switch (command) {
-			case TRANS_COMMAND_VALVE_OPEN:
-				valve = p1;
-				state = GPIO_PIN_RESET;
-				LOG("Open the valve %d", valve);
-				break;
-			case TRANS_COMMAND_VALVE_CLOSE:
-				state = GPIO_PIN_SET;
-				valve = p1;
-				LOG("Close the valve %d", valve);
-				break;
-			case TRANS_COMMAND_RESET:
-				LOG("System reset");
-				HAL_NVIC_SystemReset();
-			default:
-				break;
-		}
 		if (valve == 1) {
-			HAL_GPIO_WritePin(Valve1_GPIO_Port, Valve1_Pin, state);
+			switch (command) {
+				case TRANS_COMMAND_VALVE_OPEN:
+					LOG("Open the valve %d", valve);
+					HAL_GPIO_WritePin(Valve1Close_GPIO_Port, Valve1Close_Pin, GPIO_PIN_RESET);
+					HAL_GPIO_WritePin(Valve1Open_GPIO_Port, Valve1Open_Pin, GPIO_PIN_SET);
+					break;
+				case TRANS_COMMAND_VALVE_CLOSE:
+					LOG("Close the valve %d", valve);
+					HAL_GPIO_WritePin(Valve1Open_GPIO_Port, Valve1Open_Pin, GPIO_PIN_RESET);
+					HAL_GPIO_WritePin(Valve1Close_GPIO_Port, Valve1Close_Pin, GPIO_PIN_SET);
+					break;
+				case TRANS_COMMAND_RESET:
+					LOG("System reset");
+					HAL_NVIC_SystemReset();
+				default:
+					break;
+			}
 		}
-		if (valve == 2) {
-			HAL_GPIO_WritePin(Valve2_GPIO_Port, Valve2_Pin, state);
-		}
+
 
 	}
 }
@@ -539,12 +546,12 @@ void TRANS_OnError(TRANSStatus status) {
  * @param  None
  * @retval None
  */
-void Error_Handler(void) {
-	/* USER CODE BEGIN Error_Handler */
+void _Error_Handler(char * file, int line) {
+	/* USER CODE BEGIN Error_Handler_Debug */
 	/* User can add his own implementation to report the HAL error return state */
-	LOGERR("HAL Error_Handler");
-	LedErrorSoftWhile();
-	/* USER CODE END Error_Handler */
+	while (1) {
+	}
+	/* USER CODE END Error_Handler_Debug */
 }
 
 #ifdef USE_FULL_ASSERT

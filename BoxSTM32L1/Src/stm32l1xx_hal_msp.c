@@ -1,11 +1,14 @@
-// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 /**
   ******************************************************************************
   * File Name          : stm32l1xx_hal_msp.c
   * Description        : This file provides code for the MSP Initialization 
   *                      and de-Initialization codes.
   ******************************************************************************
+  ** This notice applies to any and all portions of this file
+  * that are not between comment pairs USER CODE BEGIN and
+  * USER CODE END. Other portions of this file, whether 
+  * inserted by the user or by software development tools
+  * are owned by their respective copyright owners.
   *
   * COPYRIGHT(c) 2017 STMicroelectronics
   *
@@ -38,7 +41,7 @@
 
 extern DMA_HandleTypeDef hdma_uart4_rx;
 
-extern void Error_Handler(void);
+extern void _Error_Handler(char *, int);
 /* USER CODE BEGIN 0 */
 
 /* USER CODE END 0 */
@@ -87,7 +90,7 @@ void HAL_COMP_MspInit(COMP_HandleTypeDef* hcomp)
   /* USER CODE BEGIN COMP1_MspInit 0 */
 
   /* USER CODE END COMP1_MspInit 0 */
-    /* Peripheral interrupt init */
+    /* COMP1 interrupt Init */
     HAL_NVIC_SetPriority(COMP_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(COMP_IRQn);
   /* USER CODE BEGIN COMP1_MspInit 1 */
@@ -108,7 +111,7 @@ void HAL_COMP_MspInit(COMP_HandleTypeDef* hcomp)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /* Peripheral interrupt init */
+    /* COMP2 interrupt Init */
     HAL_NVIC_SetPriority(COMP_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(COMP_IRQn);
   /* USER CODE BEGIN COMP2_MspInit 1 */
@@ -127,7 +130,7 @@ void HAL_COMP_MspDeInit(COMP_HandleTypeDef* hcomp)
 
   /* USER CODE END COMP1_MspDeInit 0 */
 
-    /* Peripheral interrupt DeInit*/
+    /* COMP1 interrupt DeInit */
   /* USER CODE BEGIN COMP1:COMP_IRQn disable */
     /**
     * Uncomment the line below to disable the "COMP_IRQn" interrupt
@@ -151,7 +154,7 @@ void HAL_COMP_MspDeInit(COMP_HandleTypeDef* hcomp)
     */
     HAL_GPIO_DeInit(GPIOB, GPIO_PIN_4);
 
-    /* Peripheral interrupt DeInit*/
+    /* COMP2 interrupt DeInit */
   /* USER CODE BEGIN COMP2:COMP_IRQn disable */
     /**
     * Uncomment the line below to disable the "COMP_IRQn" interrupt
@@ -194,10 +197,10 @@ void HAL_CRC_MspDeInit(CRC_HandleTypeDef* hcrc)
   /* USER CODE END CRC_MspDeInit 0 */
     /* Peripheral clock disable */
     __HAL_RCC_CRC_CLK_DISABLE();
-  }
   /* USER CODE BEGIN CRC_MspDeInit 1 */
 
   /* USER CODE END CRC_MspDeInit 1 */
+  }
 
 }
 
@@ -211,7 +214,7 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
   /* USER CODE END TIM2_MspInit 0 */
     /* Peripheral clock enable */
     __HAL_RCC_TIM2_CLK_ENABLE();
-    /* Peripheral interrupt init */
+    /* TIM2 interrupt Init */
     HAL_NVIC_SetPriority(TIM2_IRQn, 3, 0);
     HAL_NVIC_EnableIRQ(TIM2_IRQn);
   /* USER CODE BEGIN TIM2_MspInit 1 */
@@ -232,13 +235,12 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base)
     /* Peripheral clock disable */
     __HAL_RCC_TIM2_CLK_DISABLE();
 
-    /* Peripheral interrupt DeInit*/
+    /* TIM2 interrupt DeInit */
     HAL_NVIC_DisableIRQ(TIM2_IRQn);
-
-  }
   /* USER CODE BEGIN TIM2_MspDeInit 1 */
 
   /* USER CODE END TIM2_MspDeInit 1 */
+  }
 
 }
 
@@ -265,8 +267,8 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
     GPIO_InitStruct.Alternate = GPIO_AF8_UART4;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    /* Peripheral DMA init*/
-  
+    /* UART4 DMA Init */
+    /* UART4_RX Init */
     hdma_uart4_rx.Instance = DMA2_Channel3;
     hdma_uart4_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
     hdma_uart4_rx.Init.PeriphInc = DMA_PINC_DISABLE;
@@ -277,12 +279,12 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
     hdma_uart4_rx.Init.Priority = DMA_PRIORITY_VERY_HIGH;
     if (HAL_DMA_Init(&hdma_uart4_rx) != HAL_OK)
     {
-      Error_Handler();
+      _Error_Handler(__FILE__, __LINE__);
     }
 
     __HAL_LINKDMA(huart,hdmarx,hdma_uart4_rx);
 
-    /* Peripheral interrupt init */
+    /* UART4 interrupt Init */
     HAL_NVIC_SetPriority(UART4_IRQn, 2, 0);
     HAL_NVIC_EnableIRQ(UART4_IRQn);
   /* USER CODE BEGIN UART4_MspInit 1 */
@@ -362,12 +364,11 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
     */
     HAL_GPIO_DeInit(GPIOC, GPIO_PIN_10|GPIO_PIN_11);
 
-    /* Peripheral DMA DeInit*/
+    /* UART4 DMA DeInit */
     HAL_DMA_DeInit(huart->hdmarx);
 
-    /* Peripheral interrupt DeInit*/
+    /* UART4 interrupt DeInit */
     HAL_NVIC_DisableIRQ(UART4_IRQn);
-
   /* USER CODE BEGIN UART4_MspDeInit 1 */
 
   /* USER CODE END UART4_MspDeInit 1 */

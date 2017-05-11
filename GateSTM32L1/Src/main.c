@@ -1,10 +1,13 @@
-// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 /**
  ******************************************************************************
  * File Name          : main.c
  * Description        : Main program body
  ******************************************************************************
+ ** This notice applies to any and all portions of this file
+ * that are not between comment pairs USER CODE BEGIN and
+ * USER CODE END. Other portions of this file, whether
+ * inserted by the user or by software development tools
+ * are owned by their respective copyright owners.
  *
  * COPYRIGHT(c) 2017 STMicroelectronics
  *
@@ -37,6 +40,8 @@
 #include "stm32l1xx_hal.h"
 
 /* USER CODE BEGIN Includes */
+// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "stm32l1xx_hal_uart.h"
 #include "config.h"
 #include "tcp_connector.h"
@@ -49,6 +54,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 CRC_HandleTypeDef hcrc;
+
 UART_HandleTypeDef huart4;
 UART_HandleTypeDef huart5;
 UART_HandleTypeDef huart2;
@@ -62,7 +68,6 @@ DMA_HandleTypeDef hdma_uart5_rx;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-void Error_Handler(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_UART4_Init(void);
@@ -90,8 +95,16 @@ int main(void) {
 	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
 	HAL_Init();
 
+	/* USER CODE BEGIN Init */
+
+	/* USER CODE END Init */
+
 	/* Configure the system clock */
 	SystemClock_Config();
+
+	/* USER CODE BEGIN SysInit */
+
+	/* USER CODE END SysInit */
 
 	/* Initialize all configured peripherals */
 	MX_GPIO_Init();
@@ -173,7 +186,7 @@ void SystemClock_Config(void) {
 	RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL6;
 	RCC_OscInitStruct.PLL.PLLDIV = RCC_PLL_DIV3;
 	if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
-		Error_Handler();
+		_Error_Handler(__FILE__, __LINE__);
 	}
 
 	/**Initializes the CPU, AHB and APB busses clocks
@@ -186,7 +199,7 @@ void SystemClock_Config(void) {
 	RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
 	if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK) {
-		Error_Handler();
+		_Error_Handler(__FILE__, __LINE__);
 	}
 
 	/**Configure the Systick interrupt time
@@ -206,7 +219,7 @@ static void MX_CRC_Init(void) {
 
 	hcrc.Instance = CRC;
 	if (HAL_CRC_Init(&hcrc) != HAL_OK) {
-		Error_Handler();
+		_Error_Handler(__FILE__, __LINE__);
 	}
 
 }
@@ -223,7 +236,7 @@ static void MX_UART4_Init(void) {
 	huart4.Init.HwFlowCtl = UART_HWCONTROL_NONE;
 	huart4.Init.OverSampling = UART_OVERSAMPLING_16;
 	if (HAL_UART_Init(&huart4) != HAL_OK) {
-		Error_Handler();
+		_Error_Handler(__FILE__, __LINE__);
 	}
 
 }
@@ -240,7 +253,7 @@ static void MX_UART5_Init(void) {
 	huart5.Init.HwFlowCtl = UART_HWCONTROL_NONE;
 	huart5.Init.OverSampling = UART_OVERSAMPLING_16;
 	if (HAL_UART_Init(&huart5) != HAL_OK) {
-		Error_Handler();
+		_Error_Handler(__FILE__, __LINE__);
 	}
 
 }
@@ -257,7 +270,7 @@ static void MX_USART2_UART_Init(void) {
 	huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
 	huart2.Init.OverSampling = UART_OVERSAMPLING_16;
 	if (HAL_UART_Init(&huart2) != HAL_OK) {
-		Error_Handler();
+		_Error_Handler(__FILE__, __LINE__);
 	}
 
 }
@@ -441,12 +454,12 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
  * @param  None
  * @retval None
  */
-void Error_Handler(void) {
-	/* USER CODE BEGIN Error_Handler */
+void _Error_Handler(char * file, int line) {
+	/* USER CODE BEGIN Error_Handler_Debug */
 	/* User can add his own implementation to report the HAL error return state */
-	xprintln("HAL Error_Handler");
-	LedErrorSoftWhile();
-	/* USER CODE END Error_Handler */
+	while (1) {
+	}
+	/* USER CODE END Error_Handler_Debug */
 }
 
 #ifdef USE_FULL_ASSERT

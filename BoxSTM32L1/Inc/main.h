@@ -3,6 +3,11 @@
   * File Name          : main.h
   * Description        : This file contains the common defines of the application
   ******************************************************************************
+  ** This notice applies to any and all portions of this file
+  * that are not between comment pairs USER CODE BEGIN and
+  * USER CODE END. Other portions of this file, whether 
+  * inserted by the user or by software development tools
+  * are owned by their respective copyright owners.
   *
   * COPYRIGHT(c) 2017 STMicroelectronics
   *
@@ -43,14 +48,15 @@
 
 #define ButtonBlue_Pin GPIO_PIN_13
 #define ButtonBlue_GPIO_Port GPIOC
-#define Valve1_Pin GPIO_PIN_1
-#define Valve1_GPIO_Port GPIOA
+#define ButtonBlue_EXTI_IRQn EXTI15_10_IRQn
+#define Valve1Open_Pin GPIO_PIN_1
+#define Valve1Open_GPIO_Port GPIOA
 #define USART_TX_Pin GPIO_PIN_2
 #define USART_TX_GPIO_Port GPIOA
 #define USART_RX_Pin GPIO_PIN_3
 #define USART_RX_GPIO_Port GPIOA
-#define Valve2_Pin GPIO_PIN_4
-#define Valve2_GPIO_Port GPIOA
+#define Valve1Close_Pin GPIO_PIN_4
+#define Valve1Close_GPIO_Port GPIOA
 #define LedErr_Pin GPIO_PIN_5
 #define LedErr_GPIO_Port GPIOA
 #define TMS_Pin GPIO_PIN_13
@@ -67,6 +73,10 @@ void LedErrorSet();
 void LedErrorSoftWhile();
 void LedErrorHardWhile();
 /* USER CODE END Private defines */
+
+void _Error_Handler(char *, int);
+
+#define Error_Handler() _Error_Handler(__FILE__, __LINE__)
 
 /**
   * @}
