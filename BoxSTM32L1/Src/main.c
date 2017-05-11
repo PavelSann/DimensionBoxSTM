@@ -548,6 +548,8 @@ void TRANS_OnError(TRANSStatus status) {
  */
 void _Error_Handler(char * file, int line) {
 	/* USER CODE BEGIN Error_Handler_Debug */
+	LOGERR("HAL Error_Handler %s:%d",file,line);
+	LedErrorSoftWhile();
 	/* User can add his own implementation to report the HAL error return state */
 	while (1) {
 	}
