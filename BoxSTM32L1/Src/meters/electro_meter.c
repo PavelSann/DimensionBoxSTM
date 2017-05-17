@@ -331,7 +331,7 @@ void ElectroMeter_Init(ElectroMeterConfig config) {
 	assert_param(conf.password != NULL);
 
 	//	huart->Init.BaudRate = 9600;
-	LOG("ElectroMeter Init: UART:0x%x MAX484_Port:0x%x MAX484_Pin:0x%x", conf.hUART->Instance, *(conf.portMAX484), conf.pinRD);
+	LOG("ElectroMeter Init");
 }
 
 ElectroMeterValues ElectroMeter_GetValues() {

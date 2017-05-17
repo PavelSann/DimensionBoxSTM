@@ -36,6 +36,7 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 # Object Files
 OBJECTFILES= \
 	${OBJECTDIR}/_ext/8f63f4c/package_queue.o \
+	${OBJECTDIR}/_ext/8f63f4c/storage.o \
 	${OBJECTDIR}/_ext/8f63f4c/trans_package.o \
 	${OBJECTDIR}/_ext/8f63f4c/transceiver.o \
 	${OBJECTDIR}/_ext/8f63f4c/xprint.o \
@@ -91,6 +92,11 @@ ${OBJECTDIR}/_ext/8f63f4c/package_queue.o: ../Library/package_queue.c nbproject/
 	${MKDIR} -p ${OBJECTDIR}/_ext/8f63f4c
 	${RM} "$@.d"
 	$(COMPILE.c) -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_FULL_ASSERT -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/8f63f4c/package_queue.o ../Library/package_queue.c
+
+${OBJECTDIR}/_ext/8f63f4c/storage.o: ../Library/storage.c nbproject/Makefile-${CND_CONF}.mk
+	${MKDIR} -p ${OBJECTDIR}/_ext/8f63f4c
+	${RM} "$@.d"
+	$(COMPILE.c) -Wall -DARM_MATH_CM3 -DSTM32L152xE -DUSE_FULL_ASSERT -DUSE_HAL_DRIVER -IInc -IDrivers/STM32L1xx_HAL_Driver/Inc -IDrivers/STM32L1xx_HAL_Driver/Inc/Legacy -IDrivers/CMSIS/Device/ST/STM32L1xx/Include -IDrivers/CMSIS/Include -I../Library -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/8f63f4c/storage.o ../Library/storage.c
 
 ${OBJECTDIR}/_ext/8f63f4c/trans_package.o: ../Library/trans_package.c nbproject/Makefile-${CND_CONF}.mk
 	${MKDIR} -p ${OBJECTDIR}/_ext/8f63f4c

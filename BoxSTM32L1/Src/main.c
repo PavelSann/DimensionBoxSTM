@@ -1,3 +1,6 @@
+// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
 /**
  ******************************************************************************
  * File Name          : main.c
@@ -48,6 +51,7 @@
 #include "xprint.h"
 #include "meters/water_meter.h"
 #include "meters/electro_meter.h"
+#include "storage.h"
 #include <stdbool.h>
 #define TEST 0
 #if TEST
@@ -138,6 +142,9 @@ int main(void) {
 #if TEST
 	SP1MLTest();
 #endif
+	STORAGE_Init(32);
+	uint32_t storedWaterCounter = STORAGE_ReadWord(0);
+
 	PACK_Init(&hcrc);
 	//запускаем таймер 2
 	HAL_TIM_Base_Start_IT(&htim2);
@@ -161,7 +168,8 @@ int main(void) {
 	//Инициализируем счётчик воды
 	WaterMeterConfig wmConf = {
 		.pComp1 = &hcomp1,
-		.pComp2 = &hcomp2
+		.pComp2 = &hcomp2,
+		.beginValue=storedWaterCounter
 	};
 	WaterMeter_Init(wmConf);
 
@@ -196,6 +204,12 @@ int main(void) {
 				uint32_t waterValue = WaterMeter_getValue();
 				meters.value2 = (TRANSDataMeterValue){.type = TRANS_METER_TYPE_WATER_IMPULS, .value = waterValue};
 				//LOG("Water value: %d ", waterValue);
+				uint32_t storedValue = STORAGE_ReadWord(0);
+				if (waterValue>storedValue) {
+					STORAGE_WriteWord(0,waterValue);
+				}
+
+
 			} else {
 				LOG("Water meter not connect");
 			}

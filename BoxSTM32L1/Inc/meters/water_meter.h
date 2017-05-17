@@ -28,6 +28,7 @@ extern "C" {
 	typedef struct {
 		COMP_HandleTypeDef *pComp1;
 		COMP_HandleTypeDef *pComp2;
+		uint32_t beginValue;
 	} WaterMeterConfig;
 
 	void WaterMeter_Init(WaterMeterConfig config);

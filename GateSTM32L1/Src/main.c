@@ -1,3 +1,5 @@
+// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 /**
  ******************************************************************************
  * File Name          : main.c
@@ -40,8 +42,6 @@
 #include "stm32l1xx_hal.h"
 
 /* USER CODE BEGIN Includes */
-// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "stm32l1xx_hal_uart.h"
 #include "config.h"
 #include "tcp_connector.h"

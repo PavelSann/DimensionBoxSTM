@@ -15,13 +15,14 @@ void WaterMeter_Init(WaterMeterConfig config) {
 	conf = config;
 	assert_param(conf.pComp1 != NULL);
 	assert_param(conf.pComp2 != NULL);
+	value = conf.beginValue;
 
 	HAL_StatusTypeDef stat1 = HAL_COMP_Start_IT(conf.pComp1);
 	HAL_StatusTypeDef stat2 = HAL_COMP_Start_IT(conf.pComp2);
 	if (stat1 != HAL_OK || stat2 != HAL_OK) {
 		LOGERR("WaterMeter init error COMP1:0x%x COMP2:0x%x", stat1, stat2);
 	}
-	LOG("WaterMeter Init: Comp1:0x%x Comp2:0x%x", conf.pComp1->Instance, conf.pComp2->Instance);
+	LOG("WaterMeter Init");
 
 	//проверяем на обрыв провода
 	if (HAL_COMP_GetOutputLevel(conf.pComp2) == COMP_OUTPUTLEVEL_LOW) {
