@@ -203,7 +203,7 @@ int main(void) {
 			if (!WaterMeter_getError()) {
 				uint32_t waterValue = WaterMeter_getValue();
 				meters.value2 = (TRANSDataMeterValue){.type = TRANS_METER_TYPE_WATER_IMPULS, .value = waterValue};
-				//LOG("Water value: %d ", waterValue);
+				LOG("Water value: %d ", waterValue);
 				uint32_t storedValue = STORAGE_ReadWord(0);
 				if (waterValue>storedValue) {
 					STORAGE_WriteWord(0,waterValue);
@@ -215,7 +215,7 @@ int main(void) {
 			}
 
 			TRANS_SendDataMeters(CONFIG_GATE_ADDRESS, &meters);
-
+			
 			readMeters = false;
 		}
 		//		HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
