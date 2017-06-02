@@ -67,10 +67,10 @@ CRC_HandleTypeDef hcrc;
 
 TIM_HandleTypeDef htim2;
 
-UART_HandleTypeDef huart4;
 UART_HandleTypeDef huart5;
+UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
-DMA_HandleTypeDef hdma_uart4_rx;
+DMA_HandleTypeDef hdma_usart1_rx;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
@@ -82,12 +82,12 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_TIM2_Init(void);
-static void MX_UART4_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_UART5_Init(void);
 static void MX_COMP2_Init(void);
 static void MX_COMP1_Init(void);
 static void MX_CRC_Init(void);
+static void MX_USART1_UART_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -124,12 +124,12 @@ int main(void) {
 	MX_GPIO_Init();
 	MX_DMA_Init();
 	MX_TIM2_Init();
-	MX_UART4_Init();
 	MX_USART2_UART_Init();
 	MX_UART5_Init();
 	MX_COMP2_Init();
 	MX_COMP1_Init();
 	MX_CRC_Init();
+	MX_USART1_UART_Init();
 
 	/* USER CODE BEGIN 2 */
 #if X_PRINT_LOG
@@ -151,7 +151,7 @@ int main(void) {
 
 	//Инициализируем радио модуль
 	TRANSConfig transConf = {
-		.hUART = &huart4,
+		.hUART = &huart1,
 		.localAddress = CONFIG_LOCAL_ADDRESS,
 	};
 	TRANS_Init(transConf);
@@ -169,7 +169,7 @@ int main(void) {
 	WaterMeterConfig wmConf = {
 		.pComp1 = &hcomp1,
 		.pComp2 = &hcomp2,
-		.beginValue=storedWaterCounter
+		.beginValue = storedWaterCounter
 	};
 	WaterMeter_Init(wmConf);
 
@@ -203,10 +203,10 @@ int main(void) {
 			if (!WaterMeter_getError()) {
 				uint32_t waterValue = WaterMeter_getValue();
 				meters.value2 = (TRANSDataMeterValue){.type = TRANS_METER_TYPE_WATER_IMPULS, .value = waterValue};
-				LOG("Water value: %d ", waterValue);
 				uint32_t storedValue = STORAGE_ReadWord(0);
-				if (waterValue>storedValue) {
-					STORAGE_WriteWord(0,waterValue);
+				if (waterValue > storedValue) {
+					LOG("STORAGE save water value: %d ", waterValue);
+					STORAGE_WriteWord(0, waterValue);
 				}
 
 
@@ -215,7 +215,7 @@ int main(void) {
 			}
 
 			TRANS_SendDataMeters(CONFIG_GATE_ADDRESS, &meters);
-			
+
 			readMeters = false;
 		}
 		//		HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
@@ -342,23 +342,6 @@ static void MX_TIM2_Init(void) {
 
 }
 
-/* UART4 init function */
-static void MX_UART4_Init(void) {
-
-	huart4.Instance = UART4;
-	huart4.Init.BaudRate = 115200;
-	huart4.Init.WordLength = UART_WORDLENGTH_8B;
-	huart4.Init.StopBits = UART_STOPBITS_1;
-	huart4.Init.Parity = UART_PARITY_NONE;
-	huart4.Init.Mode = UART_MODE_TX_RX;
-	huart4.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-	huart4.Init.OverSampling = UART_OVERSAMPLING_16;
-	if (HAL_UART_Init(&huart4) != HAL_OK) {
-		_Error_Handler(__FILE__, __LINE__);
-	}
-
-}
-
 /* UART5 init function */
 static void MX_UART5_Init(void) {
 
@@ -371,6 +354,23 @@ static void MX_UART5_Init(void) {
 	huart5.Init.HwFlowCtl = UART_HWCONTROL_NONE;
 	huart5.Init.OverSampling = UART_OVERSAMPLING_16;
 	if (HAL_UART_Init(&huart5) != HAL_OK) {
+		_Error_Handler(__FILE__, __LINE__);
+	}
+
+}
+
+/* USART1 init function */
+static void MX_USART1_UART_Init(void) {
+
+	huart1.Instance = USART1;
+	huart1.Init.BaudRate = 115200;
+	huart1.Init.WordLength = UART_WORDLENGTH_8B;
+	huart1.Init.StopBits = UART_STOPBITS_1;
+	huart1.Init.Parity = UART_PARITY_NONE;
+	huart1.Init.Mode = UART_MODE_TX_RX;
+	huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+	huart1.Init.OverSampling = UART_OVERSAMPLING_16;
+	if (HAL_UART_Init(&huart1) != HAL_OK) {
 		_Error_Handler(__FILE__, __LINE__);
 	}
 
@@ -398,12 +398,12 @@ static void MX_USART2_UART_Init(void) {
  */
 static void MX_DMA_Init(void) {
 	/* DMA controller clock enable */
-	__HAL_RCC_DMA2_CLK_ENABLE();
+	__HAL_RCC_DMA1_CLK_ENABLE();
 
 	/* DMA interrupt init */
-	/* DMA2_Channel3_IRQn interrupt configuration */
-	HAL_NVIC_SetPriority(DMA2_Channel3_IRQn, 1, 0);
-	HAL_NVIC_EnableIRQ(DMA2_Channel3_IRQn);
+	/* DMA1_Channel5_IRQn interrupt configuration */
+	HAL_NVIC_SetPriority(DMA1_Channel5_IRQn, 0, 0);
+	HAL_NVIC_EnableIRQ(DMA1_Channel5_IRQn);
 
 }
 
@@ -562,7 +562,7 @@ void TRANS_OnError(TRANSStatus status) {
  */
 void _Error_Handler(char * file, int line) {
 	/* USER CODE BEGIN Error_Handler_Debug */
-	LOGERR("HAL Error_Handler %s:%d",file,line);
+	LOGERR("HAL Error_Handler %s:%d", file, line);
 	LedErrorSoftWhile();
 	/* User can add his own implementation to report the HAL error return state */
 	while (1) {
