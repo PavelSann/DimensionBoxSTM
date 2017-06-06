@@ -43,20 +43,23 @@
 #include "stm32l1xx_hal.h"
 
 /* USER CODE BEGIN Includes */
-// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
+#define WATER_METER 1
+#define ELECTRO_METER 1
+
 #include "stm32l1xx_hal_uart.h"
 #include "config.h"
 #include "transceiver.h"
 #include "xprint.h"
-#include "meters/water_meter.h"
-#include "meters/electro_meter.h"
+#if WATER_METER
+	#include "meters/water_meter.h"
+#endif
+#if ELECTRO_METER
+	#include "meters/electro_meter.h"
+#endif
 #include "storage.h"
 #include <stdbool.h>
-#define TEST 0
-#if TEST
-	#include "../Test/sp1ml_uart_test.h"
-#endif
+
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -74,7 +77,7 @@ DMA_HandleTypeDef hdma_usart1_rx;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-static volatile bool readMeters = 0;
+static volatile bool sendMeterData = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -138,16 +141,8 @@ int main(void) {
 	LOG("Start Box ID:0x%x DEVID:0x%x REVID:0x%x HAL:0x%x", CONFIG_ID, HAL_GetDEVID(), HAL_GetREVID(), HAL_GetHalVersion());
 #endif
 
-
-#if TEST
-	SP1MLTest();
-#endif
 	STORAGE_Init(32);
-	uint32_t storedWaterCounter = STORAGE_ReadWord(0);
-
 	PACK_Init(&hcrc);
-	//запускаем таймер 2
-	HAL_TIM_Base_Start_IT(&htim2);
 
 	//Инициализируем радио модуль
 	TRANSConfig transConf = {
@@ -156,6 +151,18 @@ int main(void) {
 	};
 	TRANS_Init(transConf);
 
+#if WATER_METER
+	uint32_t storedWaterCounter = STORAGE_ReadWord(0);
+	//Инициализируем счётчик воды
+	WaterMeterConfig wmConf = {
+		.pComp1 = &hcomp1,
+		.pComp2 = &hcomp2,
+		.beginValue = storedWaterCounter
+	};
+	WaterMeter_Init(wmConf);
+#endif
+
+#if ELECTRO_METER
 	//Инициализируем счётчик электричества
 	ElectroMeterConfig emConf = {
 		.hUART = &huart5,
@@ -164,14 +171,11 @@ int main(void) {
 		.password = "777777"
 	};
 	ElectroMeter_Init(emConf);
+#endif
 
-	//Инициализируем счётчик воды
-	WaterMeterConfig wmConf = {
-		.pComp1 = &hcomp1,
-		.pComp2 = &hcomp2,
-		.beginValue = storedWaterCounter
-	};
-	WaterMeter_Init(wmConf);
+	//запускаем таймер
+	HAL_TIM_Base_Start_IT(&htim2);
+
 
 	/* USER CODE END 2 */
 
@@ -181,9 +185,10 @@ int main(void) {
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
-
+		//обрабатываем принятые по сети пакеты
 		TRANS_ProcessPackage();
-		if (readMeters == true) {
+
+		if (sendMeterData == true) { // нужно отправить показания
 			TRANSDataMeters meters = {
 				{.type = TRANS_METER_TYPE_NONE, .value = 0},
 				{.type = TRANS_METER_TYPE_NONE, .value = 0},
@@ -191,15 +196,7 @@ int main(void) {
 				{.type = TRANS_METER_TYPE_NONE, .value = 0}
 			};
 
-			ElectroMeterValues values = ElectroMeter_GetValues();
-			if (!values.error) {
-				//LOG("Electro values: t1=%d t2=%d t3=%d t4=%d ", values.tariff1, values.tariff2, values.tariff3, values.tariff4);
-				meters.value0 = (TRANSDataMeterValue){.type = TRANS_METER_TYPE_ELECTRO_T1, .value = values.tariff1};
-				meters.value1 = (TRANSDataMeterValue){.type = TRANS_METER_TYPE_ELECTRO_T2, .value = values.tariff2};
-			} else {
-				//LOG("Electro meter not connect");
-			}
-
+#if WATER_METER
 			if (!WaterMeter_getError()) {
 				uint32_t waterValue = WaterMeter_getValue();
 				meters.value2 = (TRANSDataMeterValue){.type = TRANS_METER_TYPE_WATER_IMPULS, .value = waterValue};
@@ -208,15 +205,25 @@ int main(void) {
 					LOG("STORAGE save water value: %d ", waterValue);
 					STORAGE_WriteWord(0, waterValue);
 				}
-
-
 			} else {
 				LOG("Water meter not connect");
 			}
+#endif
+
+#if ELECTRO_METER
+			ElectroMeterValues values = ElectroMeter_GetValues();
+			if (!values.error) {
+				//LOG("Electro values: t1=%d t2=%d t3=%d t4=%d ", values.tariff1, values.tariff2, values.tariff3, values.tariff4);
+				meters.value0 = (TRANSDataMeterValue){.type = TRANS_METER_TYPE_ELECTRO_T1, .value = values.tariff1};
+				meters.value1 = (TRANSDataMeterValue){.type = TRANS_METER_TYPE_ELECTRO_T2, .value = values.tariff2};
+			} else {
+				//LOG("Electro meter not connect");
+			}
+#endif
+
 
 			TRANS_SendDataMeters(CONFIG_GATE_ADDRESS, &meters);
-
-			readMeters = false;
+			sendMeterData = false;
 		}
 		//		HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
 		//		HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
@@ -456,8 +463,6 @@ static void MX_GPIO_Init(void) {
 
 /* USER CODE BEGIN 4 */
 
-#if !TEST
-
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
 	TRANS_UART_RxCpltCallback(huart);
 }
@@ -467,7 +472,7 @@ void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef* huart) {
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-	readMeters = true;
+	sendMeterData = true;
 
 }
 
@@ -510,7 +515,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		LOG("TRANSStatus: good:%d bad:%d", status.countGoodPackage, status.countBadPackage);
 	}
 }
-#endif
 
 void inline LedErrorSet() {
 	HAL_GPIO_WritePin(LedErr_GPIO_Port, LedErr_Pin, GPIO_PIN_SET);
