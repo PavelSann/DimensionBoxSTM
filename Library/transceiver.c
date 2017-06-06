@@ -315,36 +315,8 @@ void TRANS_Init(TRANSConfig configuration) {
 }
 
 void TRANS_SendPackage(TRANSPackage *pPackage) {
-
 	uint8_t *bytes = PACK_PackageToByte(pPackage);
-#if 1
 	sendBytes(bytes, TRANS_PACKAGE_SIZE);
-#else
-	static uint8_t byteBuffer[TRANS_PACKAGE_SIZE];
-	//ждём пока освободится линия передачи данных
-	HAL_UART_StateTypeDef uartStat = HAL_UART_GetState(conf.hUART);
-	while (uartStat == HAL_UART_STATE_BUSY_TX || uartStat == HAL_UART_STATE_BUSY_TX_RX) {
-		//	while ((uartStat != HAL_UART_STATE_READY) && (uartStat != HAL_UART_STATE_BUSY_RX)) {
-		uartStat = HAL_UART_GetState(conf.hUART);
-	}
-
-	if (uartStat == HAL_UART_STATE_ERROR || uartStat == HAL_UART_STATE_RESET) {
-		status.lastError = TRANS_ERR_UART_TRANSMIT;
-		error = true;
-		return;
-	}
-	//копируем пакет во временный буфер
-	for (size_t i = 0; i < TRANS_PACKAGE_SIZE; i++) {
-		byteBuffer[i] = bytes[i];
-	}
-	//запускаем отправку
-	status.lastTransmitStatus = HAL_UART_Transmit_IT(conf.hUART, byteBuffer, TRANS_PACKAGE_SIZE);
-	//	status.lastTransmitStatus = HAL_UART_Transmit_DMA(conf.hUART, byteBuffer, TRANS_PACKAGE_SIZE);
-	if (status.lastTransmitStatus != HAL_OK) {
-		status.lastError = TRANS_ERR_UART_TRANSMIT;
-		error = true;
-	}
-#endif
 }
 
 void TRANS_SendDataMeters(TRANSAddress targetAddress, TRANSDataMeters *dataMeters) {
