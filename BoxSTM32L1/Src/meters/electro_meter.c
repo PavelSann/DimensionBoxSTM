@@ -254,7 +254,7 @@ static EM_Data parseData(uint8_t *buff, uint16_t ln) {
 }
 
 static EM_DataRow nextDataRow(EM_Data *pData) {
-	EM_DataRow row;
+	EM_DataRow row={};
 	if (pData->error) {
 		LOGERR("nextDataRow: error data %d \n", pData->error);
 	} else if (pData->pNextRow == NULL) {
