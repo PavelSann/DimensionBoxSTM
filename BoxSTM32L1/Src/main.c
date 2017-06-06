@@ -44,7 +44,7 @@
 
 /* USER CODE BEGIN Includes */
 
-#define WATER_METER 1
+#define WATER_METER 0
 #define ELECTRO_METER 1
 
 #include "stm32l1xx_hal_uart.h"
@@ -217,7 +217,7 @@ int main(void) {
 				meters.value0 = (TRANSDataMeterValue){.type = TRANS_METER_TYPE_ELECTRO_T1, .value = values.tariff1};
 				meters.value1 = (TRANSDataMeterValue){.type = TRANS_METER_TYPE_ELECTRO_T2, .value = values.tariff2};
 			} else {
-				//LOG("Electro meter not connect");
+				LOG("Electro meter not connect");
 			}
 #endif
 
@@ -433,7 +433,10 @@ static void MX_GPIO_Init(void) {
 	__HAL_RCC_GPIOB_CLK_ENABLE();
 
 	/*Configure GPIO pin Output Level */
-	HAL_GPIO_WritePin(GPIOA, Valve1Open_Pin | Valve1Close_Pin | LedErr_Pin | MAX484RD_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GPIOA, Valve1Open_Pin | Valve1Close_Pin | LedErr_Pin, GPIO_PIN_RESET);
+
+	/*Configure GPIO pin Output Level */
+	HAL_GPIO_WritePin(MAX484RD_GPIO_Port, MAX484RD_Pin, GPIO_PIN_RESET);
 
 	/*Configure GPIO pin : ButtonBlue_Pin */
 	GPIO_InitStruct.Pin = ButtonBlue_Pin;
@@ -441,8 +444,8 @@ static void MX_GPIO_Init(void) {
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	HAL_GPIO_Init(ButtonBlue_GPIO_Port, &GPIO_InitStruct);
 
-	/*Configure GPIO pins : Valve1Open_Pin Valve1Close_Pin MAX484RD_Pin */
-	GPIO_InitStruct.Pin = Valve1Open_Pin | Valve1Close_Pin | MAX484RD_Pin;
+	/*Configure GPIO pins : Valve1Open_Pin Valve1Close_Pin */
+	GPIO_InitStruct.Pin = Valve1Open_Pin | Valve1Close_Pin;
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Pull = GPIO_PULLDOWN;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -454,6 +457,13 @@ static void MX_GPIO_Init(void) {
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 	HAL_GPIO_Init(LedErr_GPIO_Port, &GPIO_InitStruct);
+
+	/*Configure GPIO pin : MAX484RD_Pin */
+	GPIO_InitStruct.Pin = MAX484RD_Pin;
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	HAL_GPIO_Init(MAX484RD_GPIO_Port, &GPIO_InitStruct);
 
 	/* EXTI interrupt init*/
 	HAL_NVIC_SetPriority(EXTI15_10_IRQn, 4, 0);
