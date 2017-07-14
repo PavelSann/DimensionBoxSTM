@@ -15,6 +15,7 @@
                 <sourceRootElem>Drivers</sourceRootElem>
                 <sourceRootElem>../Library</sourceRootElem>
                 <sourceRootElem>Debug</sourceRootElem>
+                <sourceRootElem>Middlewares</sourceRootElem>
             </sourceRootList>
             <confList>
                 <confElem>
