@@ -18,9 +18,8 @@
 extern "C" {
 #endif
 
-#include "stm32l1xx_hal.h"
-#include "stm32l1xx_hal_flash.h"
-	//#include "stm32l1xx_hal_flash_ex.h"
+#define HEADER_HAL_FLASH
+#include "stm32_hal.h"
 
 
 

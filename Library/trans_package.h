@@ -20,8 +20,9 @@ extern "C" {
 #include <stdint.h>
 #include <limits.h>
 #include <stdbool.h>
-#include "stm32l1xx_hal.h"
-#include "stm32l1xx_hal_crc.h"
+
+#define HEADER_HAL_CRC
+#include "stm32_hal.h"
 
 	typedef uint32_t TRANSAddress;
 
@@ -31,16 +32,14 @@ extern "C" {
 		TRANS_TYPE_COMMAND = 2,
 	} TRANSPackageType;
 
-
 	typedef enum {
-		TRANS_METER_TYPE_NONE=0,
-		TRANS_METER_TYPE_WATER_IMPULS=10,
-		TRANS_METER_TYPE_ELECTRO=20,
-		TRANS_METER_TYPE_ELECTRO_T1=21,
-		TRANS_METER_TYPE_ELECTRO_T2=22,
-		TRANS_METER_TYPE_MAX=0xFFFF,
+		TRANS_METER_TYPE_NONE = 0,
+		TRANS_METER_TYPE_WATER_IMPULS = 10,
+		TRANS_METER_TYPE_ELECTRO = 20,
+		TRANS_METER_TYPE_ELECTRO_T1 = 21,
+		TRANS_METER_TYPE_ELECTRO_T2 = 22,
+		TRANS_METER_TYPE_MAX = 0xFFFF,
 	} TRANSDataMeterType;
-
 
 	/**Показание с счётчика */
 	typedef struct __packed {

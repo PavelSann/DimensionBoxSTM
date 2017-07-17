@@ -4,10 +4,6 @@
 #include "storage.h"
 #include <assert.h>
 
-//#include "stm32l1xx_hal_flash.h"
-//#include "stm32l1xx_hal_flash_ex.h"
-
-
 //static_assert((STORAGE_STRUCT_SIZE % 4) == 0, "Size STORAGE_STRUCT_SIZE not multiple of 4");
 
 #define ADDR_EEPROM_BANK_1 ((uint32_t)0x08080000U) //0x08080000 - 0x08081FFF 8 Kbytes

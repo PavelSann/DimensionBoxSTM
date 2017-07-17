@@ -12,26 +12,30 @@
  */
 
 #ifndef X_PRINT_H
-#define X_PRINT_H
+	#define X_PRINT_H
 
-#ifdef X_PRINT_NO_LOG
-#define X_PRINT_UART 0
-#define X_PRINT_LOG 0
-#endif
+	#ifdef X_PRINT_NO_LOG
+		#define X_PRINT_UART 0
+		#define X_PRINT_LOG 0
+	#endif
 
-#ifndef X_PRINT_UART
-#define X_PRINT_UART 1
-#endif
+	#ifndef X_PRINT_UART
+		#define X_PRINT_UART 1
+	#endif
 
-#ifndef X_PRINT_LOG
-#define X_PRINT_LOG 1
-#endif
+	#ifndef X_PRINT_LOG
+		#define X_PRINT_LOG 1
+	#endif
 
-#ifdef __cplusplus
+	#ifdef __cplusplus
 extern "C" {
-#endif
-#include "stm32l1xx_hal.h"
-#include "xprintf.h"
+	#endif
+
+	#if X_PRINT_UART
+		#define HEADER_HAL_UART
+	#endif
+	#include "stm32_hal.h"
+	#include "xprintf.h"
 	void xprint_init_SWO();
 	void xprintln(const char* str);
 	void xprint(const void* buff, int begin, int len);
@@ -41,26 +45,25 @@ extern "C" {
 	 * @param len
 	 */
 	void xprintbt(const void* buff, int len);
-#if X_PRINT_UART
-#include "stm32l1xx_hal_uart.h"
+	#if X_PRINT_UART
 	void xprint_init_UART(UART_HandleTypeDef* huart);
-#endif
+	#endif
 
 
-#if X_PRINT_LOG
+	#if X_PRINT_LOG
 
-#define LOG(args...) xprintf(args);xputc('\n')
-#define LOGMEM(buff,buffLn) xprintbt(buff,buffLn)
-#define LOGERR(args...)xprintf("%d	%s:%d	",HAL_GetTick(),__FILE__, __LINE__); xprintf(args);xputc('\n')
-#else
-#define LOG(args...)
-#define LOGMEM(buff,buffLn)
-#define LOGERR(args...)
-#endif
+		#define LOG(args...) xprintf(args);xputc('\n')
+		#define LOGMEM(buff,buffLn) xprintbt(buff,buffLn)
+		#define LOGERR(args...)xprintf("%d	%s:%d	",HAL_GetTick(),__FILE__, __LINE__); xprintf(args);xputc('\n')
+	#else
+		#define LOG(args...)
+		#define LOGMEM(buff,buffLn)
+		#define LOGERR(args...)
+	#endif
 
-#ifdef __cplusplus
+	#ifdef __cplusplus
 }
-#endif
+	#endif
 
 #endif /* PRINT_H */
 
