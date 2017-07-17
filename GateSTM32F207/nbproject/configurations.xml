@@ -18,6 +18,7 @@
                        projectFiles="true">
           <itemPath>Drivers/STM32F2xx_HAL_Driver/Src/stm32f2xx_hal.c</itemPath>
           <itemPath>Drivers/STM32F2xx_HAL_Driver/Src/stm32f2xx_hal_cortex.c</itemPath>
+          <itemPath>Drivers/STM32F2xx_HAL_Driver/Src/stm32f2xx_hal_crc.c</itemPath>
           <itemPath>Drivers/STM32F2xx_HAL_Driver/Src/stm32f2xx_hal_dma.c</itemPath>
           <itemPath>Drivers/STM32F2xx_HAL_Driver/Src/stm32f2xx_hal_dma_ex.c</itemPath>
           <itemPath>Drivers/STM32F2xx_HAL_Driver/Src/stm32f2xx_hal_eth.c</itemPath>
@@ -190,6 +191,7 @@
           </logicalFolder>
           <itemPath>Drivers/STM32F2xx_HAL_Driver/Inc/stm32f2xx_hal.h</itemPath>
           <itemPath>Drivers/STM32F2xx_HAL_Driver/Inc/stm32f2xx_hal_cortex.h</itemPath>
+          <itemPath>Drivers/STM32F2xx_HAL_Driver/Inc/stm32f2xx_hal_crc.h</itemPath>
           <itemPath>Drivers/STM32F2xx_HAL_Driver/Inc/stm32f2xx_hal_def.h</itemPath>
           <itemPath>Drivers/STM32F2xx_HAL_Driver/Inc/stm32f2xx_hal_dma.h</itemPath>
           <itemPath>Drivers/STM32F2xx_HAL_Driver/Inc/stm32f2xx_hal_dma_ex.h</itemPath>
@@ -212,6 +214,7 @@
       </logicalFolder>
       <logicalFolder name="Library" displayName="Library" projectFiles="true">
         <itemPath>../Library/package_queue.h</itemPath>
+        <itemPath>../Library/stm32_hal.h</itemPath>
         <itemPath>../Library/storage.h</itemPath>
         <itemPath>../Library/trans_package.h</itemPath>
         <itemPath>../Library/transceiver.h</itemPath>
@@ -461,15 +464,25 @@
           <commandLine>-mcpu=cortex-m3 -mthumb -mfloat-abi=soft -specs=nosys.specs -specs=nano.specs -TSTM32F207ZGTx_FLASH.ld -Wl,-Map=output.map -Wl,--gc-sections -lm</commandLine>
         </linkerTool>
       </compileType>
+      <item path="../Library/package_queue.c" ex="false" tool="0" flavor2="0">
+      </item>
       <item path="../Library/package_queue.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="../Library/stm32_hal.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="../Library/storage.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../Library/trans_package.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="../Library/trans_package.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../Library/transceiver.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="../Library/xprint.c" ex="false" tool="0" flavor2="0">
+      </item>
       <item path="../Library/xprint.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../Library/xprintf.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="../Library/xprintf.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -555,6 +568,11 @@
             flavor2="0">
       </item>
       <item path="Drivers/STM32F2xx_HAL_Driver/Inc/stm32f2xx_hal_cortex.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32F2xx_HAL_Driver/Inc/stm32f2xx_hal_crc.h"
             ex="false"
             tool="3"
             flavor2="0">
@@ -655,6 +673,11 @@
             flavor2="0">
       </item>
       <item path="Drivers/STM32F2xx_HAL_Driver/Src/stm32f2xx_hal_cortex.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32F2xx_HAL_Driver/Src/stm32f2xx_hal_crc.c"
             ex="false"
             tool="0"
             flavor2="0">
