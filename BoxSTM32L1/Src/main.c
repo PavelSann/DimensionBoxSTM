@@ -44,9 +44,6 @@
 
 /* USER CODE BEGIN Includes */
 
-#define WATER_METER 0
-#define ELECTRO_METER 1
-
 #include "stm32l1xx_hal_uart.h"
 #include "config.h"
 #include "transceiver.h"
@@ -75,6 +72,11 @@ UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
 DMA_HandleTypeDef hdma_usart1_rx;
 
+static bool valveOpen; // текущее состояние вентеля
+#define STORAGE_SIZE 32
+#define STORAGE_WATER_COUNTER 0
+#define STORAGE_VALVE_STATUS 4
+
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 static volatile bool sendMeterData = 0;
@@ -93,8 +95,23 @@ static void MX_CRC_Init(void);
 static void MX_USART1_UART_Init(void);
 
 /* USER CODE BEGIN PFP */
-/* Private function prototypes -----------------------------------------------*/
 
+/* Private function prototypes -----------------------------------------------*/
+static void setValveOpen(bool open) {
+	if (open) {
+		LOG("Open the valve");
+		HAL_GPIO_WritePin(Valve1Close_GPIO_Port, Valve1Close_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(Valve1Open_GPIO_Port, Valve1Open_Pin, GPIO_PIN_SET);
+
+	} else {
+		LOG("Close the valve");
+		HAL_GPIO_WritePin(Valve1Open_GPIO_Port, Valve1Open_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(Valve1Close_GPIO_Port, Valve1Close_Pin, GPIO_PIN_SET);
+	}
+	valveOpen = open;
+	STORAGE_WriteWord(STORAGE_VALVE_STATUS, valveOpen);
+
+}
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -151,8 +168,10 @@ int main(void) {
 	};
 	TRANS_Init(transConf);
 
+	valveOpen = STORAGE_ReadWord(STORAGE_VALVE_STATUS);
+	setValveOpen(valveOpen);
 #if WATER_METER
-	uint32_t storedWaterCounter = STORAGE_ReadWord(0);
+	uint32_t storedWaterCounter = STORAGE_ReadWord(STORAGE_WATER_COUNTER);
 	//Инициализируем счётчик воды
 	WaterMeterConfig wmConf = {
 		.pComp1 = &hcomp1,
@@ -193,17 +212,17 @@ int main(void) {
 				{.type = TRANS_METER_TYPE_NONE, .value = 0},
 				{.type = TRANS_METER_TYPE_NONE, .value = 0},
 				{.type = TRANS_METER_TYPE_NONE, .value = 0},
-				{.type = TRANS_METER_TYPE_NONE, .value = 0}
+				{.valve = valveOpen}
 			};
 
 #if WATER_METER
 			if (!WaterMeter_getError()) {
 				uint32_t waterValue = WaterMeter_getValue();
 				meters.value2 = (TRANSDataMeterValue){.type = TRANS_METER_TYPE_WATER_IMPULS, .value = waterValue};
-				uint32_t storedValue = STORAGE_ReadWord(0);
+				uint32_t storedValue = STORAGE_ReadWord(STORAGE_WATER_COUNTER);
 				if (waterValue > storedValue) {
 					LOG("STORAGE save water value: %d ", waterValue);
-					STORAGE_WriteWord(0, waterValue);
+					STORAGE_WriteWord(STORAGE_WATER_COUNTER, waterValue);
 				}
 			} else {
 				LOG("Water meter not connect");
@@ -495,14 +514,10 @@ void TRANS_OnProcessPackage(TRANSPackage* pPackage) {
 		if (valve == 1) {
 			switch (command) {
 				case TRANS_COMMAND_VALVE_OPEN:
-					LOG("Open the valve %d", valve);
-					HAL_GPIO_WritePin(Valve1Close_GPIO_Port, Valve1Close_Pin, GPIO_PIN_RESET);
-					HAL_GPIO_WritePin(Valve1Open_GPIO_Port, Valve1Open_Pin, GPIO_PIN_SET);
+					setValveOpen(true);
 					break;
 				case TRANS_COMMAND_VALVE_CLOSE:
-					LOG("Close the valve %d", valve);
-					HAL_GPIO_WritePin(Valve1Open_GPIO_Port, Valve1Open_Pin, GPIO_PIN_RESET);
-					HAL_GPIO_WritePin(Valve1Close_GPIO_Port, Valve1Close_Pin, GPIO_PIN_SET);
+					setValveOpen(false);
 					break;
 				case TRANS_COMMAND_RESET:
 					LOG("System reset");

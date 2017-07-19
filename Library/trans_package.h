@@ -48,12 +48,18 @@ extern "C" {
 		uint32_t value;
 	} TRANSDataMeterValue;
 
+	/**Показание с счётчика */
+	typedef struct __packed {//8 байт, как у TRANSDataMeterValue
+		uint8_t valve;
+		uint8_t _reserv[7];
+	} TRANSDataMeterStatus;
+
 	/** Пакет с измерениями со счётчиков	 */
 	typedef struct __packed {
 		TRANSDataMeterValue value0;
 		TRANSDataMeterValue value1;
 		TRANSDataMeterValue value2;
-		TRANSDataMeterValue value3;
+		TRANSDataMeterStatus status;
 	} TRANSDataMeters;
 
 	enum TRANSCommand {
