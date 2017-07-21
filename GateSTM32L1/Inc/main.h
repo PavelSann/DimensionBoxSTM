@@ -61,6 +61,8 @@
 #define LedErr_GPIO_Port GPIOA
 #define ConnectLED_Pin GPIO_PIN_0
 #define ConnectLED_GPIO_Port GPIOB
+#define LedConnServ_Pin GPIO_PIN_9
+#define LedConnServ_GPIO_Port GPIOC
 #define TMS_Pin GPIO_PIN_13
 #define TMS_GPIO_Port GPIOA
 #define TCK_Pin GPIO_PIN_14
@@ -71,6 +73,10 @@
 #define UART_SP1ML_RX_GPIO_Port GPIOC
 #define SWO_Pin GPIO_PIN_3
 #define SWO_GPIO_Port GPIOB
+#define LedConnBox2_Pin GPIO_PIN_8
+#define LedConnBox2_GPIO_Port GPIOB
+#define LedConnBox3_Pin GPIO_PIN_9
+#define LedConnBox3_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 void LedErrorSet();

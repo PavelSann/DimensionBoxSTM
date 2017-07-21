@@ -1,5 +1,3 @@
-// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 /**
  ******************************************************************************
  * File Name          : main.c
@@ -60,6 +58,10 @@ UART_HandleTypeDef huart5;
 UART_HandleTypeDef huart2;
 DMA_HandleTypeDef hdma_uart4_rx;
 DMA_HandleTypeDef hdma_uart5_rx;
+#define BOX_CONNECTION_INTERVAL 5000
+static uint32_t box2ConnTick = 0;
+static uint32_t box3ConnTick = 0;
+
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
@@ -153,6 +155,14 @@ int main(void) {
 			}
 		}
 		HAL_GPIO_WritePin(ConnectLED_GPIO_Port, ConnectLED_Pin, TCP_IsConnect());
+		HAL_GPIO_WritePin(LedConnServ_GPIO_Port, LedConnServ_Pin, TCP_IsConnect());
+
+		uint32_t tick=HAL_GetTick();
+		bool box2Connect=(tick-box2ConnTick)<BOX_CONNECTION_INTERVAL;
+		bool box3Connect=(tick-box3ConnTick)<BOX_CONNECTION_INTERVAL;
+
+		HAL_GPIO_WritePin(LedConnBox2_GPIO_Port, LedConnBox2_Pin, box2Connect);
+		HAL_GPIO_WritePin(LedConnBox3_GPIO_Port, LedConnBox3_Pin, box3Connect);
 
 		TCP_ProcessPackage();
 		TRANS_ProcessPackage();
@@ -311,13 +321,13 @@ static void MX_GPIO_Init(void) {
 	__HAL_RCC_GPIOD_CLK_ENABLE();
 
 	/*Configure GPIO pin Output Level */
-	HAL_GPIO_WritePin(TCPConfig_GPIO_Port, TCPConfig_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GPIOC, TCPConfig_Pin | LedConnServ_Pin, GPIO_PIN_RESET);
 
 	/*Configure GPIO pin Output Level */
 	HAL_GPIO_WritePin(LedErr_GPIO_Port, LedErr_Pin, GPIO_PIN_RESET);
 
 	/*Configure GPIO pin Output Level */
-	HAL_GPIO_WritePin(ConnectLED_GPIO_Port, ConnectLED_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GPIOB, ConnectLED_Pin | LedConnBox2_Pin | LedConnBox3_Pin, GPIO_PIN_RESET);
 
 	/*Configure GPIO pin : ButtonBlue_Pin */
 	GPIO_InitStruct.Pin = ButtonBlue_Pin;
@@ -345,12 +355,19 @@ static void MX_GPIO_Init(void) {
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 	HAL_GPIO_Init(LedErr_GPIO_Port, &GPIO_InitStruct);
 
-	/*Configure GPIO pin : ConnectLED_Pin */
-	GPIO_InitStruct.Pin = ConnectLED_Pin;
+	/*Configure GPIO pins : ConnectLED_Pin LedConnBox2_Pin LedConnBox3_Pin */
+	GPIO_InitStruct.Pin = ConnectLED_Pin | LedConnBox2_Pin | LedConnBox3_Pin;
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-	HAL_GPIO_Init(ConnectLED_GPIO_Port, &GPIO_InitStruct);
+	HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+	/*Configure GPIO pin : LedConnServ_Pin */
+	GPIO_InitStruct.Pin = LedConnServ_Pin;
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	HAL_GPIO_Init(LedConnServ_GPIO_Port, &GPIO_InitStruct);
 
 	/* EXTI interrupt init*/
 	HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);
@@ -371,6 +388,13 @@ void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef* huart) {
 
 void TRANS_OnProcessPackage(TRANSPackage *pPackage) {
 	//	LOG("TRANS: ProcessPackage: type:%d source:0x%x target:0x%x", pPackage->type, pPackage->sourceAddress, pPackage->targetAddress);
+
+	if (pPackage->sourceAddress == 2) {
+		box2ConnTick = HAL_GetTick();
+	}
+	if (pPackage->sourceAddress == 3) {
+		box3ConnTick = HAL_GetTick();
+	}
 	TCP_SendTransPackage(pPackage);
 }
 
@@ -456,7 +480,7 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
  */
 void _Error_Handler(char * file, int line) {
 	/* USER CODE BEGIN Error_Handler_Debug */
-	LOGERR("HAL Error_Handler %s:%d",file,line);
+	LOGERR("HAL Error_Handler %s:%d", file, line);
 	LedErrorSoftWhile();
 	/* User can add his own implementation to report the HAL error return state */
 	while (1) {
