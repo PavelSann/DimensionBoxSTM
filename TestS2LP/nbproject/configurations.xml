@@ -157,7 +157,6 @@
       </logicalFolder>
       <itemPath>Inc/MCU_Interface.h</itemPath>
       <itemPath>Src/S2LP_Config.h</itemPath>
-      <itemPath>Inc/SDK_Configuration_Common.h</itemPath>
       <itemPath>Inc/main.h</itemPath>
       <itemPath>Inc/stm32l1xx_hal_conf.h</itemPath>
       <itemPath>Inc/stm32l1xx_it.h</itemPath>
@@ -684,8 +683,6 @@
             flavor2="0">
       </item>
       <item path="Inc/MCU_Interface.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="Inc/SDK_Configuration_Common.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Inc/main.h" ex="false" tool="3" flavor2="0">
       </item>

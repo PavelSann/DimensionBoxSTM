@@ -29,11 +29,35 @@ extern "C" {
 	#endif
 
 	#define MODULATION_SELECT           MOD_2GFSK_BT1
-	#define DATARATE                    38400
-	#define FREQ_DEVIATION              20000
-	#define BANDWIDTH                   100000
-
-	#define POWER_DBM                   12/*.0*/
+	//DATARATE 100 bps and 500 kbps
+	#define DATARATE                    300 //бит/сек(bps)
+	//#define DATARATE                    38400 //bps =38,4кбит/сек
+	#define FREQ_DEVIATION              20000 //20kHz
+	#define BANDWIDTH                   100000 // 100kHz
+	/*
+	 * Уровни мощности:
+	 *дБм(dBm)	мВт(mW)
+	 * 0		1
+	 * 1		1.3
+	 * 2		1.6
+	 * 3		2
+	 * 4		2.5
+	 * 5		3.2
+	 * 6		4
+	 * 7		5
+	 * 8		6
+	 * 9		8
+	 * 10		10
+	 * 11		13
+	 * 12		16
+	 * 13		20
+	 * 14		25
+	 * 15		32
+	 * 16		40
+	 * 17		50
+	 */
+	#define POWER_DBM                   14
+	#define RSSI_THREHSOLD_DBM			-130 //порог приёма сигнала
 
 	/*  Packet configuration parameters  */
 	#define PREAMBLE_LENGTH             PREAMBLE_BYTE(4)
@@ -46,16 +70,13 @@ extern "C" {
 	#define EN_FEC                      S_DISABLE
 	#define EN_WHITENING                S_ENABLE
 
+
 	/* Wake Up timer in ms for LDC mode */
 	#define WAKEUP_TIMER                100/*.0*/
 
+
 	#define PREAMBLE_BYTE(v)        (4*v)
 	#define SYNC_BYTE(v)            (8*v)
-
-
-	#ifdef __cplusplus
-}
-	#endif
-
-#endif /* S2LP_CONFIG_H */
+	
+#endif
 

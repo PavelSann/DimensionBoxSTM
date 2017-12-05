@@ -88,7 +88,7 @@ static PktBasicInit xBasicInit = {
 static S2LPIrqs xIrqStatus;
 static volatile int32_t rssidBm = -200;
 
-static uint8_t txBuff[20] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
+static uint8_t txBuff[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 #define TX_BUFF_SIZE sizeof(txBuff)
 static uint8_t rxBuff[256] = {0};
 
@@ -158,10 +158,11 @@ void initS2LP() {
 	S2LPRadioInit(&xRadioInit);
 
 	/* S2LP Radio set power */
-	S2LPRadioSetMaxPALevel(S_ENABLE);
-	//	S2LPRadioSetPALeveldBm(7, POWER_DBM);
-	//	S2LPRadioSetPALevelMaxIndex(7);
-
+	S2LPRadioSetMaxPALevel(S_ENABLE); //выбираем максимальную мощность 14dBm
+	//	S2LPRadioSetPALeveldBm(7, POWER_DBM);// задаём 7 уровень мощности
+	//	S2LPRadioSetPALevelMaxIndex(7);// выбираем 7 уровень мощности
+	S2LPRadioSetRssiThreshdBm(RSSI_THREHSOLD_DBM);
+	
 	/* S2LP Packet config */
 	S2LPPktBasicInit(&xBasicInit);
 

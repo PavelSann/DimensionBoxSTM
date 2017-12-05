@@ -40,7 +40,8 @@ static const uint8_t cmdReadData[] = {EM_ack, '0', '5', '0', EM_cr, EM_lf};
 /*Режим программирования*/
 static const uint8_t cmdProgramMode[] = {EM_ack, '0', '5', '1', EM_cr, EM_lf};
 #define cmdProgramModeLn sizeof(cmdProgramMode)
-/*Режим программирования*/
+
+/*break*/
 static const uint8_t cmdBreak[] = {EM_soh, 'B', '0', EM_etx, 'u'};
 #define cmdBreakLn sizeof(cmdBreak)
 
@@ -81,7 +82,7 @@ static inline uint8_t calcLRC(uint8_t const *data, uint16_t ln) {
 	++data;
 	--ln;
 	while (ln > 0) {
-		//		lrc ^= *data++;
+		//lrc ^= *data++;
 		lrc = (lrc + *data++) & 0xFF;
 		--ln;
 	}
@@ -117,35 +118,6 @@ static inline uint16_t createCmd(char cmd, char cmdMod, const char *addr, const 
 	return size;
 }
 
-/*
-void ElectroMeter_CMD() {
-	xprintln("Enter command:");
-	char command[102];
-	xgets(command, 100);
-	int ln = 0;
-	for (ln = 0; command[ln] != 0 && ln < 100; ln++);
-	command[ln++] = 0x0D;
-	command[ln++] = 0x0A;
-
-	for (int i = 0; i < ln; i++) {
-		if (command[i] == '#') {
-			command[i] = 0x06;
-		}
-	}
-
-	xprintbt(command, ln);
-	//	HAL_GPIO_TogglePin(LedGreen_GPIO_Port, LedGreen_Pin);
-	HAL_GPIO_WritePin(MAX484_RD_Port, MAX484_RD_Pin, GPIO_PIN_SET); //вкл на передачу
-	HAL_UART_Transmit(hUART, command, ln, 200);
-
-	uint8_t result[100] = {0};
-	HAL_GPIO_WritePin(MAX484_RD_Port, MAX484_RD_Pin, GPIO_PIN_RESET); //вкл на приём
-	HAL_UART_Receive(hUART, result, 100, 1000);
-	for (ln = 0; (result[ln] != 0) && ln < 100; ln++);
-	xprintbt(result, ln);
-	//	HAL_GPIO_TogglePin(LedGreen_GPIO_Port, LedGreen_Pin);
-}
- */
 static uint16_t send(const uint8_t *command, const uint16_t commandLn, uint8_t *result, const uint16_t maxResultLn) {
 	for (uint16_t i = 0; i < maxResultLn; i++) {
 		result[i] = 0;
@@ -176,8 +148,7 @@ static uint16_t sendCmd(char cmd, char cmdMod, const char *addr, const char *val
 	return send(cmdBuff, buffLn, result, maxResultLn);
 }
 
-#if 0
-
+#if TRACE_LOG
 static void dumpData(uint8_t *result, uint16_t resultLn) {
 	/*
 Блок данных состоит из последовательности строк данных, отделяемых символами: CR, возврат
@@ -353,7 +324,7 @@ ElectroMeterValues ElectroMeter_GetValues() {
 		ln = sendCmd('P', '1', "", conf.password, buff, buffLn);
 		if (ln == 1 && buff[0] == EM_ack) { //в ответ должен придти один байт EM_ack
 			//запрос на чтение ET0PE
-			//запрос показаний энергии, учётной нарастающим итогом по всем регистрам счётного механизма
+			//запрос показаний энергии, c нарастающим итогом по всем регистрам счётного механизма
 			ln = sendCmd('R', '1', "ET0PE", "", buff, buffLn);
 			// в ответ блок данных
 			// блок данных может содержать код ошибки
@@ -373,20 +344,16 @@ ElectroMeterValues ElectroMeter_GetValues() {
 				 * (0.00) Т4
 				 * (0.00) ??
 				 */
-				//				EM_DataRow sSumm = nextDataRow(&data);
 				nextDataRow(&data); // первая строка, сумма
 				EM_DataRow pT1 = nextDataRow(&data);
 				EM_DataRow pT2 = nextDataRow(&data);
 				EM_DataRow pT3 = nextDataRow(&data);
 				EM_DataRow pT4 = nextDataRow(&data);
-				//double test = atof(pT1.pValue);
 				values.tariff1 = strToInt(pT1.pValue);
 				values.tariff2 = strToInt(pT2.pValue);
 				values.tariff3 = strToInt(pT3.pValue);
 				values.tariff4 = strToInt(pT4.pValue);
-
 				send(cmdBreak, cmdBreakLn, buff, buffLn);
-
 			}
 		} else {
 			values.error = ElectroMeter_ERR_NOT_ASK;
