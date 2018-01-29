@@ -48,6 +48,8 @@
 #define SRV_MAX_RECONNECTION 5
 #define SRV_GATE_ID ((uint32_t)42)
 #define SRV_MAX_SESSION_KEY_LN 128
+#define SRV_SECURITY_KEY {1,2,3,4,5,6,7,8,9,0,9,8,7,6,5,4}
+//#define SRV_SECURITY_KEY {0}
 
 /*
  * Состояния сессии связи
@@ -184,6 +186,19 @@ static void sendStr(Session *session, const char *str) {
   sendData(session, str, len, true);
 }
 
+/*Симетричное шифрование, XOR*/
+static void crypt(void *buf, uint16_t bufLen, const uint8_t *key, uint16_t keyLen) {
+  //вероятно можно ускорить за счёт обработки по словам
+  uint8_t *data = (uint8_t *) buf;
+  for (int dI = 0, kI = 0; dI < bufLen; dI++, kI++) {
+    if (kI == keyLen) {
+      kI = 0;
+    }
+    //    data[dI] = data[dI]^key[kI];
+    data[dI] ^= key[kI];
+  }
+}
+
 static err_t processHandshaking(Session *session, struct pbuf * p) {
   SRVPacketHeader *pack = p->payload;
   if (pack->type != SRV_PACKET_TYPE_HANDSHAKING) {
@@ -201,6 +216,8 @@ static err_t processHandshaking(Session *session, struct pbuf * p) {
   }
   session->keyLn = ln;
   MEMCPY(session->key, pHand->key, ln);
+  uint8_t securityKey[] = SRV_SECURITY_KEY;
+  crypt(session->key, ln, securityKey, sizeof (securityKey));
   //всё ок, переходит в состояние CONNECTED
   setState(session, STATE_CONNECTED);
   return ERR_OK;
@@ -251,11 +268,17 @@ static err_t processPacket(Session *session, struct pbuf * p) {
       LOG("Packet trash tot_len=%d packetLen=%d countBuf=%d", packet->tot_len, packetLen, countBuf);
     }
 
-
-    //обрабатываем пакет
+    //собираем пакет из TCP сегментов
     uint8_t fullPacket[packetLen];
     pbuf_copy_partial(packet, fullPacket, packetLen, 0);
-    char *str = (char *) (fullPacket + sizeof (SRVPacketHeader));
+
+    //указатель на содержимое пакета
+    void *data = (char *) (fullPacket + sizeof (SRVPacketHeader));
+    uint16_t dataLn = packetLen - sizeof (SRVPacketHeader);
+    //расшифровываем пакет
+    crypt(data, dataLn, session->key, session->keyLn);
+
+    char *str = data;
     LOG("Packet: size:%d countBuf:%d  %s", packetLen, countBuf, str);
     // LOG("Packet recived : size:%d countBuf:%d", packetLen, countBuf);
 
@@ -344,7 +367,8 @@ static err_t sentCallback(void *arg, struct tcp_pcb *tpcb, u16_t len) {
 static err_t pollCallback(void *arg, struct tcp_pcb *tpcb) {
   Session *session = arg;
   LWIP_UNUSED_ARG(session);
-
+//тут надо ловить зависшие соединения, т.е. раз в несколько секунд опрашивать сервер или сервер должен оправшивать
+// вообщем сторожевой таймер
   return ERR_OK;
 }
 
