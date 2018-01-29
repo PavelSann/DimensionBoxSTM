@@ -8,3 +8,6 @@ STM32L152RE/Release/*
 */nbproject/private/private.xml
 PVS-Studio-log.dpn
 PVS-Studio-log.plog
+/GateSTM/MDK-ARM/GateSTM/*
+/GateSTM/Src/Backup/*.bak
+/GateSTM/Inc/Backup/*.bak

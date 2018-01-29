@@ -1,0 +1,26 @@
+echo Executing GDB with gdbinit to connect to OpenOCD.\n
+set remotetimeout 10
+
+# Start to OpenOCD
+# target extended-remote | C:/msys64/mingw64/bin/openocd.exe -f st_board/nucleo_f207zg.cfg -c "gdb_port pipe; log_output openocd.log"
+
+#shel OpenOCD.cmd
+
+shell start "OpenOCD" C:/msys64/mingw64/bin/openocd.exe -f st_board/nucleo_f207zg.cfg
+#shell sleep 1
+target extended-remote localhost:3333
+
+# configure gdb
+set remote hardware-breakpoint-limit 6
+set remote hardware-watchpoint-limit 4
+
+# Reset the target and call its init script
+monitor reset init
+# load 
+file build/GateSTM.elf
+load
+
+
+#set breakpoints
+tbreak main
+n
