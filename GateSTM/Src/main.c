@@ -115,11 +115,10 @@ int main(void){
 
   /* USER CODE BEGIN 2 */
   xprint_init_UART(&huart3);
-  TCPS_Init();
+  TCPS_Init(&gnetif);
 
   LOG("Gate loaded! ");
-  LOG("TCP address %d.%d.%d.%d", ip4_addr1(&gnetif.ip_addr), ip4_addr2(&gnetif.ip_addr), ip4_addr3(&gnetif.ip_addr), ip4_addr4(&gnetif.ip_addr));
-  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
+//  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
 
   //CON_Init();
   //HAL_TIM_Base_Start_IT(&htim1);
@@ -204,8 +203,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
 
 void HAL_GPIO_EXTI_Callback(uint16_t pin) {
   if (pin == USER_Btn_Pin) {
-    TCPS_StartSession();
-
+    TCPSError err = TCPS_StartSession();
+    if(err<0){
+      LOG("StartSession error %d",err);
+    }
     HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
   }
 }

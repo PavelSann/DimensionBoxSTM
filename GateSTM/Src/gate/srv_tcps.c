@@ -10,6 +10,7 @@
 #include "xprint.h"
 #include "lwip.h"
 //#include "debug.h"
+#include "netif.h"
 #include "tcp.h"
 #include "dns.h"
 #include "srv_packet.h"
@@ -73,6 +74,8 @@ typedef enum {
   DNS_STATE_ERROR
 } DNSState;
 
+struct netif *pNetif;
+
 /* 
  * Сессия связи с сервером
  */
@@ -81,14 +84,16 @@ typedef struct {
   State state;
   ip_addr_t ipAddr;
   uint16_t port; //8888
-  uint8_t reconnectCount;
   /*Имя сервера, для получения ip через dns*/
   char *serverName;
   DNSState dnsState;
-
+  //данные по ключу шифрования по TCP
   uint8_t *key;
   uint16_t keyLn;
-
+  //указатель на первый сигмент текущего пакета
+  struct pbuf *packet;
+  //длинна текущего пакета
+  uint16_t packetLen;
 } Session;
 /*Инициализация ВСЕХ полей структуры */
 #define INIT_SESSION(pSes) {\
@@ -96,11 +101,12 @@ pSes->pcb = NULL;\
 pSes->state = STATE_NONE;\
 pSes->ipAddr.addr=0;\
 pSes->port=SRV_SERVER_PORT;\
-pSes->reconnectCount=0;\
 pSes->dnsState = DNS_STATE_NONE;\
 pSes->serverName = NULL;\
 pSes->key=NULL;\
 pSes->keyLn=0;\
+pSes->packet=NULL;\
+pSes->packetLen=0;\
 }
 /*Указатель на текущую сессию, при работе с одной сессией*/
 Session *currentSession;
@@ -243,25 +249,23 @@ static void closeConnection(Session *session) {
   setState(session, STATE_INIT);
 }
 
-
-
-static struct pbuf *packet;
-static uint16_t packetLen = 0;
-
 static err_t processPacket(Session *session, struct pbuf * p) {
-  if (packet == NULL) {
+  if (session->packet == NULL) {
     //начало пакета, разбираем заголовок
     SRVHandshaking *pHeader = p->payload;
-    packetLen = pHeader->head.payloadLength + sizeof (SRVPacketHeader);
-    packet = p;
-    if (packetLen > SRV_PACKET_MAX_PAYLOAD_SIZE) {
-      LOG("Packet is long packetLen=%d ", packetLen);
+    uint16_t len = pHeader->head.payloadLength + sizeof (SRVPacketHeader);
+    if (len > SRV_PACKET_MAX_PAYLOAD_SIZE) {
+      LOG("Packet is long packetLen=%d ", len);
       return ERR_MEM;
     }
+    session->packet = p;
+    session->packetLen = len;
   } else {
-    pbuf_cat(packet, p);
+    pbuf_cat(session->packet, p);
   }
 
+  struct pbuf * const packet = session->packet;
+  const uint16_t packetLen = session->packetLen;
   if (packet->tot_len >= packetLen) {
     uint16_t countBuf = pbuf_clen(packet);
     if (packet->tot_len > packetLen) {
@@ -322,38 +326,41 @@ static err_t receiveCallback(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, er
   }
 
   //дальше запускаем обработчики пакетов
-  bool freeBuf = true;
   err_t result = ERR_OK;
-  State state = session->state;
 
-  if (state == STATE_HANDSHAKING) {
-    result = processHandshaking(session, p);
-    tcp_recved(tpcb, p->tot_len);
-  } else if (state == STATE_CONNECTED) {
-    result = processPacket(session, p);
-    if (result == ERR_INPROGRESS) {
-      freeBuf = false;
-    } else {
-      //ошибка или пакет разобран
-      tcp_recved(tpcb, packet->tot_len);
-      packet = NULL;
-      packetLen = 0;
-      //      if (result != ERR_OK) {
-      //        //closeConnection();
-      //      }
-    }
-  } else {
-    LOG("TCP receive in bad status %d", session->state);
+  switch (session->state) {
+    //Обработка рукопожатия
+    case STATE_HANDSHAKING:
+      result = processHandshaking(session, p);
+      tcp_recved(tpcb, p->tot_len);
+      pbuf_free(p);
+      sendAsk(session, result);
+      break;
+      // обработка основных пакетов
+    case STATE_CONNECTED:
+      result = processPacket(session, p);
+      if (result != ERR_INPROGRESS) {
+        //ошибка или пакет разобран
+        tcp_recved(tpcb, session->packet->tot_len);
+        pbuf_free(session->packet);
+        session->packet = NULL;
+        session-> packetLen = 0;
+        sendAsk(session, result);
+      }
+      break;
+
+    default:
+      LOG("TCP receive in bad status %d", session->state);
+      break;
   }
 
 
+  //    if(result!=ERR_INPROGRESS){
+  //      sendAsk(session, result);
+  //      pbuf_free(p);
+  //    }
 
-  if (freeBuf) {
-    pbuf_free(p);
-  }
-  sendAsk(session, result);
   return ERR_OK;
-
 }
 
 static err_t sentCallback(void *arg, struct tcp_pcb *tpcb, u16_t len) {
@@ -367,23 +374,21 @@ static err_t sentCallback(void *arg, struct tcp_pcb *tpcb, u16_t len) {
 static err_t pollCallback(void *arg, struct tcp_pcb *tpcb) {
   Session *session = arg;
   LWIP_UNUSED_ARG(session);
-//тут надо ловить зависшие соединения, т.е. раз в несколько секунд опрашивать сервер или сервер должен оправшивать
-// вообщем сторожевой таймер
+  //тут надо ловить зависшие соединения, т.е. раз в несколько секунд опрашивать сервер или сервер должен оправшивать
+  // вообщем сторожевой таймер
+
+  //ещё нужно мониторить свободную память в mem_ и незаконченный разбор пакета
   return ERR_OK;
 }
 
 static void errorCallback(void *arg, err_t err) {
   Session *session = arg;
+  LWIP_UNUSED_ARG(session);
   LOG("TCP connection error %d", err);
   if (ERR_IS_FATAL(err)) {
+    //
     LOG("TCP fatal error, close connection");
-    if (session->reconnectCount < SRV_MAX_RECONNECTION) {
-      session->reconnectCount++;
-      connectionIP(session);
-    } else {
-      //количество попыток истекло
-      closeConnection(session);
-    }
+    closeConnection(session);
   }
 }
 
@@ -395,7 +400,6 @@ static err_t connectedCallback(void *arg, struct tcp_pcb *tpcb, err_t err) {
   tcp_sent(session->pcb, sentCallback);
   tcp_poll(session->pcb, pollCallback, 1);
   tcp_err(session->pcb, errorCallback);
-  session->reconnectCount = 0;
 
   //запускаем рукопожатие с сервером
   startHandshaking(session);
@@ -438,16 +442,27 @@ static void connectionIP(Session *session) {
 
 }
 
-void TCPS_Init() {
+void TCPS_Init(struct netif *pNetIf) {
   static const ip_addr_t dnsServers[DNS_MAX_SERVERS] = {SRV_DNS_SERVERS};
   //Инициализация списка DNS серверов
   for (int i = 0; i < DNS_MAX_SERVERS; i++) {
     dns_setserver(i, &dnsServers[i]);
   }
   dns_init();
+  pNetif = pNetIf;
 }
 
 TCPSError TCPS_StartSession() {
+  if (!netif_is_link_up(pNetif)) {
+    return TCPS_ERR_NOT_LINK_UP;
+  }
+  if (!dhcp_supplied_address(pNetif)) {
+    return TCPS_ERR_DHCP_SUPPLIED_IP;
+  }
+  //  if (netif_is_up(pNetif)) {
+  //    return TCPS_ERR_NOT_UP;
+  //  }
+
   //нужно ещё проверять прошла ли регистрация в сети
   if (currentSession == NULL) {
     Session *session = newSession();
