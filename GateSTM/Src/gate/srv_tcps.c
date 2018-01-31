@@ -13,7 +13,6 @@
 #include "netif.h"
 #include "tcp.h"
 #include "dns.h"
-#include "srv_packet.h"
 
 
 #if BYTE_ORDER != BIG_ENDIAN
@@ -43,10 +42,10 @@
  */
 #define SRV_SERVER_RESERV_IP IP_ADDR(192, 168, 1, 10)
 #define SRV_SERVER_PORT 8888
+#define SRV_WATCHDOG_TIME (30*2)
 #define USE_DNS_SERVER false
 #define SRV_SERVER_NAME TO_STR(is.meterage72.ru)
 #define SRV_DNS_SERVERS  IP_ADDR(8, 8, 8, 8) /*Google*/, IP_ADDR(77, 88, 8, 8)/*Yandex*/
-#define SRV_MAX_RECONNECTION 5
 #define SRV_GATE_ID ((uint32_t)42)
 #define SRV_MAX_SESSION_KEY_LN 128
 #define SRV_SECURITY_KEY {1,2,3,4,5,6,7,8,9,0,9,8,7,6,5,4}
@@ -84,16 +83,25 @@ typedef struct {
   State state;
   ip_addr_t ipAddr;
   uint16_t port; //8888
+  /*таймер, для аварийного закрытия соединения*/
+  uint16_t watchdog;
   /*Имя сервера, для получения ip через dns*/
   char *serverName;
   DNSState dnsState;
-  //данные по ключу шифрования по TCP
+  /*данные по ключу шифрования по TCP*/
   uint8_t *key;
   uint16_t keyLn;
-  //указатель на первый сигмент текущего пакета
-  struct pbuf *packet;
-  //длинна текущего пакета
-  uint16_t packetLen;
+  /*указатель на первый сегмент текущего пакета*/
+  struct pbuf *packetBuf;
+  /*Буфер под собранный и расшифрованный пакет, приём данных*/
+  uint8_t rxPacket[SRV_MAX_PACKET_SIZE];
+  uint16_t rxLength;
+  /*Буфер под с пакет, для отправки данных*/
+  uint8_t txPacket[SRV_MAX_PACKET_SIZE];
+  uint16_t txLength;
+  /*последний номер пакета*/
+  uint8_t lastSeqNumber;
+
 } Session;
 /*Инициализация ВСЕХ полей структуры */
 #define INIT_SESSION(pSes) {\
@@ -101,13 +109,20 @@ pSes->pcb = NULL;\
 pSes->state = STATE_NONE;\
 pSes->ipAddr.addr=0;\
 pSes->port=SRV_SERVER_PORT;\
+pSes->watchdog=SRV_WATCHDOG_TIME;\
 pSes->dnsState = DNS_STATE_NONE;\
 pSes->serverName = NULL;\
 pSes->key=NULL;\
 pSes->keyLn=0;\
-pSes->packet=NULL;\
-pSes->packetLen=0;\
+pSes->packetBuf=NULL;\
+pSes->lastSeqNumber=0;\
 }
+#define RESET_WATCHDOG(pSession) ((pSession)->watchdog=SRV_WATCHDOG_TIME)
+/*Возвращает указатель на заголовок пакета*/
+#define PACK_HEADER_LEN (sizeof(SRV_PacketHeader))
+#define PACK_HEADER(pPacket) ((SRV_PacketHeader *)(pPacket))
+#define PACK_PAYLOAD(pPacket) ((void *)((uint8_t *)(pPacket))+ PACK_HEADER_LEN)
+#define PACK_FULL_LENGTH(pPacket) ( (PACK_HEADER(pPacket))->payloadLength + PACK_HEADER_LEN)
 /*Указатель на текущую сессию, при работе с одной сессией*/
 Session *currentSession;
 
@@ -176,20 +191,9 @@ static void connect(Session *session) {
   connectionIP(session);
 }
 
-static void sendData(Session *session, const void *pData, uint16_t len, bool copyData) {
-  uint8_t flags = copyData ? TCP_WRITE_FLAG_COPY : 0;
-  tcp_write(session->pcb, pData, len, flags);
-  tcp_output(session->pcb);
-}
-
-static void sendAsk(Session *session, uint8_t code) {
-  uint8_t ask[] = {SRV_PACKET_TYPE_ASK, code};
-  sendData(session, &ask, sizeof (ask), true);
-}
-
-static void sendStr(Session *session, const char *str) {
-  size_t len = strlen(str);
-  sendData(session, str, len, true);
+static uint32_t calcCRC(Session *session, void *data, uint16_t len) {
+  // crc((sessionKey|key)+data)
+  return 0x0;
 }
 
 /*Симетричное шифрование, XOR*/
@@ -200,42 +204,68 @@ static void crypt(void *buf, uint16_t bufLen, const uint8_t *key, uint16_t keyLe
     if (kI == keyLen) {
       kI = 0;
     }
-    //    data[dI] = data[dI]^key[kI];
     data[dI] ^= key[kI];
   }
 }
 
-static err_t processHandshaking(Session *session, struct pbuf * p) {
-  SRVPacketHeader *pack = p->payload;
-  if (pack->type != SRV_PACKET_TYPE_HANDSHAKING) {
-    return ERR_VAL;
-  }
-  uint16_t ln = pack->payloadLength;
-
-  struct {
-    SRVPacketHeader head;
-    uint8_t key[ln];
-  } *pHand = p->payload;
-  session->key = mem_malloc(ln);
+static void cryptSession(Session *session, void *buf, uint16_t bufLen) {
   if (session->key == NULL) {
-    return ERR_MEM;
+    const uint8_t securityKey[] = SRV_SECURITY_KEY;
+    crypt(buf, bufLen, securityKey, sizeof (securityKey));
+  } else {
+    crypt(buf, bufLen, session->key, session->keyLn);
   }
-  session->keyLn = ln;
-  MEMCPY(session->key, pHand->key, ln);
-  uint8_t securityKey[] = SRV_SECURITY_KEY;
-  crypt(session->key, ln, securityKey, sizeof (securityKey));
-  //всё ок, переходит в состояние CONNECTED
-  setState(session, STATE_CONNECTED);
-  return ERR_OK;
-
 }
 
-static void startHandshaking(Session *session) {
-  setState(session, STATE_HANDSHAKING);
-  //отправляем пакет с ID шлюза
-  SRVHandshaking hh = {};
-  INIT_SRVHandshaking(&hh, SRV_GATE_ID);
-  sendData(session, &hh, sizeof (hh), true);
+static err_t sendData(Session *session, const void *pData, uint16_t len, bool copyData) {
+  uint8_t flags = copyData ? TCP_WRITE_FLAG_COPY : 0;
+  err_t err = tcp_write(session->pcb, pData, len, flags);
+  if (err != ERR_OK) {
+    return err;
+  }
+  return tcp_output(session->pcb);
+}
+
+static err_t sendPacket(Session *session, SRV_PacketType type, void *pData, uint16_t dataLen) {
+  if (dataLen > SRV_MAX_PAYLOAD_SIZE) {
+    return ERR_MEM;
+  }
+  uint8_t nextSeqNumber = session->lastSeqNumber;
+  if (nextSeqNumber < 0xFF) {
+    nextSeqNumber++;
+  } else {
+    nextSeqNumber = 0;
+  }
+
+  uint8_t *txPack = session->txPacket;
+  SRV_PacketHeader *header = PACK_HEADER(txPack);
+  header->crc = 0;
+  header->type = type;
+  header->sequenceNumber = nextSeqNumber;
+  header->payloadLength = dataLen;
+  void *txPayload = PACK_PAYLOAD(txPack);
+  if (pData != NULL && dataLen > 0) {
+    MEMCPY(txPayload, pData, dataLen);
+    cryptSession(session, txPayload, dataLen);
+
+  }
+  uint16_t fullSize = dataLen + PACK_HEADER_LEN;
+  session->txLength = fullSize;
+  uint32_t crc = calcCRC(session, txPack, fullSize);
+  header->crc = crc;
+
+  err_t err = sendData(session, txPack, fullSize, false);
+  if (err != ERR_OK) {
+    return err;
+  }
+
+  session->lastSeqNumber = nextSeqNumber;
+  return ERR_OK;
+}
+
+static void sendAsk(Session *session, uint8_t code) {
+  uint8_t bufCode = code;
+  sendPacket(session, SRV_PACKET_TYPE_ASK, &bufCode, 1);
 }
 
 static void closeConnection(Session *session) {
@@ -249,49 +279,128 @@ static void closeConnection(Session *session) {
   setState(session, STATE_INIT);
 }
 
-static err_t processPacket(Session *session, struct pbuf * p) {
-  if (session->packet == NULL) {
-    //начало пакета, разбираем заголовок
-    SRVHandshaking *pHeader = p->payload;
-    uint16_t len = pHeader->head.payloadLength + sizeof (SRVPacketHeader);
-    if (len > SRV_PACKET_MAX_PAYLOAD_SIZE) {
-      LOG("Packet is long packetLen=%d ", len);
+static void startHandshaking(Session *session) {
+  setState(session, STATE_HANDSHAKING);
+  //отправляем пакет с ID шлюза
+  uint32_t gateId = SRV_GATE_ID;
+  sendPacket(session, SRV_PACKET_TYPE_HANDSHAKING, &gateId, sizeof (gateId));
+}
+
+static err_t processHandshaking(Session *session, const SRV_PacketHeader *pHead, const uint8_t *payload) {
+  //от сервера мы получили сессионный ключ шифрования
+  uint16_t ln = pHead->payloadLength;
+  uint8_t *key = mem_malloc(ln);
+  if (key == NULL) {
+    return ERR_MEM;
+  }
+  MEMCPY(key, payload, ln);
+  session->key = key;
+  session->keyLn = ln;
+  setState(session, STATE_CONNECTED);
+  return ERR_OK;
+}
+
+static err_t processPacket(Session *session) {
+  uint8_t * pPack = session->rxPacket;
+  SRV_PacketHeader * pHead = PACK_HEADER(pPack);
+  SRV_PacketType type = pHead->type;
+  uint8_t *payload = PACK_PAYLOAD(pPack);
+
+  if (session->state == STATE_HANDSHAKING) {
+    if (type == SRV_PACKET_TYPE_HANDSHAKING) {
+      return processHandshaking(session, pHead, payload);
+    } else {
+      LOG("Handshaking: Invalid packet type %d", type);
+      return ERR_ARG;
+    }
+  }
+
+
+  switch (type) {
+    case SRV_PACKET_TYPE_STR:
+      //выводим строку из пакета
+
+      LOG("Packet str: %s", payload);
+      break;
+
+    default:
+      LOG("Unsupport packet type %n", type);
+      break;
+
+  }
+  return ERR_OK;
+}
+
+/**
+ * Обрабатываем TCP сегмент, если пакет состоит из нескольких сигментов, то собираем пакет
+ * @param session
+ * @param p
+ * @return 
+ */
+static err_t processSegment(Session *session, struct pbuf *p) {
+  if (session->packetBuf == NULL) {
+    //в обработке нет пакета, значит это первый сигмент пакета
+    SRV_PacketHeader *header = p->payload;
+    SRV_PacketType type = header->type;
+    uint8_t nextSeqNum = (session->lastSeqNumber) + 1;
+    if (header->sequenceNumber != nextSeqNum) {
+      LOG("Illegal sequence number, header:%d session:%d ", header->sequenceNumber, session->lastSeqNumber);
+      return ERR_ARG;
+    }
+    //    if(type){
+    //      //сделать проверку корректности типа пакета
+    //    }
+    //если длинна пакета превышает норму, обрабатывать не будем
+    if (header->payloadLength > SRV_MAX_PAYLOAD_SIZE) {
+      LOG("Packet is long payloadLength=%d ", header->payloadLength);
       return ERR_MEM;
     }
-    session->packet = p;
-    session->packetLen = len;
+    session->packetBuf = p;
   } else {
-    pbuf_cat(session->packet, p);
+    //если уже идёт приём пакета, то присоединяем сегмент к нему
+    pbuf_cat(session->packetBuf, p);
   }
 
-  struct pbuf * const packet = session->packet;
-  const uint16_t packetLen = session->packetLen;
-  if (packet->tot_len >= packetLen) {
-    uint16_t countBuf = pbuf_clen(packet);
-    if (packet->tot_len > packetLen) {
-      LOG("Packet trash tot_len=%d packetLen=%d countBuf=%d", packet->tot_len, packetLen, countBuf);
+  {
+    struct pbuf * const packBuf = session->packetBuf;
+    //общее количество байт, которое нужно принять значение payloadLength из заголовка пакета + длинна заголовка
+    uint16_t fullLength = PACK_FULL_LENGTH(packBuf->payload);
+
+    if (packBuf->tot_len < fullLength) {
+      //если получили ещё не весь пакет, будем ждать следующий сегмент
+      return ERR_INPROGRESS;
     }
 
-    //собираем пакет из TCP сегментов
-    uint8_t fullPacket[packetLen];
-    pbuf_copy_partial(packet, fullPacket, packetLen, 0);
 
-    //указатель на содержимое пакета
-    void *data = (char *) (fullPacket + sizeof (SRVPacketHeader));
-    uint16_t dataLn = packetLen - sizeof (SRVPacketHeader);
-    //расшифровываем пакет
-    crypt(data, dataLn, session->key, session->keyLn);
+    if (packBuf->tot_len > fullLength) {
+      //принято больше байт чем длина пакета, значит отправитель склеил TCP пакеты
+      //такого не должно быть, пакет будет обрезан, данные потеряны
+      uint16_t countBuf = pbuf_clen(packBuf);
+      LOG("Packet trash tot_len=%d packetLen=%d countBuf=%d", packBuf->tot_len, fullLength, countBuf);
+    }
 
-    char *str = data;
-    LOG("Packet: size:%d countBuf:%d  %s", packetLen, countBuf, str);
-    // LOG("Packet recived : size:%d countBuf:%d", packetLen, countBuf);
-
-
-    return ERR_OK;
+    //собираем пакет из TCP сегментов в один буфер
+    pbuf_copy_partial(packBuf, session->rxPacket, fullLength, 0);
+    session->rxLength = fullLength;
   }
 
+  uint8_t * const pPack = session->rxPacket;
+  SRV_PacketHeader * const pHead = PACK_HEADER(pPack);
+  uint8_t * const payload = PACK_PAYLOAD(pPack);
 
-  return ERR_INPROGRESS;
+  //расшифровываем содержимое пакета
+  cryptSession(session, payload, pHead->payloadLength);
+
+  //рассчитываем и проверяем CRC
+  uint32_t crc = calcCRC(session, session->rxPacket, session->rxLength);
+  if (crc != pHead->crc) {
+    LOG("Invalid CRC: head:%x calc:%x", pHead->crc, crc);
+    return ERR_ARG;
+  }
+
+  session->lastSeqNumber = pHead->sequenceNumber;
+  LOG("Process packet type=%d sequenceNumber=%d fullLength=%d", pHead->type, pHead->sequenceNumber, session->rxLength);
+  return processPacket(session);
 }
 
 /**
@@ -318,47 +427,20 @@ static err_t receiveCallback(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, er
     pbuf_free(p);
     return err;
   }
-  if (p->len < sizeof (SRVPacketHeader)) {
-    LOGERR("TCP bad segment size %d", p->len);
-    //    tcp_recved(tpcb, p->tot_len);
-    pbuf_free(p);
-    return ERR_OK;
-  }
 
-  //дальше запускаем обработчики пакетов
-  err_t result = ERR_OK;
+  if (session->state == STATE_HANDSHAKING || session->state == STATE_CONNECTED) {
+    //сбрасываем сторожевой таймер сессии
+    RESET_WATCHDOG(session);
 
-  switch (session->state) {
-    //Обработка рукопожатия
-    case STATE_HANDSHAKING:
-      result = processHandshaking(session, p);
-      tcp_recved(tpcb, p->tot_len);
-      pbuf_free(p);
+    //дальше запускаем обработчики пакетов
+    err_t result = processSegment(session, p);
+    if (result != ERR_INPROGRESS) {
+      tcp_recved(tpcb, session->packetBuf->tot_len);
+      pbuf_free(session->packetBuf);
+      session->packetBuf = NULL;
       sendAsk(session, result);
-      break;
-      // обработка основных пакетов
-    case STATE_CONNECTED:
-      result = processPacket(session, p);
-      if (result != ERR_INPROGRESS) {
-        //ошибка или пакет разобран
-        tcp_recved(tpcb, session->packet->tot_len);
-        pbuf_free(session->packet);
-        session->packet = NULL;
-        session-> packetLen = 0;
-        sendAsk(session, result);
-      }
-      break;
-
-    default:
-      LOG("TCP receive in bad status %d", session->state);
-      break;
+    }
   }
-
-
-  //    if(result!=ERR_INPROGRESS){
-  //      sendAsk(session, result);
-  //      pbuf_free(p);
-  //    }
 
   return ERR_OK;
 }
@@ -373,9 +455,13 @@ static err_t sentCallback(void *arg, struct tcp_pcb *tpcb, u16_t len) {
 
 static err_t pollCallback(void *arg, struct tcp_pcb *tpcb) {
   Session *session = arg;
-  LWIP_UNUSED_ARG(session);
-  //тут надо ловить зависшие соединения, т.е. раз в несколько секунд опрашивать сервер или сервер должен оправшивать
-  // вообщем сторожевой таймер
+
+  //Сторожевой таймер соединения
+  session->watchdog--;
+  if (session->watchdog <= 0) {
+    LOG("Session watchdog: close connection");
+    closeConnection(session);
+  }
 
   //ещё нужно мониторить свободную память в mem_ и незаконченный разбор пакета
   return ERR_OK;

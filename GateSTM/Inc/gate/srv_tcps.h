@@ -14,6 +14,8 @@ extern "C" {
 #endif
 #include <stdint.h>
 #include "netif.h"
+#include "srv_packet.h"
+
   typedef enum {
     /** Operation in progress    */
     TCPS_ERR_INPROGRESS = 1,
@@ -27,9 +29,6 @@ extern "C" {
     TCPS_ERR_NOT_LINK_UP = -2,
     /**not connect IP*/
     TCPS_ERR_DHCP_SUPPLIED_IP = -3,
-
-
-
   } TCPSError;
 
 

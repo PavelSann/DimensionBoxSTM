@@ -215,10 +215,10 @@ static uint16_t packetLen = 0;
 static err_t processPacket(struct tcp_pcb *tpcb, struct pbuf *p) {
   if (packet == NULL) {
     //начало пакета, разбираем заголовок
-    SRVHandshaking *pHeader = p->payload;
-    packetLen = pHeader->head.payloadLength + sizeof (SRVPacketHeader);
+    SRV_Handshaking *pHeader = p->payload;
+    packetLen = pHeader->head.payloadLength + sizeof (SRV_PacketHeader);
     packet = p;
-    if (packetLen > SRV_PACKET_MAX_PAYLOAD_SIZE) {
+    if (packetLen > SRV_MAX_PAYLOAD_SIZE) {
       LOG("Packet is long packetLen=%d ", packetLen);
       return ERR_MEM;
     }
@@ -236,7 +236,7 @@ static err_t processPacket(struct tcp_pcb *tpcb, struct pbuf *p) {
     //обрабатываем пакет
     uint8_t fullPacket[packetLen];
     pbuf_copy_partial(packet, fullPacket, packetLen, 0);
-    char *str = (char *) (fullPacket + sizeof (SRVPacketHeader));
+    char *str = (char *) (fullPacket + sizeof (SRV_PacketHeader));
     LOG("Packet: size:%d countBuf:%d  %s", packetLen, countBuf, str);
     // LOG("Packet recived : size:%d countBuf:%d", packetLen, countBuf);
 
@@ -277,7 +277,7 @@ static err_t receiveCallback(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, er
   if (state == STATE_CONNECTED) {
     sendMessage(MSG_DATA_RECEIVE);
 
-    if (p->len < sizeof (SRVPacketHeader)) {
+    if (p->len < sizeof (SRV_PacketHeader)) {
       LOGERR("bad segment size %d", p->len);
       pbuf_free(p);
       return ERR_BUF;
@@ -363,7 +363,7 @@ static void connectIP(bool next) {
 
 static void startHandshaking() {
   setState(STATE_CONNECT_HANDSHAKING);
-  SRVHandshaking hh = SRV_NEW_Handshaking(1234);
+  SRV_Handshaking hh = SRV_NEW_Handshaking(1234);
   sendData(&hh, sizeof (hh), true);
 }
 
