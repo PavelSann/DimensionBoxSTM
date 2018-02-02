@@ -45,12 +45,12 @@ extern "C" {
 
   /*Основной заголовок пакета, выравнивание на 4 байта*/
   typedef struct __packed {
+    /* Длина блока данных */
+    uint16_t payloadLength;
     /** SRVPacketType типа пакета uint8_t*/
     SRV_PacketType type;
     /* последовательный номер пакета */
     uint8_t sequenceNumber;
-    /* Длина блока данных */
-    uint16_t payloadLength;
     uint32_t crc;
   } SRV_PacketHeader;
 

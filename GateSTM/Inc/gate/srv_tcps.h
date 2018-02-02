@@ -29,12 +29,24 @@ extern "C" {
     TCPS_ERR_NOT_LINK_UP = -2,
     /**not connect IP*/
     TCPS_ERR_DHCP_SUPPLIED_IP = -3,
-  } TCPSError;
+  } TCPS_Error;
+
+  //  typedef void (*TCPS_ConnectedCallbackFn)();
+  //  typedef void (*TCPS_ReceivePacketCallbackFn)(SRV_PacketHeader * pHead,uint8_t *payload);
+  //  typedef uint32_t (*TCPS_CalcCRCFn)(void *data, uint16_t len);
+
+  typedef struct {
+    struct netif *pNetif;
+    //    TCPS_CalcCRCFn *pCalcCRCFn;
 
 
-  void TCPS_Init(struct netif *pNetIf);
+  } TCPS_InitStruct;
 
-  TCPSError TCPS_StartSession();
+
+
+  void TCPS_Init(TCPS_InitStruct init);
+
+  TCPS_Error TCPS_StartSession();
 
   void TCPS_Process();
 
