@@ -315,8 +315,12 @@ static err_t processPacket(Session *session) {
     }
   }
 
-
+  err_t err = ERR_OK;
   switch (type) {
+    case SRV_PACKET_TYPE_PING:
+      //нечего не делаем, вернётся просто  ask
+      break;
+
     case SRV_PACKET_TYPE_STR:
       //выводим строку из пакета
 
@@ -325,10 +329,11 @@ static err_t processPacket(Session *session) {
 
     default:
       LOG("Unsupport packet type %n", type);
+      err = ERR_ARG;
       break;
 
   }
-  return ERR_OK;
+  return err;
 }
 
 /**
