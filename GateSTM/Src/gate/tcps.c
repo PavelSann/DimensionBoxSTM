@@ -6,7 +6,7 @@
 #include <string.h>
 #include <locale.h>
 
-#include "srv_tcps.h"
+#include "tcps.h"
 #include "xprint.h"
 #include "lwip.h"
 //#include "debug.h"

@@ -44,6 +44,11 @@
           </df>
         </df>
       </df>
+      <df name="Inc">
+        <df name="gate">
+          <in>radio.h</in>
+        </df>
+      </df>
       <df name="Middlewares">
         <df name="Third_Party">
           <df name="LwIP">
@@ -136,9 +141,9 @@
       </df>
       <df name="Src">
         <df name="gate">
+          <in>radio.c</in>
           <in>srv_packet.c</in>
-          <in>srv_tcps.bac..c</in>
-          <in>srv_tcps.c</in>
+          <in>tcps.c</in>
         </df>
         <in>S2LP_Spi_Driver.c</in>
         <in>crc.c</in>
@@ -930,15 +935,15 @@
         <cTool flags="0">
         </cTool>
       </item>
+      <item path="Src/gate/radio.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+        </cTool>
+      </item>
       <item path="Src/gate/srv_packet.c" ex="false" tool="0" flavor2="3">
         <cTool flags="1">
         </cTool>
       </item>
-      <item path="Src/gate/srv_tcps.bac..c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
-        </cTool>
-      </item>
-      <item path="Src/gate/srv_tcps.c" ex="false" tool="0" flavor2="3">
+      <item path="Src/gate/tcps.c" ex="false" tool="0" flavor2="3">
         <cTool flags="0">
         </cTool>
       </item>
@@ -1231,6 +1236,8 @@
             flavor2="3">
         <cTool flags="0">
         </cTool>
+      </item>
+      <item path="Inc/gate/radio.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Middlewares/Third_Party/LwIP/src/api/api_lib.c"
             ex="false"
@@ -1734,15 +1741,13 @@
         <cTool flags="0">
         </cTool>
       </item>
+      <item path="Src/gate/radio.c" ex="false" tool="0" flavor2="0">
+      </item>
       <item path="Src/gate/srv_packet.c" ex="false" tool="0" flavor2="3">
         <cTool flags="1">
         </cTool>
       </item>
-      <item path="Src/gate/srv_tcps.bac..c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
-        </cTool>
-      </item>
-      <item path="Src/gate/srv_tcps.c" ex="false" tool="0" flavor2="3">
+      <item path="Src/gate/tcps.c" ex="false" tool="0" flavor2="3">
         <cTool flags="0">
         </cTool>
       </item>

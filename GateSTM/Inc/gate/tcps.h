@@ -6,8 +6,8 @@
  * Created on 20 декабря 2017 г., 8:24
  */
 
-#ifndef SRV_TCPS_H
-#define SRV_TCPS_H
+#ifndef TCPS_H
+#define TCPS_H
 
 #ifdef __cplusplus
 extern "C" {
