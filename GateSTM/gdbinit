@@ -6,7 +6,7 @@ set remotetimeout 10
 
 #shel OpenOCD.cmd
 
-shell start "OpenOCD" C:/msys64/mingw64/bin/openocd.exe -f st_board/nucleo_f207zg.cfg
+shell start "OpenOCD" openocd
 #shell sleep 1
 target extended-remote localhost:3333
 
@@ -19,6 +19,7 @@ monitor reset init
 # load 
 file build/GateSTM.elf
 load
+monitor reset halt
 
 
 #set breakpoints
