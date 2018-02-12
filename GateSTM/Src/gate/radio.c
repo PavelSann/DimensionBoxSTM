@@ -1,12 +1,32 @@
+#include "radio.h"
 #include <stdint.h>
 #include "xprint.h"
-#include "MCU_Interface_template.h"
+#include "MCU_Interface.h" //#include "MCU_Interface_template.h"
 #include <stdbool.h>
 #include "S2LP_Config.h"
-#include "s2pl_opt.h"
+#include "radio_opt.h"
 
-static volatile FlagStatus xTxDoneFlag = RESET;
-static volatile FlagStatus isInitS2LP = RESET;
+typedef enum {
+  MSG_RX_DATA,
+  MSG_TX_DONE,
+  MSG_TX_DATA_IN_BUFFER,
+} Message;
+#define MSG_OPT_MAX_MESSAGES 100
+#define MSG_OPT_MSG_TYPE Message
+#define MSG_OPT_SAFE_ENUM 1
+#include "messages_helper.h"
+#include "opt.h"
+
+//#define SAFE_ENUM(TYPE,VAL) ((VAL)==(TYPE)0?VAL:VAL)
+
+typedef enum {
+  STATE_NONE,
+  STATE_READY,
+  STATE_TX,
+} State;
+static volatile State state = STATE_NONE;
+#define IsState(s) ((s)==state)
+#define SetState(s) (state=(s))
 
 static SGpioInit xGpio0IRQ = {
   S2LP_GPIO_0,
@@ -34,14 +54,23 @@ static PktBasicInit xBasicInit = {
   EN_WHITENING
 };
 
-static S2LPIrqs xIrqStatus;
 static volatile int32_t rssidBm = -200;
 
-static uint8_t txBuff[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-#define TX_BUFF_SIZE sizeof(txBuff)
-static uint8_t rxBuff[256] = {0};
+#define S2LP_FIFO_SIZE 128
+/** Максимальный размер 1 пакета*/
+#define RX_PACKET_MAX_SIZE S2LP_FIFO_SIZE
+/** Максимальное количество пакетов в  буфере*/
+#define RX_PACKET_MAX_COUNT 10
+/**Количество буферов*/
+#define RX_BUF_COUNT 2
+//static uint8_t rxDataBuf[RX_BUF_COUNT][RX_MAX_PACKET_COUNT][RX_MAX_BUF_SIZE];
 
-void printIrqs(const char* msg, S2LPIrqs *pxIrqs) {
+static uint8_t rxDataBuf[RX_PACKET_MAX_SIZE];
+static uint16_t rxDataLen;
+
+static RADIO_InitStruct init;
+
+static void printIrqs(const char* msg, S2LPIrqs *pxIrqs) {
   LOG("S2LP IRQs: %s", msg);
   LOGMEM(pxIrqs, sizeof (S2LPIrqs));
   LOG("IRQ_RX_DATA_READY:%d", pxIrqs->IRQ_RX_DATA_READY); /*!< IRQ: RX data ready */
@@ -77,17 +106,71 @@ void printIrqs(const char* msg, S2LPIrqs *pxIrqs) {
 
 }
 
-void RADIO_Init(SPI_HandleTypeDef *pHSPI, GPIO_TypeDef* csnPort, uint16_t csnPin, GPIO_TypeDef* sdnPort, uint16_t sdnPin) {
-  LOG("Init S2LP...");
-  SdkEvalSpiInitEx(pHSPI, csnPort, csnPin);
-  /* Puts high the GPIO connected to shutdown pin */
-  HAL_GPIO_WritePin(sdnPort, sdnPin, GPIO_PIN_SET);
-  /* Puts low the GPIO connected to shutdown pin */
-  HAL_GPIO_WritePin(sdnPort, sdnPin, GPIO_PIN_RESET);
-  /* Delay to allow the circuit POR, about 700 us */
-  for (volatile uint32_t i = 0; i < 0x1E00; i++);
+static void AbortS2LP() {
+  S2LPGpioIrqConfig(RX_DATA_DISC, S_DISABLE);
+  S2LPCmdStrobeSabort();
+  for (uint32_t i = 0; i < 0xfff; i++);
+  S2LPGpioIrqClearStatus();
+  S2LPGpioIrqConfig(RX_DATA_DISC, S_ENABLE);
+}
 
-  HAL_Delay(100);
+static void StartTX() {
+  if (IsState(STATE_READY)) {
+    SetState(STATE_TX);
+    /* send the TX command */
+    S2LPCmdStrobeTx();
+  } else {
+    LOGERR("Bad state %d", state);
+  }
+}
+
+static void StartRX() {
+  if (IsState(STATE_READY)) {
+    S2LPCmdStrobeRx();
+  } else {
+    LOGERR("Bad state %d", state);
+  }
+}
+
+static void WriteTxFifi(uint8_t* pTxBuffer, uint8_t cBuffer) {
+  /*Clean the TX FIFO*/
+  S2LPCmdStrobeFlushTxFifo();
+  S2LPSpiWriteFifo(cBuffer, pTxBuffer);
+}
+
+static RADIO_Result ReadRxFifo() {
+  /* Get the RX FIFO size */
+  rxDataLen = S2LPFifoReadNumberBytesRxFifo();
+
+  if (rxDataLen > RX_PACKET_MAX_SIZE) {
+    LOGERR("Unsupport RX data size %d", rxDataLen);
+    S2LPCmdStrobeFlushRxFifo();
+    return RADIO_ERR_MEM;
+  }
+  /* Read the RX FIFO */
+  S2LPSpiReadFifo(rxDataLen, rxDataBuf);
+  /* Clean the RX FIFO*/
+  S2LPCmdStrobeFlushRxFifo();
+  return RADIO_OK;
+}
+
+static inline S2LPIrqs *GetIRQStatus() {
+  static S2LPIrqs irqStatus;
+  /* Get the IRQ status */
+  S2LPGpioIrqGetStatus(&irqStatus);
+  return &irqStatus;
+}
+
+void RADIO_Init(RADIO_InitStruct *pInit) {
+  init = *pInit;
+  LOG("Init S2LP...");
+
+  SdkEvalEnterShutdown();
+  SdkEvalExitShutdown();
+  /* Delay to allow the circuit POR, about 700 us */
+  //  for (volatile uint32_t i = 0; i < 0x1E00; i++);
+
+  HAL_Delay(10);
 
   /* S2LP IRQ config */
   S2LPGpioInit(&xGpio0IRQ);
@@ -115,7 +198,7 @@ void RADIO_Init(SPI_HandleTypeDef *pHSPI, GPIO_TypeDef* csnPort, uint16_t csnPin
   //S2LPGpioIrqConfig(RX_DATA_READY, S_ENABLE);
 
   /* payload length config */
-  S2LPPktBasicSetPayloadLength(TX_BUFF_SIZE);
+  //  S2LPPktBasicSetPayloadLength(MAX_DATA_SIZE);
 
   /* IRQ registers blanking */
   S2LPGpioIrqClearStatus();
@@ -123,95 +206,65 @@ void RADIO_Init(SPI_HandleTypeDef *pHSPI, GPIO_TypeDef* csnPort, uint16_t csnPin
   /* RX timeout config */
   //	S2LPTimerSetRxTimerUs(700000);
 
-  isInitS2LP = SET;
-
+  SetState(STATE_READY);
+  StartRX();
   LOG("S2LP Status: ON:%d STATE:%d", g_xStatus.XO_ON, g_xStatus.MC_STATE);
 
-  //  S2LPGpioSetLevel(S2LP_GPIO_0,HIGH);
-  //  S2LPGpioSetLevel(S2LP_GPIO_1,HIGH);
-  //  S2LPGpioSetLevel(S2LP_GPIO_2,HIGH);
-  //  S2LPGpioSetLevel(S2LP_GPIO_3,HIGH);
-
-  //    S2LPIrqs irqMask = {0};
-  //    S2LPGpioIrqGetMask(&irqMask);
-  //    printIrqs("mask", &irqMask);
-  //  uint8_t tmp;
-  //  S2LPSpiReadRegisters(S2LP_GPIO_0, 1, &tmp);
-  //  LOG("S2LP_GPIO_0: %x",tmp);
-  //  S2LPSpiReadRegisters(S2LP_GPIO_1, 1, &tmp);
-  //  LOG("S2LP_GPIO_1: %x",tmp);
-  //  S2LPSpiReadRegisters(S2LP_GPIO_2, 1, &tmp);
-  //  LOG("S2LP_GPIO_2: %x",tmp);
-  //  S2LPSpiReadRegisters(S2LP_GPIO_3, 1, &tmp);
-  //  LOG("S2LP_GPIO_3: %x",tmp);
-
 }
 
-void RADIO_Transmit() {
-
-  /* fit the TX FIFO */
-  S2LPCmdStrobeFlushTxFifo();
-  S2LPSpiWriteFifo(TX_BUFF_SIZE, txBuff);
-
-  /* send the TX command */
-  S2LPCmdStrobeTx();
-
-  //	S2LPGpioIrqGetStatus(&xIrqStatus);
-  /* wait for TX done */
-  while (!xTxDoneFlag);
-  xTxDoneFlag = RESET;
-  //	LOG("Data transmit");
-
-
-}
-
-void RADIO_Receive() {
-  /* RX command */
-  S2LPCmdStrobeRx();
-}
-
-void abortS2LP() {
-  S2LPGpioIrqConfig(RX_DATA_DISC, S_DISABLE);
-  S2LPCmdStrobeSabort();
-  for (uint32_t i = 0; i < 0xfff; i++);
-  S2LPGpioIrqClearStatus();
-  S2LPGpioIrqConfig(RX_DATA_DISC, S_ENABLE);
-}
-
-void RADIO_Test() {
-//  txS2LP();
-  //  S2LPGpioIrqGetStatus(&xIrqStatus);
-  //  LOGMEM(&xIrqStatus, sizeof (S2LPIrqs));
-}
-
-void RADIO_GPIOCallback() {
-  if (isInitS2LP /*&& GPIO_Pin == S2LP_Pin0_Pin*/) {
-    /* Get the IRQ status */
-    S2LPGpioIrqGetStatus(&xIrqStatus);
-    //LOGMEM(&xIrqStatus, sizeof (S2LPIrqs));
-    /* Check the SPIRIT TX_DATA_SENT IRQ flag */
-    if (xIrqStatus.IRQ_TX_DATA_SENT) {
-      xTxDoneFlag = SET;
-      //			LOG("IRQ_TX_DATA_SENT");
-    }
-
-    if (xIrqStatus.IRQ_RX_DATA_READY) {
-      /* Get the RX FIFO size */
-      uint8_t rxDataSize = S2LPFifoReadNumberBytesRxFifo();
-      /* Read the RX FIFO */
-      S2LPSpiReadFifo(rxDataSize, rxBuff);
-      rxBuff[rxDataSize++] = '\0';
-
-      /* Flush the RX FIFO */
-      S2LPCmdStrobeFlushRxFifo();
-
-      /* RX command */
-      S2LPCmdStrobeRx();
-      rssidBm = S2LPRadioGetRssidBm();
-      //HAL_GPIO_WritePin(LedErr_GPIO_Port, LedErr_Pin, GPIO_PIN_SET);
-      LOG("Data receiver. RSSI: %d dBm", rssidBm);
-      LOGMEM(rxBuff, rxDataSize);
-
-    }
+RADIO_Result RADIO_Transmit(void* pData, uint8_t dataLen) {
+  while (IsState(STATE_TX)) {
   }
+
+  if (IsState(STATE_READY)) {
+    WriteTxFifi(pData, dataLen);
+    StartTX();
+    return RADIO_OK;
+  } else {
+    return RADIO_ERR_STATE;
+  }
+}
+
+void RADIO_Process() {
+
+  //  if (STATE_TX == state && GetMessage(MSG_TX_DONE)) {
+  //
+  //  }
+
+  if (GetMessage(MSG_RX_DATA)) {
+    if (ReadRxFifo() == RADIO_OK) {
+      if (init.receiveCallbackFn != NULL) {
+        RADIO_Result r = init.receiveCallbackFn(rxDataBuf, rxDataLen);
+        if (r == RADIO_INPROGRESS) {
+          GetMessage(MSG_RX_DATA);
+        }
+      }
+    }
+    StartRX();
+  }
+
+  ProcessMessages();
+}
+
+void RADIO_GPIOCallback(/**S2LPGpioPin pin*/) {
+  if (state == STATE_NONE) {
+    return;
+  }
+  S2LPIrqs *pIrqs = GetIRQStatus();
+
+  //  if (pin == S2LP_GPIO_0) {
+
+  if (pIrqs->IRQ_TX_DATA_SENT && IsState(STATE_TX)) {
+    //данные отправлены
+    SendMessage(MSG_TX_DONE);
+    //
+    SetState(STATE_READY);
+    StartRX();
+  }
+
+  if (pIrqs->IRQ_RX_DATA_READY) {
+    //приняты данные
+    SendMessage(MSG_RX_DATA);
+  }
+  //  }
 }

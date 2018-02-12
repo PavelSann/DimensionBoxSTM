@@ -35,7 +35,8 @@
  */
 #define SAFE_ENUM(TYPE, VAL) ((VAL) == (TYPE)0 ? (VAL) : (VAL))
 
-#define TO_STR(val) #val
+#define TO_STR_(exp)   #exp
+#define TO_STR(exp)    TO_STR_(exp)
 
 /*
  * Параметры подключения к серверу
@@ -44,7 +45,7 @@
 #define SRV_SERVER_PORT 8888
 #define SRV_WATCHDOG_TIME (30*2)
 #define USE_DNS_SERVER false
-#define SRV_SERVER_NAME TO_STR(is.meterage72.ru)
+#define SRV_SERVER_NAME "is.meterage72.ru"
 #define SRV_DNS_SERVERS  IP_ADDR(8, 8, 8, 8) /*Google*/, IP_ADDR(77, 88, 8, 8)/*Yandex*/
 #define SRV_GATE_ID ((uint32_t)42)
 #define SRV_MAX_SESSION_KEY_LN 128
@@ -74,6 +75,24 @@ typedef enum {
 
 struct netif *pNetif;
 
+/**
+ *Пакеты предназначенные к отправке
+ */
+typedef struct PackNode {
+  struct PackNode *prev;
+  /*Указатель на сам пакет, сейчас используется для удобства*/
+  SRV_PacketHeader *packet;
+} PackNode;
+
+/**Указатель на последний  пакет в списке пакетов, для отправки*/
+PackNode *pSendPacketList;
+/*Длинна заголовка PackNode*/
+#define PACK_NODE_SIZE sizeof(PackNode)
+/*Указатель на SRV_PacketHeader который идёт после SendPackHeader*/
+#define PACK_NODE_PACKET_HEADER(sendPackHead) ((SRV_PacketHeader *) (((uint8_t *)(sendPackHead))+PACK_NODE_SIZE) )
+/*Пакет уже отправленн, ждём ACK*/
+#define SEND_PACK_IS_IN_PROGRESS(sendPackHead) ((sendPackHead)->packet->crc != 0)
+
 /* 
  * Сессия связи с сервером
  */
@@ -95,11 +114,12 @@ typedef struct {
   /*Буфер под собранный и расшифрованный пакет, приём данных*/
   uint8_t rxPacket[SRV_MAX_PACKET_SIZE];
   uint16_t rxLength;
-  /*Буфер под с пакет, для отправки данных*/
-  uint8_t txPacket[SRV_MAX_PACKET_SIZE];
-  uint16_t txLength;
   /*последний номер пакета*/
   uint8_t lastSeqNumber;
+  /*Количество отправленных байт*/
+  uint16_t sentBytes;
+  /*Количество подтверждённых байт*/
+  uint16_t ackedBytes;
 
 } Session;
 /*Инициализация ВСЕХ полей структуры */
@@ -115,12 +135,17 @@ pSes->key=NULL;\
 pSes->keyLn=0;\
 pSes->packetBuf=NULL;\
 pSes->lastSeqNumber=0;\
+pSes->sentBytes=0;\
+pSes->ackedBytes=0;\
 }
 #define RESET_WATCHDOG(pSession) ((pSession)->watchdog=SRV_WATCHDOG_TIME)
-/*Возвращает указатель на заголовок пакета*/
+/*Длинна заголовка*/
 #define PACK_HEADER_LEN (sizeof(SRV_PacketHeader))
+/*Возвращает указатель на заголовок пакета*/
 #define PACK_HEADER(pPacket) ((SRV_PacketHeader *)(pPacket))
+/*Указатель на данные в пакете, которые находятся после заголовка*/
 #define PACK_PAYLOAD(pPacket) ((void *)((uint8_t *)(pPacket))+ PACK_HEADER_LEN)
+/*Полный размер пакета, заголовок + данные */
 #define PACK_FULL_LENGTH(pPacket) ( (PACK_HEADER(pPacket))->payloadLength + PACK_HEADER_LEN)
 /*Указатель на текущую сессию, при работе с одной сессией*/
 Session *currentSession;
@@ -136,6 +161,13 @@ static void setState(Session *session, State newState)
   LOG("Set state: %d->%d", oldState, newState);
 }
 
+static err_t cathError(err_t e, char *msg) {
+  LOG("Error %d %s", e, msg);
+  return e;
+}
+#define FILE __FILE__
+#define ERR(e) cathError(e,FILE ":" TO_STR(__LINE__))
+
 static Session *newSession() {
   Session* session = mem_malloc(sizeof (Session));
   if (session != NULL) {
@@ -143,14 +175,18 @@ static Session *newSession() {
 #if USE_DNS_SERVER
     session->serverName = SRV_SERVER_NAME;
 #endif
-    currentSession = session;
   }
   return session;
 }
 
 static void freeSession(Session *session) {
+  if (session->packetBuf != NULL) {
+    mem_free(session->packetBuf);
+    session->packetBuf = NULL;
+
+  }
+
   mem_free(session);
-  currentSession = NULL;
 }
 
 static void dnsCallback(const char *name, const ip_addr_t *ipaddr, void *callback_arg) {
@@ -248,19 +284,9 @@ static void cryptSession(Session *session, void *buf, uint16_t bufLen) {
   }
 }
 
-static err_t sendData(Session *session, const void *pData, uint16_t len, bool copyData) {
-  uint8_t flags = copyData ? TCP_WRITE_FLAG_COPY : 0;
-  err_t err = tcp_write(session->pcb, pData, len, flags);
-  if (err != ERR_OK) {
-    return err;
-  }
-  return tcp_output(session->pcb);
-}
+static err_t sendPacket(Session *session, SRV_PacketHeader *pPack, bool copy) {
 
-static err_t sendPacket(Session *session, SRV_PacketType type, void *pData, uint16_t dataLen) {
-  if (dataLen > SRV_MAX_PAYLOAD_SIZE) {
-    return ERR_MEM;
-  }
+  //генерируем новый номер пакета
   uint8_t nextSeqNumber = session->lastSeqNumber;
   if (nextSeqNumber < 0xFF) {
     nextSeqNumber++;
@@ -268,35 +294,169 @@ static err_t sendPacket(Session *session, SRV_PacketType type, void *pData, uint
     nextSeqNumber = 0;
   }
 
-  uint8_t *txPack = session->txPacket;
-  SRV_PacketHeader *header = PACK_HEADER(txPack);
+  // заполняем поля заголовка
+  SRV_PacketHeader *header = pPack;
   header->crc = 0;
-  header->type = type;
   header->sequenceNumber = nextSeqNumber;
-  header->payloadLength = dataLen;
-  void *txPayload = PACK_PAYLOAD(txPack);
-  if (pData != NULL && dataLen > 0) {
-    MEMCPY(txPayload, pData, dataLen);
-    cryptSession(session, txPayload, dataLen);
 
+  //шифруем содержимое пакета
+  if (header->payloadLength > 0) {
+    cryptSession(session, PACK_PAYLOAD(header), header->payloadLength);
   }
-  uint16_t fullSize = dataLen + PACK_HEADER_LEN;
-  session->txLength = fullSize;
-  uint32_t crc = calcCRC(session, txPack, fullSize);
+
+  //рассчитываем CRC
+  uint32_t fullPackLen = PACK_FULL_LENGTH(header);
+  uint32_t crc = calcCRC(session, header, fullPackLen);
   header->crc = crc;
 
-  err_t err = sendData(session, txPack, fullSize, false);
+  //отправляем пакет
+  uint8_t flag = copy ? TCP_WRITE_FLAG_COPY : 0;
+  err_t err = tcp_write(session->pcb, header, fullPackLen, flag);
   if (err != ERR_OK) {
-    return err;
+    return ERR(err);
   }
-
+  err = tcp_output(session->pcb);
+  if (err != ERR_OK) {
+    return ERR(err);
+  }
+  session->sentBytes += fullPackLen;
   session->lastSeqNumber = nextSeqNumber;
   return ERR_OK;
 }
 
+static inline void createPacket(void *packBuff, SRV_PacketType type, void *pData, uint16_t dataLen) {
+  //далее формируем заголовок пакета, копируем данные в буфер
+  SRV_PacketHeader *header = packBuff;
+  header->type = type;
+  header->crc = 0;
+  header->sequenceNumber = 0;
+  header->payloadLength = dataLen;
+  void *txPayload = PACK_PAYLOAD(header);
+  if (pData != NULL && dataLen > 0) {
+    MEMCPY(txPayload, pData, dataLen);
+  }
+}
+
+static err_t sendPacketNow(Session *session, SRV_PacketType type, void *pData, uint16_t dataLen) {
+  if (dataLen > SRV_MAX_PAYLOAD_SIZE) {
+    return ERR(ERR_MEM);
+  }
+  uint32_t buffSize = PACK_HEADER_LEN + dataLen;
+  uint8_t buff[buffSize];
+  createPacket(&buff, type, pData, dataLen);
+  sendPacket(session, (SRV_PacketHeader *) buff, true);
+  return ERR_OK;
+}
+
+static err_t sendNextPacket(Session *session) {
+
+  //проверяем есть ли пакеты в списке
+  if (NULL == pSendPacketList) {
+    return ERR_OK;
+  }
+
+  if (SEND_PACK_IS_IN_PROGRESS(pSendPacketList)) {
+    //значит уже идёт отправка пакета, повторно не отправляем
+    return ERR_INPROGRESS;
+  }
+
+  //берём первый пакет из очереди, он в конце связного списка
+  PackNode *pSendPackHead = pSendPacketList;
+  while (pSendPackHead->prev != NULL) {
+    pSendPackHead = pSendPackHead->prev;
+  }
+  // заполняем поля заголовка
+  SRV_PacketHeader *pPack = pSendPackHead->packet;
+
+  return sendPacket(session, pPack, false);
+}
+
+static void deliveredPacket(Session *session, uint16_t ackLen) {
+
+  session->ackedBytes += ackLen;
+
+  if (session->ackedBytes < session->sentBytes) {
+    //подтверждено меньше байт чем отправлено, ждём ACK пакетов от сервера
+    return;
+  }
+
+  //подтверждено столько же  байт сколько отправлено
+  if (session->ackedBytes > session->sentBytes) {
+    //или больше, но это ии бага в коде или ошибка сети
+    LOGERR("acknowledged bytes(%d) more than sent bytes(%d)", session->ackedBytes, session->sentBytes);
+  }
+  session->ackedBytes = 0;
+  session->sentBytes = 0;
+
+  //если списко пуст, значит нечего не отправляли
+  if (NULL == pSendPacketList) {
+    return;
+  }
+
+  //берём первый пакет из очереди, его мы отправляли, он в конце связного списка
+  PackNode *pPrevSendPackHead = NULL;
+  PackNode *pDeliveredHead = pSendPacketList;
+  while (pDeliveredHead->prev != NULL) {
+    pPrevSendPackHead = pDeliveredHead;
+    pDeliveredHead = pDeliveredHead->prev;
+  }
+
+  //проверяем, был ли пакет отправлен
+  if (!SEND_PACK_IS_IN_PROGRESS(pSendPacketList)) {
+    return;
+  }
+
+  //удаляем доставленный пакет из списка
+  if (pPrevSendPackHead != NULL) {
+    pPrevSendPackHead->prev = NULL;
+  } else {
+    pSendPacketList = NULL;
+  }
+
+  //освобождаем память
+  mem_free(pDeliveredHead);
+}
+
+static err_t addSendPacket(Session *session, SRV_PacketType type, void *pData, uint16_t dataLen) {
+  if (dataLen > SRV_MAX_PAYLOAD_SIZE) {
+    return ERR(ERR_MEM);
+  }
+
+  //выделяем память под пакет, для списка отправляемых пакетов
+  PackNode *pPackNode = mem_malloc(PACK_HEADER_LEN + PACK_NODE_SIZE + dataLen);
+  if (NULL == pPackNode) {
+    return ERR(ERR_MEM);
+  }
+  //пакет будет расположен сразу после PackNode, в том же блоке памяти
+  //указатель на часть буфера, в которой хранится сам пакет
+  pPackNode->packet = ((SRV_PacketHeader *) (((uint8_t *) (pPackNode)) + PACK_NODE_SIZE));
+
+  //далее формируем заголовок пакета, копируем данные в буфер
+  createPacket(pPackNode->packet, type, pData, dataLen);
+
+  //добавляем к конец очереди
+  PackNode *priv = NULL;
+  bool sent = false;
+  if (NULL == pSendPacketList) {
+    priv = pSendPacketList;
+    sent = true;
+  }
+  pPackNode->prev = priv;
+  pSendPacketList = pPackNode;
+
+  if (sent && STATE_CONNECTED == session->state) {
+    //если очередь была пуста,и соединение установлено запускаем отправку пакетов
+    sendNextPacket(session);
+  }
+
+  return ERR_OK;
+}
+
 static void sendAsk(Session *session, uint8_t code) {
-  uint8_t bufCode = code;
-  sendPacket(session, SRV_PACKET_TYPE_ASK, &bufCode, 1);
+  SRV_PacketACK ask;
+  ask.code = code;
+  ask.sequenceNumber = session->lastSeqNumber;
+  sendPacketNow(session, SRV_PACKET_TYPE_ACK, &ask, sizeof (SRV_PacketACK));
 }
 
 static void closeConnection(Session *session) {
@@ -306,6 +466,7 @@ static void closeConnection(Session *session) {
   tcp_err(session->pcb, NULL);
 
   tcp_close(session->pcb);
+  currentSession = NULL;
   freeSession(session);
   setState(session, STATE_INIT);
 }
@@ -313,8 +474,9 @@ static void closeConnection(Session *session) {
 static void startHandshaking(Session *session) {
   setState(session, STATE_HANDSHAKING);
   //отправляем пакет с ID шлюза
-  uint32_t gateId = SRV_GATE_ID;
-  sendPacket(session, SRV_PACKET_TYPE_HANDSHAKING, &gateId, sizeof (gateId));
+  SRV_PacketID packID;
+  packID.id = SRV_GATE_ID;
+  sendPacketNow(session, SRV_PACKET_TYPE_HANDSHAKING, &packID, sizeof (SRV_PacketID));
 }
 
 static err_t processHandshaking(Session *session, const SRV_PacketHeader *pHead, const uint8_t *payload) {
@@ -486,7 +648,12 @@ static err_t sentCallback(void *arg, struct tcp_pcb *tpcb, u16_t len) {
   Session *session = arg;
   LWIP_UNUSED_ARG(session);
   //данные были отправлены, можно отправлять следующие данные
-  //  sendMessage(MSG_DATA_SEND);
+  LOG("sentCallback %d", len);
+
+  //  if (STATE_CONNECTED == session->state) {
+  RESET_WATCHDOG(session);
+  deliveredPacket(session, len);
+  //  }
   return ERR_OK;
 }
 
@@ -498,6 +665,11 @@ static err_t pollCallback(void *arg, struct tcp_pcb *tpcb) {
   if (session->watchdog <= 0) {
     LOG("Session watchdog: close connection");
     closeConnection(session);
+  }
+
+  if (STATE_CONNECTED == session->state) {
+    sendNextPacket(session);
+
   }
 
   //ещё нужно мониторить свободную память в mem_ и незаконченный разбор пакета
@@ -587,17 +759,28 @@ TCPS_Error TCPS_StartSession() {
   //    return TCPS_ERR_NOT_UP;
   //  }
 
-  //нужно ещё проверять прошла ли регистрация в сети
   if (currentSession == NULL) {
-    Session *session = newSession();
-    if (session == NULL) {
+    currentSession = newSession();
+    if (currentSession == NULL) {
       return TCPS_ERR_MEM;
     }
-    connect(session);
+
+    connect(currentSession);
     return TCPS_ERR_INPROGRESS;
   } else {
     return TCPS_ERR_OPERATION;
   }
+}
+
+TCPS_Error TCPS_SendPacket(SRV_PacketType type, void *pData, uint16_t dataLen) {
+
+  if (currentSession == NULL) {
+    TCPS_StartSession();
+  }
+
+  addSendPacket(currentSession, type, pData, dataLen);
+
+  return TCPS_ERR_OK;
 }
 
 void TCPS_Process() {
