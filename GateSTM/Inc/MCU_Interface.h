@@ -50,40 +50,17 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "S2LP_Config.h"
+#include "stm32f2xx_hal.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
-/** @addtogroup S2LP_Libraries
- * @{
- */
-
-/** @defgroup S2LP_SPI_Driver         SPI Driver
- * @brief Header file for low level S2LP SPI driver.
- * @details See the file <i>@ref MCU_Interface.h</i> for more details.
- * @{
- */
-
-
-/** @defgroup SPI_Exported_Types        SPI Exported Types
- * @{
- */
-
 typedef S2LPStatus StatusBytes;
 
-/**
- * @}
- */
 
-
-
-
-/** @defgroup SPI_Exported_Functions    SPI Exported Functions
- * @{
- */
-
+void SdkEvalSpiInitEx(SPI_HandleTypeDef *SpiHandle, GPIO_TypeDef* csnPort, uint16_t csnPin, GPIO_TypeDef* sdnPort, uint16_t sdnPin);
 
 void SdkEvalSpiInit(void);
 void SdkEvalSpiDeinit(void);
@@ -97,14 +74,6 @@ void SdkEvalEnterShutdown(void);
 void SdkEvalExitShutdown(void);
 SFlagStatus SdkEvalCheckShutdown(void);
 
-/**
- * @}
- */
-
-
-/** @defgroup SPI_Exported_Macros       SPI Exported Macros
- * @{
- */
 
 #define S2LPEnterShutdown                                  SdkEvalEnterShutdown
 #define S2LPExitShutdown                                   SdkEvalExitShutdown
@@ -118,19 +87,6 @@ SFlagStatus SdkEvalCheckShutdown(void);
 #define S2LPSpiWriteFifo(cNbBytes, pcBuffer)                   SdkEvalSpiWriteFifo(cNbBytes, pcBuffer)
 #define S2LPSpiReadFifo(cNbBytes, pcBuffer)                    SdkEvalSpiReadFifo(cNbBytes, pcBuffer)
 
-/**
- * @}
- */
-
-
-/**
- * @}
- */
-
-
-/**
- * @}
- */
 
 
 

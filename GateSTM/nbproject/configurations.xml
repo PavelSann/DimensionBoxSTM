@@ -46,6 +46,7 @@
       </df>
       <df name="Inc">
         <df name="gate">
+          <in>messages_helper.h</in>
           <in>radio.h</in>
         </df>
       </df>
@@ -1236,6 +1237,8 @@
             flavor2="3">
         <cTool flags="0">
         </cTool>
+      </item>
+      <item path="Inc/gate/messages_helper.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Inc/gate/radio.h" ex="false" tool="3" flavor2="0">
       </item>

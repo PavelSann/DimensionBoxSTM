@@ -435,8 +435,9 @@
       </df>
       <df name="Inc">
         <df name="gate">
+          <in>messages_helper.h</in>
           <in>radio.h</in>
-          <in>s2pl_opt.h</in>
+          <in>radio_opt.h</in>
           <in>srv_packet.h</in>
           <in>tcps.h</in>
         </df>
@@ -562,6 +563,7 @@
                     <in>ip.h</in>
                     <in>ip4.h</in>
                     <in>ip6.h</in>
+                    <in>mld6.h</in>
                     <in>nd6.h</in>
                     <in>tcp.h</in>
                     <in>udp.h</in>
@@ -581,6 +583,7 @@
                   <in>icmp.h</in>
                   <in>icmp6.h</in>
                   <in>igmp.h</in>
+                  <in>inet.h</in>
                   <in>inet_chksum.h</in>
                   <in>init.h</in>
                   <in>ip.h</in>
@@ -608,18 +611,29 @@
                   <in>stats.h</in>
                   <in>sys.h</in>
                   <in>tcp.h</in>
+                  <in>tcpip.h</in>
                   <in>timeouts.h</in>
                   <in>udp.h</in>
                 </df>
                 <df name="netif">
                   <df name="ppp">
+                    <in>ccp.h</in>
+                    <in>chap-md5.h</in>
+                    <in>chap-new.h</in>
+                    <in>chap_ms.h</in>
+                    <in>eap.h</in>
                     <in>ecp.h</in>
+                    <in>eui64.h</in>
                     <in>fsm.h</in>
                     <in>ipcp.h</in>
                     <in>ipv6cp.h</in>
+                    <in>lcp.h</in>
                     <in>magic.h</in>
+                    <in>mppe.h</in>
+                    <in>ppp.h</in>
                     <in>ppp_impl.h</in>
                     <in>ppp_opts.h</in>
+                    <in>pppapi.h</in>
                     <in>pppcrypt.h</in>
                     <in>pppdebug.h</in>
                     <in>pppoe.h</in>
@@ -741,8 +755,6 @@
         <gdb_interceptlist>
           <gdbinterceptoptions gdb_all="false" gdb_unhandled="true" gdb_unexpected="true"/>
         </gdb_interceptlist>
-        <gdb_signals>
-        </gdb_signals>
         <gdb_options>
           <DebugOptions>
             <option name="gdb_init_file" value="gdbinit"/>

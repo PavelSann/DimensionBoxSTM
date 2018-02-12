@@ -1,44 +1,15 @@
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-/**
- * @file    SDK_EVAL_Spi_Driver.c
- * @author  High End Analog & RF BU - AMS
- * @version 3.2.0
- * @date    April 01, 2013
- * @brief   This file provides all the low level SPI API to access to the device using a software watchdog timer to avoid stuck situation.
- * @details
- *
- * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
- * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
- * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
- * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
- * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
- * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
- *
- * THIS SOURCE CODE IS PROTECTED BY A LICENSE.
- * FOR MORE INFORMATION PLEASE CAREFULLY READ THE LICENSE AGREEMENT FILE LOCATED
- * IN THE ROOT DIRECTORY OF THIS FIRMWARE PACKAGE.
- *
- * <h2><center>&copy; COPYRIGHT 2013 STMicroelectronics</center></h2>
- *
- */
 
-/* Includes ------------------------------------------------------------------*/
 #include "stm32f2xx_hal.h"
 #include "stm32f2xx.h"
 #include "stm32f2xx_it.h"
 #include "xprint.h"
 
 #include "MCU_Interface.h"
-//#include "SDK_EVAL_Config.h"
-
-
-
 
 
 void SystemClock_Config(void);
-
-
 
 
 #define CS_TO_SCLK_DELAY  0x0001
@@ -59,13 +30,15 @@ void SystemClock_Config(void);
 #define SPI_ENTER_CRITICAL()           //__disable_irq()
 #define SPI_EXIT_CRITICAL()            //__enable_irq()
 static SPI_HandleTypeDef *pSpiHandle;
-static GPIO_TypeDef* GPIO_CSn_Port;
-static uint16_t GPIO_CSn_Pin;
 
-#define SdkEvalSPICSLow()        HAL_GPIO_WritePin(GPIO_CSn_Port, GPIO_CSn_Pin, GPIO_PIN_RESET)
-#define SdkEvalSPICSHigh()       HAL_GPIO_WritePin(GPIO_CSn_Port, GPIO_CSn_Pin, GPIO_PIN_SET)
+static GPIO_TypeDef* gpioCSnPort;
+static uint16_t gpioCSnPin;
 
+static GPIO_TypeDef* gpioSdnPort;
+static uint16_t gpioSdnPin;
 
+#define SdkEvalSPICSLow()        HAL_GPIO_WritePin(gpioCSnPort, gpioCSnPin, GPIO_PIN_RESET)
+#define SdkEvalSPICSHigh()       HAL_GPIO_WritePin(gpioCSnPort, gpioCSnPin, GPIO_PIN_SET)
 
 
 #if CUSTOM_INIT_SPI
@@ -202,10 +175,30 @@ void SdkEvalSpiInit(void) {
 }
 #endif
 
-void SdkEvalSpiInitEx(SPI_HandleTypeDef *SpiHandle, GPIO_TypeDef* csnPort, uint16_t csnPin) {
+void SdkEvalSpiInitEx(SPI_HandleTypeDef *SpiHandle, GPIO_TypeDef* csnPort, uint16_t csnPin, GPIO_TypeDef* sdnPort, uint16_t sdnPin) {
   pSpiHandle = SpiHandle;
-  GPIO_CSn_Port = csnPort;
-  GPIO_CSn_Pin = csnPin;
+  gpioCSnPort = csnPort;
+  gpioCSnPin = csnPin;
+  gpioSdnPort = sdnPort;
+  gpioSdnPin = sdnPin;
+}
+
+void SdkEvalShutdown(SFlagStatus state) {
+  HAL_GPIO_WritePin(gpioSdnPort, gpioSdnPin, state);
+}
+
+void SdkEvalEnterShutdown(void) {
+  /* Puts high the GPIO connected to shutdown pin */
+  SdkEvalShutdown(S_SET);
+}
+
+void SdkEvalExitShutdown(void) {
+  /* Puts low the GPIO connected to shutdown pin */
+  SdkEvalShutdown(S_RESET);
+}
+
+SFlagStatus SdkEvalCheckShutdown(void) {
+  return HAL_GPIO_ReadPin(gpioSdnPort, gpioSdnPin);
 }
 
 /**
@@ -372,8 +365,6 @@ StatusBytes SdkEvalSpiReadFifo(uint8_t cNbBytes, uint8_t* pcBuffer) {
 SPI_HandleTypeDef* SdkEvalSpiGetStruct(void) {
   return pSpiHandle;
 }
-
-
 
 
 /******************* (C) COPYRIGHT 2013 STMicroelectronics *****END OF FILE****/
