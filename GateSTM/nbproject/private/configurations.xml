@@ -446,7 +446,7 @@
         <in>ethernetif.h</in>
         <in>gpio.h</in>
         <in>lwip.h</in>
-        <in>lwipopts.h</in>
+        <in>lwip_opt.h</in>
         <in>main.h</in>
         <in>rng.h</in>
         <in>spi.h</in>

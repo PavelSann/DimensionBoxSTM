@@ -148,7 +148,9 @@ pSes->ackedBytes=0;\
 /*Полный размер пакета, заголовок + данные */
 #define PACK_FULL_LENGTH(pPacket) ( (PACK_HEADER(pPacket))->payloadLength + PACK_HEADER_LEN)
 /*Указатель на текущую сессию, при работе с одной сессией*/
-Session *currentSession;
+static Session *currentSession;
+/*Ключ безопасности*/
+static const uint8_t securityKey[] = SRV_SECURITY_KEY;
 
 
 static void connectionIP(Session *session);
@@ -226,7 +228,7 @@ static void connect(Session *session) {
   connectionIP(session);
 }
 
-static uint32_t calcCRC(const Session *session, const void *pData, uint16_t count) {
+static uint32_t calcCRC(const void *pData, uint16_t count, bool reset) {
 #ifndef CRC
 #error "Not define CRC"
 #endif
@@ -235,6 +237,9 @@ static uint32_t calcCRC(const Session *session, const void *pData, uint16_t coun
   uint32_t crc;
   uint32_t *pData32 = (uint32_t*) pData;
   uint16_t count32 = count >> 2;
+  if (reset) {
+    CRC->CR = CRC_CR_RESET;
+  }
 
   while (count32--) {
     CRC->DR = __RBIT(*pData32++);
@@ -263,6 +268,11 @@ static uint32_t calcCRC(const Session *session, const void *pData, uint16_t coun
   return ~crc;
 }
 
+static uint32_t calcSessionCRC(const Session *session, const void *pData, uint16_t count) {
+  calcCRC(securityKey, sizeof (securityKey), true);
+  calcCRC(pData, count, false);
+}
+
 /*Симетричное шифрование, XOR*/
 static void crypt(void *buf, uint16_t bufLen, const uint8_t *key, uint16_t keyLen) {
   //вероятно можно ускорить за счёт обработки по словам
@@ -277,7 +287,6 @@ static void crypt(void *buf, uint16_t bufLen, const uint8_t *key, uint16_t keyLe
 
 static void cryptSession(Session *session, void *buf, uint16_t bufLen) {
   if (session->key == NULL) {
-    const uint8_t securityKey[] = SRV_SECURITY_KEY;
     crypt(buf, bufLen, securityKey, sizeof (securityKey));
   } else {
     crypt(buf, bufLen, session->key, session->keyLn);
@@ -299,15 +308,15 @@ static err_t sendPacket(Session *session, SRV_PacketHeader *pPack, bool copy) {
   header->crc = 0;
   header->sequenceNumber = nextSeqNumber;
 
+  //рассчитываем CRC
+  uint32_t fullPackLen = PACK_FULL_LENGTH(header);
+  uint32_t crc = calcSessionCRC(session, header, fullPackLen);
+  header->crc = crc;
+
   //шифруем содержимое пакета
   if (header->payloadLength > 0) {
     cryptSession(session, PACK_PAYLOAD(header), header->payloadLength);
   }
-
-  //рассчитываем CRC
-  uint32_t fullPackLen = PACK_FULL_LENGTH(header);
-  uint32_t crc = calcCRC(session, header, fullPackLen);
-  header->crc = crc;
 
   //отправляем пакет
   uint8_t flag = copy ? TCP_WRITE_FLAG_COPY : 0;
@@ -530,7 +539,7 @@ static err_t processPacket(Session *session) {
 }
 
 /**
- * Обрабатываем TCP сегмент, если пакет состоит из нескольких сигментов, то собираем пакет
+ * Обрабатываем TCP сегмент, если пакет состоит из нескольких сегментов, то собираем пакет
  * @param session
  * @param p
  * @return 
@@ -590,11 +599,12 @@ static err_t processSegment(Session *session, struct pbuf *p) {
   cryptSession(session, payload, pHead->payloadLength);
 
   //рассчитываем и проверяем CRC
-  uint32_t crc = calcCRC(session, session->rxPacket, session->rxLength);
-  if (crc != pHead->crc) {
+  uint32_t headCrc = pHead->crc;
+  pHead->crc = 0;
+  uint32_t crc = calcSessionCRC(session, session->rxPacket, session->rxLength);
+  if (crc != headCrc) {
     LOG("Invalid CRC: head:%x calc:%x", pHead->crc, crc);
-    //Временно отключил ошибку при несоответствии CRC
-    //    return ERR_ARG;
+    return ERR_ARG;
   }
 
   session->lastSeqNumber = pHead->sequenceNumber;
@@ -669,7 +679,6 @@ static err_t pollCallback(void *arg, struct tcp_pcb *tpcb) {
 
   if (STATE_CONNECTED == session->state) {
     sendNextPacket(session);
-
   }
 
   //ещё нужно мониторить свободную память в mem_ и незаконченный разбор пакета
