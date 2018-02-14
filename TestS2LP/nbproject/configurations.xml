@@ -61,7 +61,6 @@
         <itemPath>../Library/xprint.c</itemPath>
         <itemPath>../Library/xprintf.c</itemPath>
       </logicalFolder>
-      <itemPath>Src/Register_Setting.c</itemPath>
       <itemPath>Src/main.c</itemPath>
       <itemPath>startup/startup_stm32l152xe.s</itemPath>
       <itemPath>Src/stm32l1xx_hal_msp.c</itemPath>

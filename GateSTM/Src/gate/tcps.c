@@ -13,6 +13,7 @@
 #include "tcp.h"
 #include "dns.h"
 #include "tcps_packet_queue.h"
+#include "tcps_crypt.h"
 
 
 #if BYTE_ORDER != BIG_ENDIAN
@@ -210,82 +211,23 @@ static void connect(Session *session) {
   connectionIP(session);
 }
 
-static uint32_t calcCRC(const void *pData, uint16_t count, bool reset) {
-#ifndef CRC
-#error "Not define CRC"
-#endif
-  //в методе используется __RBIT для получения "стандартной" CRC32, у STM есть отличия в реализации
-
-  uint32_t crc;
-  uint32_t *pData32 = (uint32_t*) pData;
-  uint16_t count32 = count >> 2;
-  if (reset) {
-    CRC->CR = CRC_CR_RESET;
-  }
-
-  while (count32--) {
-    CRC->DR = __RBIT(*pData32++);
-  }
-
-  crc = __RBIT(CRC->DR);
-  count = count % 4;
-  if (count) {
-    CRC->DR = __RBIT(crc);
-    switch (count) {
-      case 1:
-        CRC->DR = __RBIT((*pData32 & 0x000000FF) ^ crc) >> 24;
-        crc = (crc >> 8) ^ __RBIT(CRC->DR);
-        break;
-      case 2:
-        CRC->DR = (__RBIT((*pData32 & 0x0000FFFF) ^ crc) >> 16);
-        crc = (crc >> 16) ^ __RBIT(CRC->DR);
-        break;
-      case 3:
-        CRC->DR = __RBIT((*pData32 & 0x00FFFFFF) ^ crc) >> 8;
-        crc = (crc >> 24) ^ __RBIT(CRC->DR);
-        break;
-    }
-  }
-
-  return ~crc;
-}
-
 static uint32_t calcSessionCRC(const Session *session, const void *pData, uint16_t count) {
-  calcCRC(securityKey, sizeof (securityKey), true);
-  return calcCRC(pData, count, false);
-}
-
-/*Симетричное шифрование, XOR*/
-static void crypt(void *buf, uint16_t bufLen, const uint8_t *key, uint16_t keyLen) {
-  //вероятно можно ускорить за счёт обработки по словам
-  uint8_t *data = (uint8_t *) buf;
-  for (int dI = 0, kI = 0; dI < bufLen; dI++, kI++) {
-    if (kI == keyLen) {
-      kI = 0;
-    }
-    data[dI] ^= key[kI];
-  }
+  CRYPT_crc(securityKey, sizeof (securityKey), true);
+  return CRYPT_crc(pData, count, false);
 }
 
 static void encryptPacket(Session *session, SRV_PacketHeader *pPacket) {
   void *payload = PACK_PAYLOAD(pPacket);
   uint16_t bufLen = pPacket->payloadLength;
   if (session->key == NULL) {
-    crypt(payload, bufLen, securityKey, sizeof (securityKey));
+    CRYPT_xor(payload, bufLen, securityKey, sizeof (securityKey));
   } else {
-    crypt(payload, bufLen, session->key, session->keyLn);
+    CRYPT_xor(payload, bufLen, session->key, session->keyLn);
   }
 }
+//так как используется XOR decryptPacket==encryptPacket
 #define decryptPacket(session, pPacket) encryptPacket(session,pPacket)
-//static void decryptPacket(Session *session, SRV_PacketHeader *pPacket) {
-//  void *payload = PACK_PAYLOAD(pPacket);
-//  uint16_t bufLen = pPacket->payloadLength;
-//  if (session->key == NULL) {
-//    crypt(payload, bufLen, securityKey, sizeof (securityKey));
-//  } else {
-//    crypt(payload, bufLen, session->key, session->keyLn);
-//  }
-//}
+
 
 static err_t sendPacket(Session *session, SRV_PacketHeader *pPack, bool copy) {
 

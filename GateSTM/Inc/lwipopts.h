@@ -144,7 +144,7 @@ extern "C" {
 #define MEM_DEBUG LWIP_DBG_ON
 //#define TCP_DEBUG LWIP_DBG_ON
 //#define  TCP_OUTPUT_DEBUG LWIP_DBG_ON
-#define MEMP_OVERFLOW_CHECK 2
+//#define MEMP_OVERFLOW_CHECK 2
 
 //#define LWIP_PERF 1
   /*-----------------------------------------------------------------------------*/

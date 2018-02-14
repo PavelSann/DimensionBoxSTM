@@ -165,6 +165,7 @@ Src/gate/tcps.c \
 Src/gate/radio.c \
 Src/gate/srv_packet.c \
 Src/gate/tcps_packet_queue.c \
+Src/gate/tcps_crypt.c \
 ../Library/xprint/xprintf.c \
 ../Library/xprint/xprint.c
 

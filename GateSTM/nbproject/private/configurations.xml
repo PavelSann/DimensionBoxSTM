@@ -440,6 +440,7 @@
           <in>radio_opt.h</in>
           <in>srv_packet.h</in>
           <in>tcps.h</in>
+          <in>tcps_crypt.h</in>
           <in>tcps_packet_queue.h</in>
         </df>
         <in>MCU_Interface.h</in>
@@ -710,6 +711,7 @@
           <in>radio.c</in>
           <in>srv_packet.c</in>
           <in>tcps.c</in>
+          <in>tcps_crypt.c</in>
           <in>tcps_packet_queue.c</in>
         </df>
         <in>S2LP_Spi_Driver.c</in>
