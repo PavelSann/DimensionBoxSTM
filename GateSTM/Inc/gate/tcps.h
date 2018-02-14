@@ -21,14 +21,16 @@ extern "C" {
     TCPS_ERR_INPROGRESS = 1,
     /** No error, everything OK. */
     TCPS_ERR_OK = 0,
+    /*error */
+    TCPS_ERR = -1,
     /** Out of memory error.     */
-    TCPS_ERR_MEM = -1,
+    TCPS_ERR_MEM = -2,
     /** Illegal operation     */
-    TCPS_ERR_OPERATION = -1,
+    TCPS_ERR_OPERATION = -3,
     /** not connect lan     */
-    TCPS_ERR_NOT_LINK_UP = -2,
+    TCPS_ERR_NOT_LINK_UP = -4,
     /**not connect IP*/
-    TCPS_ERR_DHCP_SUPPLIED_IP = -3,
+    TCPS_ERR_DHCP_SUPPLIED_IP = -5,
   } TCPS_Error;
 
   //  typedef void (*TCPS_ConnectedCallbackFn)();

@@ -48,6 +48,7 @@
         <df name="gate">
           <in>messages_helper.h</in>
           <in>radio.h</in>
+          <in>tcps_packet_queue.h</in>
         </df>
       </df>
       <df name="Middlewares">
@@ -145,6 +146,7 @@
           <in>radio.c</in>
           <in>srv_packet.c</in>
           <in>tcps.c</in>
+          <in>tcps_packet_queue.c</in>
         </df>
         <in>S2LP_Spi_Driver.c</in>
         <in>crc.c</in>
@@ -200,7 +202,7 @@
       <makefileType>
         <makeTool>
           <buildCommandWorkingDir>.</buildCommandWorkingDir>
-          <buildCommand>${MAKE}  -j -f  Makefile DEBUG=1</buildCommand>
+          <buildCommand>${MAKE}  -j16 -f  Makefile DEBUG=1</buildCommand>
           <cleanCommand>${MAKE} -f  Makefile clean</cleanCommand>
           <executablePath>build/GateSTM.elf</executablePath>
           <cTool>
@@ -948,6 +950,10 @@
         <cTool flags="0">
         </cTool>
       </item>
+      <item path="Src/gate/tcps_packet_queue.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+        </cTool>
+      </item>
       <item path="Src/gpio.c" ex="false" tool="0" flavor2="3">
         <cTool flags="0">
         </cTool>
@@ -1241,6 +1247,8 @@
       <item path="Inc/gate/messages_helper.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Inc/gate/radio.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Inc/gate/tcps_packet_queue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Middlewares/Third_Party/LwIP/src/api/api_lib.c"
             ex="false"
@@ -1753,6 +1761,8 @@
       <item path="Src/gate/tcps.c" ex="false" tool="0" flavor2="3">
         <cTool flags="0">
         </cTool>
+      </item>
+      <item path="Src/gate/tcps_packet_queue.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="Src/gpio.c" ex="false" tool="0" flavor2="3">
         <cTool flags="0">

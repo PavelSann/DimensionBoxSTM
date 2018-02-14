@@ -4,7 +4,6 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <string.h>
-#include <locale.h>
 
 #include "tcps.h"
 #include "xprint.h"
@@ -13,6 +12,7 @@
 #include "netif.h"
 #include "tcp.h"
 #include "dns.h"
+#include "tcps_packet_queue.h"
 
 
 #if BYTE_ORDER != BIG_ENDIAN
@@ -75,24 +75,6 @@ typedef enum {
 
 struct netif *pNetif;
 
-/**
- *Пакеты предназначенные к отправке
- */
-typedef struct PackNode {
-  struct PackNode *prev;
-  /*Указатель на сам пакет, сейчас используется для удобства*/
-  SRV_PacketHeader *packet;
-} PackNode;
-
-/**Указатель на последний  пакет в списке пакетов, для отправки*/
-PackNode *pSendPacketList;
-/*Длинна заголовка PackNode*/
-#define PACK_NODE_SIZE sizeof(PackNode)
-/*Указатель на SRV_PacketHeader который идёт после SendPackHeader*/
-#define PACK_NODE_PACKET_HEADER(sendPackHead) ((SRV_PacketHeader *) (((uint8_t *)(sendPackHead))+PACK_NODE_SIZE) )
-/*Пакет уже отправленн, ждём ACK*/
-#define SEND_PACK_IS_IN_PROGRESS(sendPackHead) ((sendPackHead)->packet->crc != 0)
-
 /* 
  * Сессия связи с сервером
  */
@@ -117,9 +99,9 @@ typedef struct {
   /*последний номер пакета*/
   uint8_t lastSeqNumber;
   /*Количество отправленных байт*/
-  uint16_t sentBytes;
+  uint32_t sentBytes;
   /*Количество подтверждённых байт*/
-  uint16_t ackedBytes;
+  uint32_t ackedBytes;
 
 } Session;
 /*Инициализация ВСЕХ полей структуры */
@@ -168,7 +150,7 @@ static err_t cathError(err_t e, char *msg) {
   return e;
 }
 #define FILE __FILE__
-#define ERR(e) cathError(e,FILE ":" TO_STR(__LINE__))
+#define ERR(e) cathError((e),FILE ":" TO_STR(__LINE__))
 
 static Session *newSession() {
   Session* session = mem_malloc(sizeof (Session));
@@ -270,7 +252,7 @@ static uint32_t calcCRC(const void *pData, uint16_t count, bool reset) {
 
 static uint32_t calcSessionCRC(const Session *session, const void *pData, uint16_t count) {
   calcCRC(securityKey, sizeof (securityKey), true);
-  calcCRC(pData, count, false);
+  return calcCRC(pData, count, false);
 }
 
 /*Симетричное шифрование, XOR*/
@@ -285,13 +267,25 @@ static void crypt(void *buf, uint16_t bufLen, const uint8_t *key, uint16_t keyLe
   }
 }
 
-static void cryptSession(Session *session, void *buf, uint16_t bufLen) {
+static void encryptPacket(Session *session, SRV_PacketHeader *pPacket) {
+  void *payload = PACK_PAYLOAD(pPacket);
+  uint16_t bufLen = pPacket->payloadLength;
   if (session->key == NULL) {
-    crypt(buf, bufLen, securityKey, sizeof (securityKey));
+    crypt(payload, bufLen, securityKey, sizeof (securityKey));
   } else {
-    crypt(buf, bufLen, session->key, session->keyLn);
+    crypt(payload, bufLen, session->key, session->keyLn);
   }
 }
+#define decryptPacket(session, pPacket) encryptPacket(session,pPacket)
+//static void decryptPacket(Session *session, SRV_PacketHeader *pPacket) {
+//  void *payload = PACK_PAYLOAD(pPacket);
+//  uint16_t bufLen = pPacket->payloadLength;
+//  if (session->key == NULL) {
+//    crypt(payload, bufLen, securityKey, sizeof (securityKey));
+//  } else {
+//    crypt(payload, bufLen, session->key, session->keyLn);
+//  }
+//}
 
 static err_t sendPacket(Session *session, SRV_PacketHeader *pPack, bool copy) {
 
@@ -304,23 +298,22 @@ static err_t sendPacket(Session *session, SRV_PacketHeader *pPack, bool copy) {
   }
 
   // заполняем поля заголовка
-  SRV_PacketHeader *header = pPack;
-  header->crc = 0;
-  header->sequenceNumber = nextSeqNumber;
+  pPack->crc = 0;
+  pPack->sequenceNumber = nextSeqNumber;
 
   //рассчитываем CRC
-  uint32_t fullPackLen = PACK_FULL_LENGTH(header);
-  uint32_t crc = calcSessionCRC(session, header, fullPackLen);
-  header->crc = crc;
+  uint32_t fullPackLen = PACK_FULL_LENGTH(pPack);
+  uint32_t crc = calcSessionCRC(session, pPack, fullPackLen);
+  pPack->crc = crc;
 
   //шифруем содержимое пакета
-  if (header->payloadLength > 0) {
-    cryptSession(session, PACK_PAYLOAD(header), header->payloadLength);
+  if (pPack->payloadLength > 0) {
+    encryptPacket(session, pPack);
   }
 
   //отправляем пакет
   uint8_t flag = copy ? TCP_WRITE_FLAG_COPY : 0;
-  err_t err = tcp_write(session->pcb, header, fullPackLen, flag);
+  err_t err = tcp_write(session->pcb, pPack, fullPackLen, flag);
   if (err != ERR_OK) {
     return ERR(err);
   }
@@ -357,32 +350,37 @@ static err_t sendPacketNow(Session *session, SRV_PacketType type, void *pData, u
   return ERR_OK;
 }
 
-static err_t sendNextPacket(Session *session) {
+static err_t trySendNextPacket(Session *session) {
+  //отправляем только если соединение установлено
+  if (STATE_CONNECTED == session->state) {
+    //берём первый пакет из очереди, он в конце связного списка
+    PQueueNode *pNode = PQueue_GetFirst();
+    if (pNode) {
+      if (pNode->sent) {
+        //пакет уже отправлен и ожидает подтверждения приёма
+        return ERR_INPROGRESS;
+      } else {
+        // заполняем поля заголовка
+        SRV_PacketHeader *pPack = pNode->packet;
 
-  //проверяем есть ли пакеты в списке
-  if (NULL == pSendPacketList) {
-    return ERR_OK;
+        pNode->sent = true;
+        err_t err = sendPacket(session, pPack, false);
+        if (ERR_OK != err) {
+          pNode->sent = false;
+          ERR(err);
+        }
+        return err;
+      }
+    }
   }
-
-  if (SEND_PACK_IS_IN_PROGRESS(pSendPacketList)) {
-    //значит уже идёт отправка пакета, повторно не отправляем
-    return ERR_INPROGRESS;
-  }
-
-  //берём первый пакет из очереди, он в конце связного списка
-  PackNode *pSendPackHead = pSendPacketList;
-  while (pSendPackHead->prev != NULL) {
-    pSendPackHead = pSendPackHead->prev;
-  }
-  // заполняем поля заголовка
-  SRV_PacketHeader *pPack = pSendPackHead->packet;
-
-  return sendPacket(session, pPack, false);
+  //очередь пуста
+  return ERR_OK;
 }
 
 static void deliveredPacket(Session *session, uint16_t ackLen) {
 
   session->ackedBytes += ackLen;
+  //  LOG("deliveredPacket sent:%d ack:%d", session->sentBytes, session->ackedBytes);
 
   if (session->ackedBytes < session->sentBytes) {
     //подтверждено меньше байт чем отправлено, ждём ACK пакетов от сервера
@@ -397,68 +395,70 @@ static void deliveredPacket(Session *session, uint16_t ackLen) {
   session->ackedBytes = 0;
   session->sentBytes = 0;
 
-  //если списко пуст, значит нечего не отправляли
-  if (NULL == pSendPacketList) {
-    return;
+  //берём первый пакет из очереди
+  PQueueNode* pNode = PQueue_GetFirst();
+  if (pNode) {
+    //очередь не пустая
+    if (pNode->sent) {
+      //первый пакет был  отправлен
+      //удаляем пакет из очереди, освобождает память
+      PQueue_RemoveFirst();
+    }
+    //пробуем отправить следующий пакет
+    trySendNextPacket(session);
   }
-
-  //берём первый пакет из очереди, его мы отправляли, он в конце связного списка
-  PackNode *pPrevSendPackHead = NULL;
-  PackNode *pDeliveredHead = pSendPacketList;
-  while (pDeliveredHead->prev != NULL) {
-    pPrevSendPackHead = pDeliveredHead;
-    pDeliveredHead = pDeliveredHead->prev;
-  }
-
-  //проверяем, был ли пакет отправлен
-  if (!SEND_PACK_IS_IN_PROGRESS(pSendPacketList)) {
-    return;
-  }
-
-  //удаляем доставленный пакет из списка
-  if (pPrevSendPackHead != NULL) {
-    pPrevSendPackHead->prev = NULL;
-  } else {
-    pSendPacketList = NULL;
-  }
-
-  //освобождаем память
-  mem_free(pDeliveredHead);
 }
+#if LWIP_STATS_DISPLAY
+extern struct stats_ lwip_stats;
+
+void printStats() {
+  s16_t i;
+  //  LINK_STATS_DISPLAY();
+  //  ETHARP_STATS_DISPLAY();
+  //  IPFRAG_STATS_DISPLAY();
+  //  IP6_FRAG_STATS_DISPLAY();
+  //  IP_STATS_DISPLAY();
+  //  ND6_STATS_DISPLAY();
+  //  IP6_STATS_DISPLAY();
+  //  IGMP_STATS_DISPLAY();
+  //  MLD6_STATS_DISPLAY();
+  //  ICMP_STATS_DISPLAY();
+  //  ICMP6_STATS_DISPLAY();
+  //  UDP_STATS_DISPLAY();
+  //  TCP_STATS_DISPLAY();
+  //  MEM_STATS_DISPLAY();
+  //  for (i = 0; i < MEMP_MAX; i++) {
+  //    MEMP_STATS_DISPLAY(i);
+  //  }
+  //  SYS_STATS_DISPLAY();
+  LOG("MEM %d/%d QUEUE:%d", lwip_stats.mem.used, lwip_stats.mem.avail, PQueue_Count());
+}
+#else
+#define printStats()
+#endif
 
 static err_t addSendPacket(Session *session, SRV_PacketType type, void *pData, uint16_t dataLen) {
   if (dataLen > SRV_MAX_PAYLOAD_SIZE) {
     return ERR(ERR_MEM);
   }
 
-  //выделяем память под пакет, для списка отправляемых пакетов
-  PackNode *pPackNode = mem_malloc(PACK_HEADER_LEN + PACK_NODE_SIZE + dataLen);
-  if (NULL == pPackNode) {
+  //выделяем память под пакет
+  PQueueNode *pNode = PQueue_Alloc(PACK_HEADER_LEN + dataLen);
+  if (pNode) {
+    //далее формируем заголовок пакета, копируем данные в буфер
+    createPacket(pNode->packet, type, pData, dataLen);
+    //добавляем пакет в очередь
+    PQueue_Add(pNode);
+
+    if (PQueue_Count() == 1) {
+      //если очередь была пустой, пробуем отправить следующий пакет
+      trySendNextPacket(session);
+    }
+    return ERR_OK;
+  } else {
+    LOGERR("PQueue not alloc node. Used:%d byte Count:%d", PQueue_AllocSize(), PQueue_Count());
     return ERR(ERR_MEM);
   }
-  //пакет будет расположен сразу после PackNode, в том же блоке памяти
-  //указатель на часть буфера, в которой хранится сам пакет
-  pPackNode->packet = ((SRV_PacketHeader *) (((uint8_t *) (pPackNode)) + PACK_NODE_SIZE));
-
-  //далее формируем заголовок пакета, копируем данные в буфер
-  createPacket(pPackNode->packet, type, pData, dataLen);
-
-  //добавляем к конец очереди
-  PackNode *priv = NULL;
-  bool sent = false;
-  if (NULL == pSendPacketList) {
-    priv = pSendPacketList;
-    sent = true;
-  }
-  pPackNode->prev = priv;
-  pSendPacketList = pPackNode;
-
-  if (sent && STATE_CONNECTED == session->state) {
-    //если очередь была пуста,и соединение установлено запускаем отправку пакетов
-    sendNextPacket(session);
-  }
-
-  return ERR_OK;
 }
 
 static void sendAsk(Session *session, uint8_t code) {
@@ -469,6 +469,17 @@ static void sendAsk(Session *session, uint8_t code) {
 }
 
 static void closeConnection(Session *session) {
+
+  //если в очереди есть отправленный пакет, нужно его расшифровать, и сбросить флаг отправки
+  PQueueNode* pNode = PQueue_GetFirst();
+  if (pNode && pNode->sent) {
+    SRV_PacketHeader* pPack = pNode->packet;
+    decryptPacket(session, pPack);
+    pPack->crc = 0;
+    pPack->sequenceNumber = 0;
+  }
+
+
   tcp_recv(session->pcb, NULL);
   tcp_sent(session->pcb, NULL);
   tcp_poll(session->pcb, NULL, 0);
@@ -492,14 +503,15 @@ static err_t processHandshaking(Session *session, const SRV_PacketHeader *pHead,
   //от сервера мы получили сессионный ключ шифрования
   uint16_t ln = pHead->payloadLength;
   uint8_t *key = mem_malloc(ln);
-  if (key == NULL) {
-    return ERR_MEM;
+  if (key) {
+    MEMCPY(key, payload, ln);
+    session->key = key;
+    session->keyLn = ln;
+    setState(session, STATE_CONNECTED);
+    return ERR_OK;
+  } else {
+    return ERR(ERR_MEM);
   }
-  MEMCPY(key, payload, ln);
-  session->key = key;
-  session->keyLn = ln;
-  setState(session, STATE_CONNECTED);
-  return ERR_OK;
 }
 
 static err_t processPacket(Session *session) {
@@ -513,7 +525,7 @@ static err_t processPacket(Session *session) {
       return processHandshaking(session, pHead, payload);
     } else {
       LOG("Handshaking: Invalid packet type %d", type);
-      return ERR_ARG;
+      return ERR(ERR_ARG);
     }
   }
 
@@ -548,19 +560,19 @@ static err_t processSegment(Session *session, struct pbuf *p) {
   if (session->packetBuf == NULL) {
     //в обработке нет пакета, значит это первый сигмент пакета
     SRV_PacketHeader *header = p->payload;
-    SRV_PacketType type = header->type;
+    //    SRV_PacketType type = header->type;
     uint8_t nextSeqNum = (session->lastSeqNumber) + 1;
     if (header->sequenceNumber != nextSeqNum) {
-      LOG("Illegal sequence number, header:%d session:%d ", header->sequenceNumber, session->lastSeqNumber);
-      return ERR_ARG;
+      LOGERR("Illegal sequence number, header:%d session:%d ", header->sequenceNumber, session->lastSeqNumber);
+      return ERR(ERR_ARG);
     }
     //    if(type){
     //      //сделать проверку корректности типа пакета
     //    }
     //если длинна пакета превышает норму, обрабатывать не будем
     if (header->payloadLength > SRV_MAX_PAYLOAD_SIZE) {
-      LOG("Packet is long payloadLength=%d ", header->payloadLength);
-      return ERR_MEM;
+      LOGERR("Packet is long payloadLength=%d ", header->payloadLength);
+      return ERR(ERR_MEM);
     }
     session->packetBuf = p;
   } else {
@@ -591,24 +603,22 @@ static err_t processSegment(Session *session, struct pbuf *p) {
     session->rxLength = fullLength;
   }
 
-  uint8_t * const pPack = session->rxPacket;
-  SRV_PacketHeader * const pHead = PACK_HEADER(pPack);
-  uint8_t * const payload = PACK_PAYLOAD(pPack);
+  SRV_PacketHeader * const pPack = PACK_HEADER(session->rxPacket);
 
   //расшифровываем содержимое пакета
-  cryptSession(session, payload, pHead->payloadLength);
+  decryptPacket(session, pPack);
 
   //рассчитываем и проверяем CRC
-  uint32_t headCrc = pHead->crc;
-  pHead->crc = 0;
+  uint32_t headCrc = pPack->crc;
+  pPack->crc = 0;
   uint32_t crc = calcSessionCRC(session, session->rxPacket, session->rxLength);
   if (crc != headCrc) {
-    LOG("Invalid CRC: head:%x calc:%x", pHead->crc, crc);
-    return ERR_ARG;
+    LOG("Invalid CRC: head:%x calc:%x", pPack->crc, crc);
+    return ERR(ERR_ARG);
   }
 
-  session->lastSeqNumber = pHead->sequenceNumber;
-  LOG("Process packet type=%d sequenceNumber=%d fullLength=%d", pHead->type, pHead->sequenceNumber, session->rxLength);
+  session->lastSeqNumber = pPack->sequenceNumber;
+  LOG("Process packet type=%d sequenceNumber=%d fullLength=%d", pPack->type, pPack->sequenceNumber, session->rxLength);
   return processPacket(session);
 }
 
@@ -656,9 +666,7 @@ static err_t receiveCallback(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, er
 
 static err_t sentCallback(void *arg, struct tcp_pcb *tpcb, u16_t len) {
   Session *session = arg;
-  LWIP_UNUSED_ARG(session);
-  //данные были отправлены, можно отправлять следующие данные
-  LOG("sentCallback %d", len);
+  //  LOG("sentCallback %d", len);
 
   //  if (STATE_CONNECTED == session->state) {
   RESET_WATCHDOG(session);
@@ -677,9 +685,8 @@ static err_t pollCallback(void *arg, struct tcp_pcb *tpcb) {
     closeConnection(session);
   }
 
-  if (STATE_CONNECTED == session->state) {
-    sendNextPacket(session);
-  }
+  //пробуем отправить следующий пакет
+  trySendNextPacket(session);
 
   //ещё нужно мониторить свободную память в mem_ и незаконченный разбор пакета
   return ERR_OK;
@@ -746,6 +753,17 @@ static void connectionIP(Session *session) {
 
 }
 
+TCPS_Error wrapErr(err_t err) {
+  switch (err) {
+    case ERR_OK: return TCPS_ERR_OK;
+    case ERR_INPROGRESS: return TCPS_ERR_INPROGRESS;
+    case ERR_MEM: return TCPS_ERR_MEM;
+
+    default:
+      return TCPS_ERR;
+  }
+}
+
 void TCPS_Init(TCPS_InitStruct init) {
   pNetif = init.pNetif;
 
@@ -755,45 +773,55 @@ void TCPS_Init(TCPS_InitStruct init) {
     dns_setserver(i, &dnsServers[i]);
   }
   dns_init();
+  uint32_t qMem = LWIP_MEM_ALIGN_SIZE(MEM_SIZE)-(sizeof (Session) + 1000); //байты под доп структуры
+  PQueue_SetMaxAllocSize(qMem);
 }
 
 TCPS_Error TCPS_StartSession() {
-  if (!netif_is_link_up(pNetif)) {
-    return TCPS_ERR_NOT_LINK_UP;
-  }
-  if (!dhcp_supplied_address(pNetif)) {
-    return TCPS_ERR_DHCP_SUPPLIED_IP;
-  }
-  //  if (netif_is_up(pNetif)) {
-  //    return TCPS_ERR_NOT_UP;
-  //  }
 
-  if (currentSession == NULL) {
+  if (!currentSession) {
+    //если сессии нет, то создаём
     currentSession = newSession();
     if (currentSession == NULL) {
       return TCPS_ERR_MEM;
     }
+  }
 
+  if (STATE_INIT == currentSession->state) {
+    //если соединение не установлено
+    //netif_is_up(pNetif)
+    if (!netif_is_link_up(pNetif)) {
+      //провод не подключён
+      return TCPS_ERR_NOT_LINK_UP;
+    }
+    if (!dhcp_supplied_address(pNetif)) {
+      //IP не получен
+      return TCPS_ERR_DHCP_SUPPLIED_IP;
+    }
+    //пробуем подключится к серверу
     connect(currentSession);
     return TCPS_ERR_INPROGRESS;
-  } else {
-    return TCPS_ERR_OPERATION;
   }
-}
-
-TCPS_Error TCPS_SendPacket(SRV_PacketType type, void *pData, uint16_t dataLen) {
-
-  if (currentSession == NULL) {
-    TCPS_StartSession();
-  }
-
-  addSendPacket(currentSession, type, pData, dataLen);
 
   return TCPS_ERR_OK;
 }
 
+TCPS_Error TCPS_SendPacket(SRV_PacketType type, void *pData, uint16_t dataLen) {
+  TCPS_Error ssErr = TCPS_StartSession();
+  if (currentSession) {
+    return wrapErr(addSendPacket(currentSession, type, pData, dataLen));
+  } else {
+    return ssErr;
+  }
+}
+
 void TCPS_Process() {
   MX_LWIP_Process();
+
+  if (PQueue_GetFirst()) {
+    //если в очереди есть пакеты, то запускаем соединение
+    TCPS_StartSession();
+  }
 }
 
 

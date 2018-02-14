@@ -80,10 +80,10 @@ void SystemClock_Config(void);
 
 /* Private function prototypes -----------------------------------------------*/
 RADIO_Result RadioReveiveCallback(void* pData, uint8_t dataLen) {
-//  LOG("RadioReveiveCallback:");
-//  LOGMEM(pData, dataLen);
-  TCPS_SendPacket(SRV_PACKET_TYPE_DATA,pData,dataLen);
-//  TCPS_
+  //  LOG("RadioReveiveCallback:");
+  //  LOGMEM(pData, dataLen);
+  TCPS_SendPacket(SRV_PACKET_TYPE_DATA, pData, dataLen);
+  //  TCPS_
   return RADIO_OK;
 }
 
@@ -149,7 +149,6 @@ int main(void) {
 
   //CON_Init();
   //HAL_TIM_Base_Start_IT(&htim1);
-
 
   /* USER CODE END 2 */
 
@@ -227,16 +226,16 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
   }
 }
 
-static uint8_t testData[1000];
-
 void HAL_GPIO_EXTI_Callback(uint16_t pin) {
+  //static uint8_t testData[1000];
   if (pin == USER_Btn_Pin) {
-    TCPS_SendPacket(SRV_PACKET_TYPE_DATA,&testData,1000);
-
-//    TCPS_Error err = TCPS_StartSession();
-//    if (err < 0) {
-//      LOG("StartSession error %d", err);
-//    }
+    //    __disable_irq();
+    //    TCPS_SendPacket(SRV_PACKET_TYPE_DATA, &testData, 1000);
+    //    __enable_irq();
+    //    TCPS_Error err = TCPS_StartSession();
+    //    if (err < 0) {
+    //      LOG("StartSession error %d", err);
+    //    }
     HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
   }
 
