@@ -8,7 +8,6 @@
 #include "tcps.h"
 #include "xprint.h"
 #include "lwip.h"
-//#include "debug.h"
 #include "netif.h"
 #include "tcp.h"
 #include "dns.h"
@@ -35,7 +34,6 @@
  * {...}
  */
 #define SAFE_ENUM(TYPE, VAL) ((VAL) == (TYPE)0 ? (VAL) : (VAL))
-
 #define TO_STR_(exp)   #exp
 #define TO_STR(exp)    TO_STR_(exp)
 
@@ -74,31 +72,38 @@ typedef enum {
   DNS_STATE_ERROR
 } DNSState;
 
-struct netif *pNetif;
+/*Ethernet интерфейс*/
+static struct netif *pNetif;
+
+static TCPS_InitStruct init;
 
 /* 
  * Сессия связи с сервером
  */
 typedef struct {
   struct tcp_pcb *pcb;
+  /*Состояние сессии*/
   State state;
   ip_addr_t ipAddr;
-  uint16_t port; //8888
+  uint16_t port;
   /*таймер, для аварийного закрытия соединения*/
   uint16_t watchdog;
   /*Имя сервера, для получения ip через dns*/
   char *serverName;
+  /*Состояние получения IP по DNS*/
   DNSState dnsState;
   /*данные по ключу шифрования по TCP*/
-  uint8_t *key;
-  uint16_t keyLn;
+  uint8_t *pCryptKey;
+  uint16_t cryptKeyLen;
   /*указатель на первый сегмент текущего пакета*/
   struct pbuf *packetBuf;
   /*Буфер под собранный и расшифрованный пакет, приём данных*/
   uint8_t rxPacket[SRV_MAX_PACKET_SIZE];
   uint16_t rxLength;
-  /*последний номер пакета*/
-  uint8_t lastSeqNumber;
+  /*последний номер входящего пакета*/
+  uint8_t rxSeqNumber;
+  /*последний номер исходящего пакета*/
+  uint8_t txSeqNumber;
   /*Количество отправленных байт*/
   uint32_t sentBytes;
   /*Количество подтверждённых байт*/
@@ -112,16 +117,18 @@ pSes->state = STATE_INIT;\
 pSes->ipAddr.addr=0;\
 pSes->port=SRV_SERVER_PORT;\
 pSes->watchdog=SRV_WATCHDOG_TIME;\
-pSes->dnsState = DNS_STATE_NONE;\
 pSes->serverName = NULL;\
-pSes->key=NULL;\
-pSes->keyLn=0;\
+pSes->dnsState = DNS_STATE_NONE;\
+pSes->pCryptKey=NULL;\
+pSes->cryptKeyLen=0;\
 pSes->packetBuf=NULL;\
-pSes->lastSeqNumber=0;\
+/*pSes->rxPacket;*/\
+pSes->rxLength=0;\
+pSes->rxSeqNumber=0;\
+pSes->txSeqNumber=0;\
 pSes->sentBytes=0;\
 pSes->ackedBytes=0;\
 }
-#define RESET_WATCHDOG(pSession) ((pSession)->watchdog=SRV_WATCHDOG_TIME)
 /*Длинна заголовка*/
 #define PACK_HEADER_LEN (sizeof(SRV_PacketHeader))
 /*Возвращает указатель на заголовок пакета*/
@@ -130,6 +137,11 @@ pSes->ackedBytes=0;\
 #define PACK_PAYLOAD(pPacket) ((void *)((uint8_t *)(pPacket))+ PACK_HEADER_LEN)
 /*Полный размер пакета, заголовок + данные */
 #define PACK_FULL_LENGTH(pPacket) ( (PACK_HEADER(pPacket))->payloadLength + PACK_HEADER_LEN)
+
+#define RESET_WATCHDOG(pSession) ((pSession)->watchdog=SRV_WATCHDOG_TIME)
+
+#define NEXT_SEQ_NUMBER(sn) ((sn)<0xFF?((sn)+1):0)
+
 /*Указатель на текущую сессию, при работе с одной сессией*/
 static Session *currentSession;
 /*Ключ безопасности*/
@@ -165,10 +177,15 @@ static Session *newSession() {
 }
 
 static void freeSession(Session *session) {
-  if (session->packetBuf != NULL) {
-    mem_free(session->packetBuf);
-    session->packetBuf = NULL;
 
+  if (session->packetBuf != NULL) {
+    pbuf_free(session->packetBuf);
+    session->packetBuf = NULL;
+  }
+
+  if (session->pCryptKey) {
+    mem_free(session->pCryptKey);
+    session->pCryptKey = NULL;
   }
 
   mem_free(session);
@@ -219,25 +236,18 @@ static uint32_t calcSessionCRC(const Session *session, const void *pData, uint16
 static void encryptPacket(Session *session, SRV_PacketHeader *pPacket) {
   void *payload = PACK_PAYLOAD(pPacket);
   uint16_t bufLen = pPacket->payloadLength;
-  if (session->key == NULL) {
+  if (session->pCryptKey == NULL) {
     CRYPT_xor(payload, bufLen, securityKey, sizeof (securityKey));
   } else {
-    CRYPT_xor(payload, bufLen, session->key, session->keyLn);
+    CRYPT_xor(payload, bufLen, session->pCryptKey, session->cryptKeyLen);
   }
 }
 //так как используется XOR decryptPacket==encryptPacket
 #define decryptPacket(session, pPacket) encryptPacket(session,pPacket)
 
-
 static err_t sendPacket(Session *session, SRV_PacketHeader *pPack, bool copy) {
-
   //генерируем новый номер пакета
-  uint8_t nextSeqNumber = session->lastSeqNumber;
-  if (nextSeqNumber < 0xFF) {
-    nextSeqNumber++;
-  } else {
-    nextSeqNumber = 0;
-  }
+  uint8_t nextSeqNumber = NEXT_SEQ_NUMBER(session->txSeqNumber);
 
   // заполняем поля заголовка
   pPack->crc = 0;
@@ -264,7 +274,7 @@ static err_t sendPacket(Session *session, SRV_PacketHeader *pPack, bool copy) {
     return ERR(err);
   }
   session->sentBytes += fullPackLen;
-  session->lastSeqNumber = nextSeqNumber;
+  session->txSeqNumber = nextSeqNumber;
   return ERR_OK;
 }
 
@@ -406,7 +416,7 @@ static err_t addSendPacket(Session *session, SRV_PacketType type, void *pData, u
 static void sendAsk(Session *session, uint8_t code) {
   SRV_PacketACK ask;
   ask.code = code;
-  ask.sequenceNumber = session->lastSeqNumber;
+  ask.sequenceNumber = session->rxSeqNumber;
   sendPacketNow(session, SRV_PACKET_TYPE_ACK, &ask, sizeof (SRV_PacketACK));
 }
 
@@ -447,8 +457,8 @@ static err_t processHandshaking(Session *session, const SRV_PacketHeader *pHead,
   uint8_t *key = mem_malloc(ln);
   if (key) {
     MEMCPY(key, payload, ln);
-    session->key = key;
-    session->keyLn = ln;
+    session->pCryptKey = key;
+    session->cryptKeyLen = ln;
     setState(session, STATE_CONNECTED);
     return ERR_OK;
   } else {
@@ -457,20 +467,20 @@ static err_t processHandshaking(Session *session, const SRV_PacketHeader *pHead,
 }
 
 static err_t processPacket(Session *session) {
-  uint8_t * pPack = session->rxPacket;
-  SRV_PacketHeader * pHead = PACK_HEADER(pPack);
-  SRV_PacketType type = pHead->type;
+  SRV_PacketHeader * pPack = PACK_HEADER(session->rxPacket);
+  SRV_PacketType type = pPack->type;
   uint8_t *payload = PACK_PAYLOAD(pPack);
 
   if (session->state == STATE_HANDSHAKING) {
     if (type == SRV_PACKET_TYPE_HANDSHAKING) {
-      return processHandshaking(session, pHead, payload);
+      return processHandshaking(session, pPack, payload);
     } else {
       LOG("Handshaking: Invalid packet type %d", type);
       return ERR(ERR_ARG);
     }
   }
 
+  //    LOG("Process packet type=%d sequenceNumber=%d fullLength=%d", pPack->type, pPack->sequenceNumber, session->rxLength);
   err_t err = ERR_OK;
   switch (type) {
     case SRV_PACKET_TYPE_PING:
@@ -479,8 +489,13 @@ static err_t processPacket(Session *session) {
 
     case SRV_PACKET_TYPE_STR:
       //выводим строку из пакета
-
       LOG("Packet str: %s", payload);
+      break;
+    case SRV_PACKET_TYPE_DEVICE:
+      //выводим строку из пакета
+      if (init.receiveCallback) {
+        init.receiveCallback(pPack, payload);
+      }
       break;
 
     default:
@@ -500,12 +515,13 @@ static err_t processPacket(Session *session) {
  */
 static err_t processSegment(Session *session, struct pbuf *p) {
   if (session->packetBuf == NULL) {
-    //в обработке нет пакета, значит это первый сигмент пакета
+    //в обработке нет пакета, значит это первый сегмент пакета
     SRV_PacketHeader *header = p->payload;
     //    SRV_PacketType type = header->type;
-    uint8_t nextSeqNum = (session->lastSeqNumber) + 1;
+    uint8_t nextSeqNum = NEXT_SEQ_NUMBER(session->rxSeqNumber);
+
     if (header->sequenceNumber != nextSeqNum) {
-      LOGERR("Illegal sequence number, header:%d session:%d ", header->sequenceNumber, session->lastSeqNumber);
+      LOGERR("Illegal sequence number, header:%d expected:%d ", header->sequenceNumber,nextSeqNum);
       return ERR(ERR_ARG);
     }
     //    if(type){
@@ -555,12 +571,11 @@ static err_t processSegment(Session *session, struct pbuf *p) {
   pPack->crc = 0;
   uint32_t crc = calcSessionCRC(session, session->rxPacket, session->rxLength);
   if (crc != headCrc) {
-    LOG("Invalid CRC: head:%x calc:%x", pPack->crc, crc);
+    LOG("Invalid CRC: head:%x calc:%x", headCrc, crc);
     return ERR(ERR_ARG);
   }
 
-  session->lastSeqNumber = pPack->sequenceNumber;
-  LOG("Process packet type=%d sequenceNumber=%d fullLength=%d", pPack->type, pPack->sequenceNumber, session->rxLength);
+  session->rxSeqNumber = pPack->sequenceNumber;
   return processPacket(session);
 }
 
@@ -706,9 +721,9 @@ TCPS_Error wrapErr(err_t err) {
   }
 }
 
-void TCPS_Init(TCPS_InitStruct init) {
-  pNetif = init.pNetif;
-
+void TCPS_Init(TCPS_InitStruct initStruct) {
+  pNetif = initStruct.pNetif;
+  init = initStruct;
   static const ip_addr_t dnsServers[DNS_MAX_SERVERS] = {SRV_DNS_SERVERS};
   //Инициализация списка DNS серверов
   for (int i = 0; i < DNS_MAX_SERVERS; i++) {

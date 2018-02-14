@@ -145,7 +145,6 @@
       <df name="Src">
         <df name="gate">
           <in>radio.c</in>
-          <in>srv_packet.c</in>
           <in>tcps.c</in>
           <in>tcps_crypt.c</in>
           <in>tcps_packet_queue.c</in>
@@ -437,8 +436,6 @@
             flavor2="3">
         <cTool flags="0">
         </cTool>
-      </item>
-      <item path="Inc/gate/tcps_crypt.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Middlewares/Third_Party/LwIP/src/api/api_lib.c"
             ex="false"
@@ -946,15 +943,13 @@
         <cTool flags="1">
         </cTool>
       </item>
-      <item path="Src/gate/srv_packet.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="1">
-        </cTool>
-      </item>
       <item path="Src/gate/tcps.c" ex="false" tool="0" flavor2="3">
         <cTool flags="0">
         </cTool>
       </item>
-      <item path="Src/gate/tcps_crypt.c" ex="false" tool="0" flavor2="0">
+      <item path="Src/gate/tcps_crypt.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+        </cTool>
       </item>
       <item path="Src/gate/tcps_packet_queue.c" ex="false" tool="0" flavor2="3">
         <cTool flags="1">
@@ -1009,14 +1004,13 @@
       </toolsSet>
       <flagsDictionary>
         <element flagsID="0" commonFlags="-ggdb3"/>
-        <element flagsID="1" commonFlags="-std=c11"/>
       </flagsDictionary>
       <codeAssistance>
       </codeAssistance>
       <makefileType>
         <makeTool>
           <buildCommandWorkingDir>.</buildCommandWorkingDir>
-          <buildCommand>${MAKE}  -j -f  Makefile DEBUG=0</buildCommand>
+          <buildCommand>${MAKE}  -j16 -f  Makefile DEBUG=0</buildCommand>
           <cleanCommand>${MAKE} -f  Makefile clean</cleanCommand>
           <executablePath>build/GateSTM.elf</executablePath>
           <cTool>
@@ -1761,10 +1755,6 @@
         </cTool>
       </item>
       <item path="Src/gate/radio.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="Src/gate/srv_packet.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="1">
-        </cTool>
       </item>
       <item path="Src/gate/tcps.c" ex="false" tool="0" flavor2="3">
         <cTool flags="0">

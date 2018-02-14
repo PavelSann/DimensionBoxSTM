@@ -709,7 +709,6 @@
       <df name="Src">
         <df name="gate">
           <in>radio.c</in>
-          <in>srv_packet.c</in>
           <in>tcps.c</in>
           <in>tcps_crypt.c</in>
           <in>tcps_packet_queue.c</in>
@@ -759,6 +758,8 @@
         <gdb_interceptlist>
           <gdbinterceptoptions gdb_all="false" gdb_unhandled="true" gdb_unexpected="true"/>
         </gdb_interceptlist>
+        <gdb_signals>
+        </gdb_signals>
         <gdb_options>
           <DebugOptions>
             <option name="gdb_init_file" value="gdbinit"/>
@@ -834,8 +835,9 @@
           <runcommandpicklistitem>../OpenOCD/openocd.cmd -f st_board/nucleo_f207zg.cfg -c "program \"${OUTPUT_PATH}\" verify reset exit"</runcommandpicklistitem>
           <runcommandpicklistitem>CMD /C ..\OpenOCD\openocd.cmd -f st_board\nucleo_f207zg.cfg -c "program \"${OUTPUT_PATH}\" verify reset exit"</runcommandpicklistitem>
           <runcommandpicklistitem>CMD /C ../OpenOCD/openocd.cmd -f st_board/nucleo_f207zg.cfg -c "program \"${OUTPUT_PATH}\" verify reset exit"</runcommandpicklistitem>
+          <runcommandpicklistitem>CMD /C openocd.cmd -c "program \"${OUTPUT_PATH}\" verify reset exit"</runcommandpicklistitem>
         </runcommandpicklist>
-        <runcommand>CMD /C ../OpenOCD/openocd.cmd -f st_board/nucleo_f207zg.cfg -c "program \"${OUTPUT_PATH}\" verify reset exit"</runcommand>
+        <runcommand>CMD /C openocd.cmd -c "program \"${OUTPUT_PATH}\" verify reset exit"</runcommand>
         <rundir>.</rundir>
         <buildfirst>true</buildfirst>
         <console-type>2</console-type>

@@ -82,11 +82,17 @@ void SystemClock_Config(void);
 RADIO_Result RadioReveiveCallback(void* pData, uint8_t dataLen) {
   //  LOG("RadioReveiveCallback:");
   //  LOGMEM(pData, dataLen);
-  TCPS_SendPacket(SRV_PACKET_TYPE_DATA, pData, dataLen);
+  TCPS_SendPacket(SRV_PACKET_TYPE_DEVICE, pData, dataLen);
   //  TCPS_
   return RADIO_OK;
 }
 
+void TCPSReceivePacketCallback(SRV_PacketHeader * pHead, uint8_t *payload) {
+  RADIO_Result r = RADIO_Transmit(payload, pHead->payloadLength);
+  if (RADIO_OK != r) {
+    LOG("RADIO transmit error %d", r);
+  }
+}
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -132,6 +138,7 @@ int main(void) {
 
   TCPS_InitStruct tcpsInit = {
     .pNetif = &gnetif,
+    .receiveCallback = TCPSReceivePacketCallback
   };
 
   TCPS_Init(tcpsInit);
@@ -143,12 +150,10 @@ int main(void) {
   RADIO_InitStruct rInit = {
     .receiveCallbackFn = RadioReveiveCallback
   };
-
   RADIO_Init(&rInit);
   //  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
 
-  //CON_Init();
-  //HAL_TIM_Base_Start_IT(&htim1);
+  HAL_TIM_Base_Start_IT(&htim1);
 
   /* USER CODE END 2 */
 
@@ -218,11 +223,7 @@ void SystemClock_Config(void) {
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
   if (htim->Instance == TIM1) {
-
-    //		CON_ADDR conAddr = {192, 168, 1, 10, 8888};
-    //		IPCON_connect(conAddr);
-    //
-    //		HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+    TCPS_StartSession();
   }
 }
 

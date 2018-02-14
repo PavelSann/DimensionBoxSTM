@@ -7,6 +7,7 @@ set remotetimeout 10
 #shel OpenOCD.cmd
 
 shell start "OpenOCD" openocd
+shell start "OpenOCD telnet" telnet localhost 4444
 #shell sleep 1
 target extended-remote localhost:3333
 

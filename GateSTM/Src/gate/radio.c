@@ -133,6 +133,7 @@ static void StartRX() {
 }
 
 static void WriteTxFifi(uint8_t* pTxBuffer, uint8_t cBuffer) {
+  S2LPPktBasicSetPayloadLength(cBuffer);
   /*Clean the TX FIFO*/
   S2LPCmdStrobeFlushTxFifo();
   S2LPSpiWriteFifo(cBuffer, pTxBuffer);
@@ -198,7 +199,7 @@ void RADIO_Init(RADIO_InitStruct *pInit) {
   //S2LPGpioIrqConfig(RX_DATA_READY, S_ENABLE);
 
   /* payload length config */
-  //  S2LPPktBasicSetPayloadLength(MAX_DATA_SIZE);
+  //    S2LPPktBasicSetPayloadLength(128);
 
   /* IRQ registers blanking */
   S2LPGpioIrqClearStatus();
@@ -217,6 +218,7 @@ RADIO_Result RADIO_Transmit(void* pData, uint8_t dataLen) {
   }
 
   if (IsState(STATE_READY)) {
+    AbortS2LP();
     WriteTxFifi(pData, dataLen);
     StartTX();
     return RADIO_OK;
@@ -251,7 +253,7 @@ void RADIO_GPIOCallback(/**S2LPGpioPin pin*/) {
     return;
   }
   S2LPIrqs *pIrqs = GetIRQStatus();
-
+//  printIrqs("GPIOCallback", pIrqs);
   //  if (pin == S2LP_GPIO_0) {
 
   if (pIrqs->IRQ_TX_DATA_SENT && IsState(STATE_TX)) {
