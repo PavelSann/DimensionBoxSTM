@@ -1,5 +1,3 @@
-// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 /**
  ******************************************************************************
  * @file           : main.c
@@ -51,6 +49,7 @@
 #include "main.h"
 #include "stm32f2xx_hal.h"
 #include "crc.h"
+#include "iwdg.h"
 #include "lwip.h"
 #include "rng.h"
 #include "spi.h"
@@ -79,6 +78,21 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 
 /* Private function prototypes -----------------------------------------------*/
+static void DBG_Init() {
+  __HAL_DBGMCU_FREEZE_IWDG();
+  __HAL_DBGMCU_FREEZE_WWDG();
+  __HAL_DBGMCU_FREEZE_TIM1();
+}
+
+static void WDGStart() {
+  MX_IWDG_Init();
+  LOG("Start WDG");
+}
+
+static void WDGReset() {
+  HAL_IWDG_Refresh(&hiwdg);
+}
+
 RADIO_Result RadioReveiveCallback(void* pData, uint8_t dataLen) {
   //  LOG("RadioReveiveCallback:");
   //  LOGMEM(pData, dataLen);
@@ -122,17 +136,17 @@ int main(void) {
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+  DBG_Init();
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_USART3_UART_Init();
-  MX_LWIP_Init();
   MX_CRC_Init();
-  MX_SPI1_Init();
+  MX_LWIP_Init();
   MX_RNG_Init();
+  MX_SPI1_Init();
   MX_TIM1_Init();
+  MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
   xprint_init_UART(&huart3);
 
@@ -159,12 +173,15 @@ int main(void) {
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  WDGStart();
   while (1) {
     /* USER CODE END WHILE */
+
     /* USER CODE BEGIN 3 */
     RADIO_Process();
     TCPS_Process();
 
+    WDGReset();
   }
   /* USER CODE END 3 */
 
@@ -181,9 +198,10 @@ void SystemClock_Config(void) {
 
   /**Initializes the CPU, AHB and APB busses clocks
    */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_LSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = 16;
+  RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
   RCC_OscInitStruct.PLL.PLLM = 13;

@@ -401,6 +401,7 @@
             <in>stm32f2xx_hal_flash_ex.h</in>
             <in>stm32f2xx_hal_gpio.h</in>
             <in>stm32f2xx_hal_gpio_ex.h</in>
+            <in>stm32f2xx_hal_iwdg.h</in>
             <in>stm32f2xx_hal_pwr.h</in>
             <in>stm32f2xx_hal_pwr_ex.h</in>
             <in>stm32f2xx_hal_rcc.h</in>
@@ -421,6 +422,7 @@
             <in>stm32f2xx_hal_flash.c</in>
             <in>stm32f2xx_hal_flash_ex.c</in>
             <in>stm32f2xx_hal_gpio.c</in>
+            <in>stm32f2xx_hal_iwdg.c</in>
             <in>stm32f2xx_hal_pwr.c</in>
             <in>stm32f2xx_hal_pwr_ex.c</in>
             <in>stm32f2xx_hal_rcc.c</in>
@@ -447,6 +449,7 @@
         <in>crc.h</in>
         <in>ethernetif.h</in>
         <in>gpio.h</in>
+        <in>iwdg.h</in>
         <in>lwip.h</in>
         <in>lwipopts.h</in>
         <in>main.h</in>
@@ -718,6 +721,7 @@
         <in>crc.c</in>
         <in>ethernetif.c</in>
         <in>gpio.c</in>
+        <in>iwdg.c</in>
         <in>lwip.c</in>
         <in>main.c</in>
         <in>rng.c</in>
