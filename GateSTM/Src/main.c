@@ -149,6 +149,7 @@ int main(void) {
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
   xprint_init_UART(&huart3);
+  WDGStart();
 
   TCPS_InitStruct tcpsInit = {
     .pNetif = &gnetif,
@@ -157,7 +158,6 @@ int main(void) {
 
   TCPS_Init(tcpsInit);
 
-  LOG("Gate loaded! ");
 
   SdkEvalSpiInitEx(&hspi1, SPI1_CSn_GPIO_Port, SPI1_CSn_Pin, S2LP_SDN_GPIO_Port, S2LP_SDN_Pin);
 
@@ -168,20 +168,21 @@ int main(void) {
   //  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
 
   HAL_TIM_Base_Start_IT(&htim1);
+  LOG("Gate init. ID:0x%x ", DBGMCU->IDCODE);
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  WDGStart();
+
   while (1) {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    WDGReset();
     RADIO_Process();
     TCPS_Process();
 
-    WDGReset();
   }
   /* USER CODE END 3 */
 

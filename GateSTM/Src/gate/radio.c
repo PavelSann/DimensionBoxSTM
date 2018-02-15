@@ -54,16 +54,19 @@ static PktBasicInit xBasicInit = {
   EN_WHITENING
 };
 
-static volatile int32_t rssidBm = -200;
+//static volatile int32_t rssidBm = -200;
 
 #define S2LP_FIFO_SIZE 128
 /** Максимальный размер 1 пакета*/
 #define RX_PACKET_MAX_SIZE S2LP_FIFO_SIZE
 /** Максимальное количество пакетов в  буфере*/
-#define RX_PACKET_MAX_COUNT 10
+//#define RX_PACKET_MAX_COUNT 10
 /**Количество буферов*/
-#define RX_BUF_COUNT 2
+//#define RX_BUF_COUNT 2
 //static uint8_t rxDataBuf[RX_BUF_COUNT][RX_MAX_PACKET_COUNT][RX_MAX_BUF_SIZE];
+
+/*Примерная задержка в микросекундах, одна итерация примерно 12 тактов, реальная задержка будет на 20-30% больше*/
+#define DELAY_US(us)   {for (volatile uint32_t count=((SystemCoreClock/12000000)*(us)), i = 0; i < count; i++);}
 
 static uint8_t rxDataBuf[RX_PACKET_MAX_SIZE];
 static uint16_t rxDataLen;
@@ -107,11 +110,11 @@ static void printIrqs(const char* msg, S2LPIrqs *pxIrqs) {
 }
 
 static void AbortS2LP() {
-  S2LPGpioIrqConfig(RX_DATA_DISC, S_DISABLE);
+  //  S2LPGpioIrqConfig(RX_DATA_DISC, S_DISABLE);
   S2LPCmdStrobeSabort();
-  for (uint32_t i = 0; i < 0xfff; i++);
-  S2LPGpioIrqClearStatus();
-  S2LPGpioIrqConfig(RX_DATA_DISC, S_ENABLE);
+  DELAY_US(5);
+  //  S2LPGpioIrqClearStatus();
+  //  S2LPGpioIrqConfig(RX_DATA_DISC, S_ENABLE);
 }
 
 static void StartTX() {
@@ -168,10 +171,7 @@ void RADIO_Init(RADIO_InitStruct *pInit) {
 
   SdkEvalEnterShutdown();
   SdkEvalExitShutdown();
-  /* Delay to allow the circuit POR, about 700 us */
-  //  for (volatile uint32_t i = 0; i < 0x1E00; i++);
-
-  HAL_Delay(10);
+  DELAY_US(1000);
 
   /* S2LP IRQ config */
   S2LPGpioInit(&xGpio0IRQ);
@@ -207,10 +207,11 @@ void RADIO_Init(RADIO_InitStruct *pInit) {
   /* RX timeout config */
   //	S2LPTimerSetRxTimerUs(700000);
 
-  SetState(STATE_READY);
-  StartRX();
+//  S2LPRefreshStatus();
   LOG("S2LP Status: ON:%d STATE:%d", g_xStatus.XO_ON, g_xStatus.MC_STATE);
 
+  SetState(STATE_READY);
+  StartRX();
 }
 
 RADIO_Result RADIO_Transmit(void* pData, uint8_t dataLen) {
@@ -253,7 +254,7 @@ void RADIO_GPIOCallback(/**S2LPGpioPin pin*/) {
     return;
   }
   S2LPIrqs *pIrqs = GetIRQStatus();
-//  printIrqs("GPIOCallback", pIrqs);
+  //  printIrqs("GPIOCallback", pIrqs);
   //  if (pin == S2LP_GPIO_0) {
 
   if (pIrqs->IRQ_TX_DATA_SENT && IsState(STATE_TX)) {
