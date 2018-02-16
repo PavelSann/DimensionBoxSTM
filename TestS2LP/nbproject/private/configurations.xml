@@ -15,7 +15,7 @@
         </gdb_interceptlist>
         <gdb_options>
           <DebugOptions>
-            <option name="gdb_init_file" value="..\OpenOCD\gdbinit"/>
+            <option name="gdb_init_file" value="gdbinit"/>
             <option name="debug_command" value="${OUTPUT_PATH}"/>
           </DebugOptions>
         </gdb_options>
@@ -29,8 +29,9 @@
           <runcommandpicklistitem>"${OUTPUT_PATH}"</runcommandpicklistitem>
           <runcommandpicklistitem>../OpenOCD/openocd.cmd -f st_board/nucleo_l152re.cfg -c "program \"${OUTPUT_PATH}\" verify reset exit"</runcommandpicklistitem>
           <runcommandpicklistitem>CMD /C ..\OpenOCD\openocd.cmd -f st_board/nucleo_l152re.cfg -c "program \"${OUTPUT_PATH}\" verify reset exit"</runcommandpicklistitem>
+          <runcommandpicklistitem>CMD /C openocd.cmd -c "program \"${OUTPUT_PATH}\" verify reset exit"</runcommandpicklistitem>
         </runcommandpicklist>
-        <runcommand>CMD /C ..\OpenOCD\openocd.cmd -f st_board/nucleo_l152re.cfg -c "program \"${OUTPUT_PATH}\" verify reset exit"</runcommand>
+        <runcommand>CMD /C openocd.cmd -c "program \"${OUTPUT_PATH}\" verify reset exit"</runcommand>
         <rundir></rundir>
         <buildfirst>true</buildfirst>
         <terminal-type>0</terminal-type>

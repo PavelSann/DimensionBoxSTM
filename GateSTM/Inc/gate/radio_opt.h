@@ -66,7 +66,7 @@ extern "C" {
 #define VARIABLE_LENGTH             S_ENABLE
 #define EXTENDED_LENGTH_FIELD       S_DISABLE
 #define CRC_MODE                    PKT_CRC_MODE_8BITS
-#define EN_ADDRESS                  S_DISABLE
+#define EN_ADDRESS                  S_ENABLE
 #define EN_FEC                      S_DISABLE
 #define EN_WHITENING                S_ENABLE
 

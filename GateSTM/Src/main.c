@@ -93,16 +93,17 @@ static void WDGReset() {
   HAL_IWDG_Refresh(&hiwdg);
 }
 
-RADIO_Result RadioReveiveCallback(void* pData, uint8_t dataLen) {
-  //  LOG("RadioReveiveCallback:");
-  //  LOGMEM(pData, dataLen);
+RADIO_Result RadioReveiveCallback(RADIO_PacketHeader *header, void* pData, uint8_t dataLen) {
+  LOG("RADIO: Received 0x%x->0x%x %d bytes", header->src, header->dest, dataLen);
   TCPS_SendPacket(SRV_PACKET_TYPE_DEVICE, pData, dataLen);
   //  TCPS_
   return RADIO_OK;
 }
 
 void TCPSReceivePacketCallback(SRV_PacketHeader * pHead, uint8_t *payload) {
-  RADIO_Result r = RADIO_Transmit(payload, pHead->payloadLength);
+  DeviceID destID = 42;
+
+  RADIO_Result r = RADIO_Transmit(destID, payload, pHead->payloadLength);
   if (RADIO_OK != r) {
     LOG("RADIO transmit error %d", r);
   }
@@ -162,10 +163,10 @@ int main(void) {
   SdkEvalSpiInitEx(&hspi1, SPI1_CSn_GPIO_Port, SPI1_CSn_Pin, S2LP_SDN_GPIO_Port, S2LP_SDN_Pin);
 
   RADIO_InitStruct rInit = {
+    .devID = 1,
     .receiveCallbackFn = RadioReveiveCallback
   };
   RADIO_Init(&rInit);
-  //  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
 
   HAL_TIM_Base_Start_IT(&htim1);
   LOG("Gate init. ID:0x%x ", DBGMCU->IDCODE);

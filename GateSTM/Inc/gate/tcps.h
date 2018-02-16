@@ -52,6 +52,8 @@ extern "C" {
 
   void TCPS_Process();
 
+  TCPS_Error TCPS_SendPacket(SRV_PacketType type, void *pData, uint16_t dataLen);
+
 
 #ifdef __cplusplus
 }

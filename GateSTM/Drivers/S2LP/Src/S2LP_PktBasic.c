@@ -257,10 +257,10 @@ void S2LPPktBasicAddressesInit(PktBasicAddressesInit* pxPktBasicAddresses)
   S2LPSpiWriteRegisters(PCKT_FLT_OPTIONS_ADDR, 1, &tmpBuffer[0]);
   
   /* Fills the array with the addresses passed in the structure */
-  tmpBuffer[2] = pxPktBasicAddresses->cMyAddress;
-  tmpBuffer[0] = pxPktBasicAddresses->cBroadcastAddress;
-  tmpBuffer[1] = pxPktBasicAddresses->cMulticastAddress;
-  g_xStatus = S2LPSpiWriteRegisters(PCKT_FLT_GOALS2_ADDR, 3, tmpBuffer);
+  tmpBuffer[0] = pxPktBasicAddresses->cMyAddress;
+  tmpBuffer[1] = pxPktBasicAddresses->cBroadcastAddress;
+  tmpBuffer[2] = pxPktBasicAddresses->cMulticastAddress;
+  g_xStatus = S2LPSpiWriteRegisters(PCKT_FLT_GOALS3_ADDR, 3, tmpBuffer);
 }
 
 

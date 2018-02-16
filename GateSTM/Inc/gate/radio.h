@@ -19,6 +19,7 @@ extern "C" {
 #endif
 #include <stdint.h>
 #include <stdbool.h>
+#include "radio_packet.h"
 
   typedef enum {
     RADIO_INPROGRESS = 1,
@@ -28,14 +29,15 @@ extern "C" {
   } RADIO_Result;
 #define RADIO_IS_RESULT_ERR(result) ((result)<0)
 
-  typedef RADIO_Result(*RADIO_ReceiveCallbackFn)(void* pData, uint8_t dataLen);
+  typedef RADIO_Result(*RADIO_ReceiveCallbackFn)(RADIO_PacketHeader *header,void* pData, uint8_t dataLen);
 
   typedef struct {
+    DeviceID devID;
     RADIO_ReceiveCallbackFn receiveCallbackFn;
   } RADIO_InitStruct;
 
   void RADIO_Init(RADIO_InitStruct *pInit);
-  RADIO_Result RADIO_Transmit(void* pData, uint8_t dataLen);
+  RADIO_Result RADIO_Transmit(DeviceID destID,void* pData, uint8_t dataLen);
   void RADIO_GPIOCallback();
   void RADIO_Process();
 

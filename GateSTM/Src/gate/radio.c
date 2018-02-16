@@ -15,7 +15,12 @@ typedef enum {
 #define MSG_OPT_MSG_TYPE Message
 #define MSG_OPT_SAFE_ENUM 1
 #include "messages_helper.h"
-#include "opt.h"
+#include "srv_packet.h"
+
+
+#define PACKET_STACK 0
+#define PACKET_BASE !PACKET_STACK
+
 
 //#define SAFE_ENUM(TYPE,VAL) ((VAL)==(TYPE)0?VAL:VAL)
 
@@ -28,30 +33,18 @@ static volatile State state = STATE_NONE;
 #define IsState(s) ((s)==state)
 #define SetState(s) (state=(s))
 
-static SGpioInit xGpio0IRQ = {
+static SGpioInit gpio0IRQ = {
   S2LP_GPIO_0,
   S2LP_GPIO_MODE_DIGITAL_OUTPUT_LP,
   S2LP_GPIO_DIG_OUT_IRQ
 };
 
-static SRadioInit xRadioInit = {
+static SRadioInit radioInit = {
   BASE_FREQUENCY,
   MODULATION_SELECT,
   DATARATE,
   FREQ_DEVIATION,
   BANDWIDTH
-};
-
-static PktBasicInit xBasicInit = {
-  PREAMBLE_LENGTH,
-  SYNC_LENGTH,
-  SYNC_WORD,
-  VARIABLE_LENGTH,
-  EXTENDED_LENGTH_FIELD,
-  CRC_MODE,
-  EN_ADDRESS,
-  EN_FEC,
-  EN_WHITENING
 };
 
 //static volatile int32_t rssidBm = -200;
@@ -72,6 +65,18 @@ static uint8_t rxDataBuf[RX_PACKET_MAX_SIZE];
 static uint16_t rxDataLen;
 
 static RADIO_InitStruct init;
+
+static void writeReg(uint8_t regAddress, uint8_t bufLen, uint8_t *pBuf) {
+  g_xStatus = S2LPSpiWriteRegisters(regAddress, bufLen, pBuf);
+}
+
+static void readReg(uint8_t regAddress, uint8_t bufLen, uint8_t *pBuf) {
+  g_xStatus = S2LPSpiReadRegisters(regAddress, bufLen, pBuf);
+}
+
+static void sendCommant(uint8_t commandCode) {
+  g_xStatus = S2LPSpiCommandStrobes(commandCode);
+}
 
 static void printIrqs(const char* msg, S2LPIrqs *pxIrqs) {
   LOG("S2LP IRQs: %s", msg);
@@ -109,7 +114,7 @@ static void printIrqs(const char* msg, S2LPIrqs *pxIrqs) {
 
 }
 
-static void AbortS2LP() {
+static void AbortRXTX() {
   //  S2LPGpioIrqConfig(RX_DATA_DISC, S_DISABLE);
   S2LPCmdStrobeSabort();
   DELAY_US(5);
@@ -164,6 +169,73 @@ static inline S2LPIrqs *GetIRQStatus() {
   S2LPGpioIrqGetStatus(&irqStatus);
   return &irqStatus;
 }
+#if PACKET_BASE
+
+void initPacket() {
+  PktBasicInit basicInit = {
+    .xPreambleLength = PREAMBLE_LENGTH,
+    .xSyncLength = SYNC_LENGTH,
+    .lSyncWords = SYNC_WORD,
+    .xFixVarLength = VARIABLE_LENGTH,
+    .cExtendedPktLenField = EXTENDED_LENGTH_FIELD,
+    .xCrcMode = CRC_MODE,
+    .xAddressField = EN_ADDRESS,
+    .xFec = EN_FEC,
+    .xDataWhitening = EN_WHITENING
+  };
+  S2LPPktBasicInit(&basicInit);
+  /* Дальше настраиваем работу с адресом. S2LPPktBasicAddressesInit не работает, делаем вручную.
+   * При отправке пакета, в поле адрес пишется значение RX_SOURCE_ADDR регистра PCKT_FLT_GOALS3_ADDR
+   * При получении пакета, значение из поля адреса сравнивается со значением TX_SOURCE_ADDR из регитсра PCKT_FLT_GOALS0_ADDR
+   * В регистре PCKT_FLT_OPTIONS_ADDR нужно поднять флаг DEST_VS_SOURCE_ADDR чтобы модуль фильтровал пакеты по адресу
+   */
+  uint8_t tmp;
+  //включаем фильтр по адресу
+  readReg(PCKT_FLT_OPTIONS_ADDR, 1, &tmp);
+  tmp |= DEST_VS_SOURCE_ADDR_REGMASK;
+  writeReg(PCKT_FLT_OPTIONS_ADDR, 1, &tmp);
+  //устанавливаем свой адрес в PCKT_FLT_GOALS0_ADDR(TX_SOURCE_ADDR)
+  tmp = RADIO_ADDRESS(init.devID);
+  writeReg(PCKT_FLT_GOALS0_ADDR, 1, &tmp);
+}
+#endif
+#if PACKET_STACK
+
+void initPacket() {
+
+}
+#endif
+
+static void SetDestAddress(uint8_t address) {
+  S2LPSetRxSourceReferenceAddress(address);
+}
+
+static void SendRadioPacket(DeviceID destAddr, void* pData, uint8_t dataLen) {
+  RADIO_PacketHeader header = {
+    .src = init.devID,
+    .dest = destAddr
+  };
+
+  //очищаем буфер
+  sendCommant(CMD_FLUSHTXFIFO);
+  //пишем в буфер заголовок пакета
+  S2LPSpiWriteFifo(RADIO_PACKET_HEADER_SIZE, (uint8_t *) & header);
+  // и тело пакета
+  S2LPSpiWriteFifo(dataLen, pData);
+
+  //устанавливаем параметры пакета S2LP
+  S2LPPktBasicSetPayloadLength(dataLen+RADIO_PACKET_HEADER_SIZE);
+  SetDestAddress(RADIO_ADDRESS(destAddr));
+  //прерываем приём и запускаем передачу
+  AbortRXTX();
+  StartTX();
+}
+
+static inline void waitTX() {
+  while (IsState(STATE_TX)) {
+  }
+
+}
 
 void RADIO_Init(RADIO_InitStruct *pInit) {
   init = *pInit;
@@ -174,19 +246,18 @@ void RADIO_Init(RADIO_InitStruct *pInit) {
   DELAY_US(1000);
 
   /* S2LP IRQ config */
-  S2LPGpioInit(&xGpio0IRQ);
+  S2LPGpioInit(&gpio0IRQ);
 
   /* S2LP Radio config */
-  S2LPRadioInit(&xRadioInit);
+  S2LPRadioInit(&radioInit);
 
   /* S2LP Radio set power */
   S2LPRadioSetMaxPALevel(S_ENABLE); //выбираем максимальную мощность 14dBm
-  //	S2LPRadioSetPALeveldBm(7, POWER_DBM);// задаём 7 уровень мощности
-  //	S2LPRadioSetPALevelMaxIndex(7);// выбираем 7 уровень мощности
+  //S2LPRadioSetPALeveldBm(7, POWER_DBM);// задаём 7 уровень мощности
+  //S2LPRadioSetPALevelMaxIndex(7);// выбираем 7 уровень мощности
   S2LPRadioSetRssiThreshdBm(RSSI_THREHSOLD_DBM);
 
-  /* S2LP Packet config */
-  S2LPPktBasicInit(&xBasicInit);
+  initPacket();
 
   /* S2LP IRQs enable */
   S2LPIrqs irqInit = {0};
@@ -194,34 +265,22 @@ void RADIO_Init(RADIO_InitStruct *pInit) {
   irqInit.IRQ_RX_DATA_READY = S_ENABLE;
   S2LPGpioIrqInit(&irqInit);
 
-  //S2LPGpioIrqDeInit(NULL);
-  //S2LPGpioIrqConfig(TX_DATA_SENT, S_ENABLE);
-  //S2LPGpioIrqConfig(RX_DATA_READY, S_ENABLE);
-
-  /* payload length config */
-  //    S2LPPktBasicSetPayloadLength(128);
 
   /* IRQ registers blanking */
   S2LPGpioIrqClearStatus();
-
-  /* RX timeout config */
-  //	S2LPTimerSetRxTimerUs(700000);
-
-//  S2LPRefreshStatus();
+  //  S2LPRefreshStatus();
   LOG("S2LP Status: ON:%d STATE:%d", g_xStatus.XO_ON, g_xStatus.MC_STATE);
 
   SetState(STATE_READY);
   StartRX();
 }
 
-RADIO_Result RADIO_Transmit(void* pData, uint8_t dataLen) {
-  while (IsState(STATE_TX)) {
-  }
+RADIO_Result RADIO_Transmit(DeviceID destID, void* pData, uint8_t dataLen) {
+  waitTX();
 
   if (IsState(STATE_READY)) {
-    AbortS2LP();
-    WriteTxFifi(pData, dataLen);
-    StartTX();
+    SendRadioPacket(destID, pData, dataLen);
+
     return RADIO_OK;
   } else {
     return RADIO_ERR_STATE;
@@ -236,11 +295,21 @@ void RADIO_Process() {
 
   if (GetMessage(MSG_RX_DATA)) {
     if (ReadRxFifo() == RADIO_OK) {
-      if (init.receiveCallbackFn != NULL) {
-        RADIO_Result r = init.receiveCallbackFn(rxDataBuf, rxDataLen);
-        if (r == RADIO_INPROGRESS) {
-          GetMessage(MSG_RX_DATA);
+      //входящий пакет прочитан, обрабатываем заголовок
+      RADIO_PacketHeader *header = (RADIO_PacketHeader *) rxDataBuf;
+      if (header->dest == init.devID) {
+        if (init.receiveCallbackFn != NULL) {
+          void *pData = (rxDataBuf + RADIO_PACKET_HEADER_SIZE);
+          uint16_t dataLen = rxDataLen - RADIO_PACKET_HEADER_SIZE;
+          RADIO_Result r = init.receiveCallbackFn(header, pData, dataLen);
+          if (r == RADIO_INPROGRESS) {
+            GetMessage(MSG_RX_DATA);
+          }
+          //если в калбеке вызвали Transmit придётся подождать
+          waitTX();
         }
+      } else {
+        LOG("Bad packet destination address %x", header->dest);
       }
     }
     StartRX();
@@ -260,7 +329,6 @@ void RADIO_GPIOCallback(/**S2LPGpioPin pin*/) {
   if (pIrqs->IRQ_TX_DATA_SENT && IsState(STATE_TX)) {
     //данные отправлены
     SendMessage(MSG_TX_DONE);
-    //
     SetState(STATE_READY);
     StartRX();
   }
@@ -268,6 +336,7 @@ void RADIO_GPIOCallback(/**S2LPGpioPin pin*/) {
   if (pIrqs->IRQ_RX_DATA_READY) {
     //приняты данные
     SendMessage(MSG_RX_DATA);
+    SetState(STATE_READY);
   }
   //  }
 }
