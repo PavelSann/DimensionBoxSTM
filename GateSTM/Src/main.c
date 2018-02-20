@@ -94,7 +94,7 @@ static void WDGReset() {
 }
 
 void RadioReveiveCallback(RADIO_PacketHeader *header, void* pData, uint8_t dataLen) {
- // LOG("RADIO: Received 0x%x->0x%x %d bytes", header->src, header->dest, dataLen);
+  // LOG("RADIO: Received 0x%x->0x%x %d bytes", header->src, header->dest, dataLen);
   TCPS_SendPacket(SRV_PACKET_TYPE_RADIO_PACKET, header, dataLen + RADIO_PACKET_HEADER_SIZE);
 }
 
@@ -102,10 +102,15 @@ void TCPSReceivePacketCallback(SRV_PacketHeader * pHead, uint8_t *payload) {
   if (SRV_PACKET_TYPE_RADIO_PACKET == pHead->type) {
     RADIO_PacketHeader *pRHead = (RADIO_PacketHeader *) payload;
     //!!!!!!!!!!!!!!! (uint16_t)pHead->payloadLength radpack uint8_t
-    assert_param(pHead->payloadLength < 0xFF);
-    RADIO_Result r = RADIO_TransmitPacket(pRHead, pHead->payloadLength);
-    if (RADIO_OK != r) {
-      LOG("RADIO transmit error %d", r);
+
+    if (pHead->payloadLength > RADIO_MAX_PAYLOAD_SIZE) {
+      LOGERR("Bad packet size %d", pHead->payloadLength);
+    } else {
+      assert_param(pHead->payloadLength < 0xFF);
+      RADIO_Result r = RADIO_TransmitPacket(pRHead, pHead->payloadLength);
+      if (RADIO_OK != r) {
+        LOG("RADIO transmit error %d", r);
+      }
     }
   }
 }

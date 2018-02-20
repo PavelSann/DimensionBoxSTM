@@ -15,6 +15,7 @@
 #define S2LP_FIFO_SIZE 128
 /** Максимальный размер 1 пакета*/
 #define RX_PACKET_MAX_SIZE S2LP_FIFO_SIZE
+// должен соотвестоввать RADIO_MAX_PACKET_SIZE
 
 /*Примерная задержка в микросекундах, одна итерация примерно 12 тактов, реальная задержка будет на 20-30% больше*/
 #define DELAY_US(us)   {for (volatile uint32_t count=((SystemCoreClock/12000000)*(us)), i = 0; i < count; i++);}
@@ -263,6 +264,11 @@ static void SetDestAddress(uint8_t address) {
 }
 
 static void SendRadioPacket(DeviceID destAddr, void* pData, uint8_t dataLen, bool addHeader) {
+  if( (dataLen+(addHeader?RADIO_PACKET_HEADER_SIZE:0))>RX_PACKET_MAX_SIZE ){
+    LOGERR("Data size is larger than the buffer size");
+    return;
+  }
+
   //очищаем буфер
   SendCommant(CMD_FLUSHTXFIFO);
   uint16_t payloadLen = dataLen;

@@ -42,14 +42,17 @@
  */
 #define SRV_SERVER_RESERV_IP IP_ADDR(192, 168, 1, 10)
 #define SRV_SERVER_PORT 8888
-#define SRV_WATCHDOG_TIME (30*2)
 #define USE_DNS_SERVER false
 #define SRV_SERVER_NAME "is.meterage72.ru"
 #define SRV_DNS_SERVERS  IP_ADDR(8, 8, 8, 8) /*Google*/, IP_ADDR(77, 88, 8, 8)/*Yandex*/
 #define SRV_GATE_ID ((uint32_t)42)
-#define SRV_MAX_SESSION_KEY_LN 128
 #define SRV_SECURITY_KEY {1,2,3,4,5,6,7,8,9,0,9,8,7,6,5,4}
 //#define SRV_SECURITY_KEY {0}
+#define SRV_WATCHDOG_TIME (30*2)
+#define SRV_MAX_SESSION_KEY_LN 128
+#define SRV_RESERVED_MEM_SIZE 1000  //заразервированно под структуры lwip
+#define SRV_MAX_PQUEUE_ALLOC_SIZE LWIP_MEM_ALIGN_SIZE(MEM_SIZE)-(sizeof (Session) + SRV_RESERVED_MEM_SIZE);
+#define SRV_MAX_PBUF_IN_PACKET PBUF_POOL_SIZE
 
 /*
  * Состояния сессии связи
@@ -436,11 +439,12 @@ static void closeConnection(Session *session) {
   tcp_sent(session->pcb, NULL);
   tcp_poll(session->pcb, NULL, 0);
   tcp_err(session->pcb, NULL);
-
-  tcp_close(session->pcb);
-  currentSession = NULL;
-  freeSession(session);
+  tcp_arg(session->pcb, NULL);
   setState(session, STATE_INIT);
+
+  freeSession(session);
+  currentSession = NULL;
+  tcp_close(session->pcb);
 }
 
 static void startHandshaking(Session *session) {
@@ -521,7 +525,7 @@ static err_t processSegment(Session *session, struct pbuf *p) {
     uint8_t nextSeqNum = NEXT_SEQ_NUMBER(session->rxSeqNumber);
 
     if (header->sequenceNumber != nextSeqNum) {
-      LOGERR("Illegal sequence number, header:%d expected:%d ", header->sequenceNumber,nextSeqNum);
+      LOGERR("Illegal sequence number, header:%d expected:%d ", header->sequenceNumber, nextSeqNum);
       return ERR(ERR_ARG);
     }
     //    if(type){
@@ -533,13 +537,20 @@ static err_t processSegment(Session *session, struct pbuf *p) {
       return ERR(ERR_MEM);
     }
     session->packetBuf = p;
-  } else {
+  }
+  else {
     //если уже идёт приём пакета, то присоединяем сегмент к нему
     pbuf_cat(session->packetBuf, p);
   }
 
   {
     struct pbuf * const packBuf = session->packetBuf;
+    uint16_t countBuf = pbuf_clen(packBuf);
+    if (countBuf >= SRV_MAX_PBUF_IN_PACKET) {
+      LOGERR("The package consists of %d(MAX:%d) segments.", countBuf, SRV_MAX_PBUF_IN_PACKET);
+      return ERR(ERR_MEM);
+    }
+
     //общее количество байт, которое нужно принять значение payloadLength из заголовка пакета + длинна заголовка
     uint16_t fullLength = PACK_FULL_LENGTH(packBuf->payload);
 
@@ -552,7 +563,7 @@ static err_t processSegment(Session *session, struct pbuf *p) {
     if (packBuf->tot_len > fullLength) {
       //принято больше байт чем длина пакета, значит отправитель склеил TCP пакеты
       //такого не должно быть, пакет будет обрезан, данные потеряны
-      uint16_t countBuf = pbuf_clen(packBuf);
+
       LOG("Packet trash tot_len=%d packetLen=%d countBuf=%d", packBuf->tot_len, fullLength, countBuf);
     }
 
@@ -611,9 +622,15 @@ static err_t receiveCallback(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, er
     //дальше запускаем обработчики пакетов
     err_t result = processSegment(session, p);
     if (result != ERR_INPROGRESS) {
-      tcp_recved(tpcb, session->packetBuf->tot_len);
-      pbuf_free(session->packetBuf);
-      session->packetBuf = NULL;
+      //если ERR_INPROGRESS значит идёт сборка пакета из нескольких сегментов и память пока освобождать нельзя
+      struct pbuf *freePBuf = p;
+      if (session->packetBuf != NULL) {
+        //если session->packetBuf заполнен, то p должен быть в него включён, и освобождать будем его
+        freePBuf = session->packetBuf;
+        session->packetBuf = NULL;
+      }
+      tcp_recved(tpcb, freePBuf->tot_len);
+      pbuf_free(freePBuf);
       sendAsk(session, result);
     }
   }
@@ -730,7 +747,7 @@ void TCPS_Init(TCPS_InitStruct initStruct) {
     dns_setserver(i, &dnsServers[i]);
   }
   dns_init();
-  uint32_t qMem = LWIP_MEM_ALIGN_SIZE(MEM_SIZE)-(sizeof (Session) + 1000); //байты под доп структуры
+  uint32_t qMem = SRV_MAX_PQUEUE_ALLOC_SIZE;
   PQueue_SetMaxAllocSize(qMem);
 }
 
@@ -773,6 +790,7 @@ TCPS_Error TCPS_SendPacket(SRV_PacketType type, void *pData, uint16_t dataLen) {
 }
 
 void TCPS_Process() {
+  //сделать ешё один сторож, который на сосновании ошибок памяти из lwip_stats.memp будет делать сброс
   MX_LWIP_Process();
 
   if (PQueue_GetFirst()) {

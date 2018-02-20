@@ -49,6 +49,8 @@ extern "C" {
 
 #define RADIO_PACKET_HEADER_SIZE (sizeof(RADIO_PacketHeader))
 #define RADIO_PACKET_PAYLOAD(pHead) (((uint8_t *)(pHead))+RADIO_PACKET_HEADER_SIZE)
+#define RADIO_MAX_PACKET_SIZE (128)
+#define RADIO_MAX_PAYLOAD_SIZE (128-RADIO_PACKET_HEADER_SIZE)
 
 
 
