@@ -24,19 +24,31 @@ extern "C" {
 
   /* Уникальный идентификатор устройства*/
   typedef uint32_t DeviceID;
-
+  /* Получение адреса радио модуля из ID устройства*/
 #define RADIO_ADDRESS(devID) ((devID)&0xFF)
+
+  typedef enum RADIO_PacketType {
+    RADIO_PACKET_TYPE_PING = 0,
+    RADIO_PACKET_TYPE_DATA_REQUEST = 1,
+
+
+  } RADIO_PacketType;
 
   /*Основной заголовок для всех пакетов, выравнивание на 4 байта*/
   typedef struct __packed RADIO_PacketHeader {
     /*Устройство которому предназначен пакет*/
-    DeviceID src;
-    /*Устройство отправившее пакет*/
     DeviceID dest;
+    /*Устройство отправившее пакет*/
+    DeviceID src;
+    /*Тип пакета*/
+    RADIO_PacketType type;
+    /*резерв, выравнивание*/
+    uint8_t  reserve[3];
 
   } RADIO_PacketHeader;
 
 #define RADIO_PACKET_HEADER_SIZE (sizeof(RADIO_PacketHeader))
+#define RADIO_PACKET_PAYLOAD(pHead) (((uint8_t *)(pHead))+RADIO_PACKET_HEADER_SIZE)
 
 
 

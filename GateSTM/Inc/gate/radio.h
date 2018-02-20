@@ -29,7 +29,7 @@ extern "C" {
   } RADIO_Result;
 #define RADIO_IS_RESULT_ERR(result) ((result)<0)
 
-  typedef RADIO_Result(*RADIO_ReceiveCallbackFn)(RADIO_PacketHeader *header,void* pData, uint8_t dataLen);
+  typedef void(*RADIO_ReceiveCallbackFn)(RADIO_PacketHeader *header, void* pData, uint8_t dataLen);
 
   typedef struct {
     DeviceID devID;
@@ -37,8 +37,11 @@ extern "C" {
   } RADIO_InitStruct;
 
   void RADIO_Init(RADIO_InitStruct *pInit);
-  RADIO_Result RADIO_Transmit(DeviceID destID,void* pData, uint8_t dataLen);
-  void RADIO_GPIOCallback();
+  RADIO_Result RADIO_Transmit(DeviceID destID, void* pData, uint8_t dataLen);
+  RADIO_Result RADIO_TransmitPacket(RADIO_PacketHeader *pRHead, uint8_t packetLen);
+  void RADIO_IRQCallback();
+  bool RADIO_IsTransmit();
+  bool RADIO_IsReceive();
   void RADIO_Process();
 
 

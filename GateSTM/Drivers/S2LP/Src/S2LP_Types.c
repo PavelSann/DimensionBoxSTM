@@ -106,6 +106,7 @@ volatile S2LPStatus g_xStatus;
  */
 
 #ifdef  S2LP_USE_FULL_ASSERT
+
 /**
  * @brief  Reports the name of the source file and the source line number
  *         where the assert_param error has occurred.
@@ -113,18 +114,15 @@ volatile S2LPStatus g_xStatus;
  * @param line  assert_param error line source number
  * @retval : None
  */
-void s_assert_failed(uint8_t* file, uint32_t line)
-{
+void s_assert_failed(uint8_t* file, uint32_t line) {
   /* User can add his own implementation to report the file name and line number */
   printf("Wrong parameters value: file %s on line %d\r\n", file, line);
 
   /* Infinite loop */
-  while (1)
-  {
+  while (1) {
   }
 }
 #endif
-
 
 /**
  * @brief  Updates the gState (the global variable used to maintain memory of S2LP Status)
@@ -132,18 +130,19 @@ void s_assert_failed(uint8_t* file, uint32_t line)
  * @param  None
  * @retval None
  */
-void S2LPRefreshStatus(void)
-{
+void S2LPRefreshStatus(void) {
+  uint8_t tmp;
   uint8_t tempRegValue[2];
   /* Read the status both from register and from SPI header and exit when they match.
       This will protect against possible transition state changes */
-  do
-  {
+  do {
     /* Reads the MC_STATUS register to update the g_xStatus */
-    g_xStatus = S2LPSpiReadRegisters(MC_STATE0_ADDR, 2, tempRegValue);
-  }
-  while(!((((uint8_t*)&g_xStatus)[0])==tempRegValue[1] && 
-          (((uint8_t*)&g_xStatus)[1]&0x07)==tempRegValue[0])); 
+    g_xStatus = S2LPSpiReadRegisters(MC_STATE1_ADDR, 2, tempRegValue);
+    tmp = tempRegValue[0];
+    tempRegValue[0] = tempRegValue[1];
+    tempRegValue[1] = tmp;
+
+  } while (!((((uint8_t*) & g_xStatus)[0]) == tempRegValue[0] &&(((uint8_t*) & g_xStatus)[1]&0x07) == tempRegValue[1]));
 
 }
 

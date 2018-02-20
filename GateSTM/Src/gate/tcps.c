@@ -491,7 +491,7 @@ static err_t processPacket(Session *session) {
       //выводим строку из пакета
       LOG("Packet str: %s", payload);
       break;
-    case SRV_PACKET_TYPE_DEVICE:
+    case SRV_PACKET_TYPE_RADIO_PACKET:
       //выводим строку из пакета
       if (init.receiveCallback) {
         init.receiveCallback(pPack, payload);

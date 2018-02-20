@@ -93,19 +93,20 @@ static void WDGReset() {
   HAL_IWDG_Refresh(&hiwdg);
 }
 
-RADIO_Result RadioReveiveCallback(RADIO_PacketHeader *header, void* pData, uint8_t dataLen) {
-  LOG("RADIO: Received 0x%x->0x%x %d bytes", header->src, header->dest, dataLen);
-  TCPS_SendPacket(SRV_PACKET_TYPE_DEVICE, pData, dataLen);
-  //  TCPS_
-  return RADIO_OK;
+void RadioReveiveCallback(RADIO_PacketHeader *header, void* pData, uint8_t dataLen) {
+ // LOG("RADIO: Received 0x%x->0x%x %d bytes", header->src, header->dest, dataLen);
+  TCPS_SendPacket(SRV_PACKET_TYPE_RADIO_PACKET, header, dataLen + RADIO_PACKET_HEADER_SIZE);
 }
 
 void TCPSReceivePacketCallback(SRV_PacketHeader * pHead, uint8_t *payload) {
-  DeviceID destID = 42;
-
-  RADIO_Result r = RADIO_Transmit(destID, payload, pHead->payloadLength);
-  if (RADIO_OK != r) {
-    LOG("RADIO transmit error %d", r);
+  if (SRV_PACKET_TYPE_RADIO_PACKET == pHead->type) {
+    RADIO_PacketHeader *pRHead = (RADIO_PacketHeader *) payload;
+    //!!!!!!!!!!!!!!! (uint16_t)pHead->payloadLength radpack uint8_t
+    assert_param(pHead->payloadLength < 0xFF);
+    RADIO_Result r = RADIO_TransmitPacket(pRHead, pHead->payloadLength);
+    if (RADIO_OK != r) {
+      LOG("RADIO transmit error %d", r);
+    }
   }
 }
 /* USER CODE END PFP */
@@ -184,6 +185,7 @@ int main(void) {
     RADIO_Process();
     TCPS_Process();
 
+    GPIOB->BSRR = RADIO_IsReceive() ? GPIO_BSRR_BS7 : GPIO_BSRR_BR7;
   }
   /* USER CODE END 3 */
 
@@ -261,7 +263,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t pin) {
   }
 
   if (pin == S2LP_GPIO0_Pin) {
-    RADIO_GPIOCallback();
+    RADIO_IRQCallback();
   }
 }
 
@@ -276,6 +278,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t pin) {
 void _Error_Handler(char *file, int line) {
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
+  LOG("ERROR HANDLER: %s:%d. Stop MCU", file, line);
   while (1) {
   }
   /* USER CODE END Error_Handler_Debug */
@@ -292,8 +295,7 @@ void _Error_Handler(char *file, int line) {
  */
 void assert_failed(uint8_t* file, uint32_t line) {
   /* USER CODE BEGIN 6 */
-  /* User can add his own implementation to report the file name and line number,
-    ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+  LOG("ASSERT FAILED: %s:%d", file, line);
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */

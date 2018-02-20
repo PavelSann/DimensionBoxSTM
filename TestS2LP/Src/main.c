@@ -71,13 +71,12 @@ static void MX_SPI1_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* Private function prototypes -----------------------------------------------*/
-RADIO_Result ReceiveCallback(RADIO_PacketHeader *header, void* pData, uint8_t dataLen) {
-  LOG("RADIO: Received 0x%x->0x%x %d bytes", header->src, header->dest, dataLen);
-  LOGMEM(pData, dataLen);
+void ReceiveCallback(RADIO_PacketHeader *header, void* pData, uint8_t dataLen) {
+//  LOG("RADIO: Received 0x%x->0x%x %d bytes", header->src, header->dest, dataLen);
+  // LOGMEM(pData, dataLen);
   destId = header->src;
 
-  RADIO_Transmit(destId, pData,dataLen);
-  return RADIO_OK;
+  RADIO_Transmit(destId, pData, dataLen);
 }
 /* USER CODE END PFP */
 
@@ -122,7 +121,7 @@ int main(void) {
   SdkEvalSpiInitEx(&hspi1, S2LP_CSn_GPIO_Port, S2LP_CSn_Pin, S2LP_Shutdown_GPIO_Port, S2LP_Shutdown_Pin);
 
   RADIO_InitStruct radio = {
-    .devID = 42,
+    .devID = 2,
     .receiveCallbackFn = ReceiveCallback
   };
   RADIO_Init(&radio);
@@ -138,6 +137,7 @@ int main(void) {
     /* USER CODE BEGIN 3 */
     RADIO_Process();
 
+    GPIOA->BSRR = RADIO_IsReceive() ? GPIO_BSRR_BS_5 : GPIO_BSRR_BR_5;
   }
   /* USER CODE END 3 */
 
@@ -305,6 +305,7 @@ static void MX_GPIO_Init(void) {
 
 /* USER CODE BEGIN 4 */
 
+
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
   if (GPIO_Pin == ButtonBlue_Pin) {
     uint8_t data[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
@@ -312,7 +313,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
   }
 
   if (GPIO_Pin == S2LP_Pin0_Pin) {
-    RADIO_GPIOCallback();
+    RADIO_IRQCallback();
   }
 }
 

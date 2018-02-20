@@ -27,8 +27,8 @@ void SystemClock_Config(void);
 #define READ_HEADER     BUILT_HEADER(HEADER_ADDRESS_MASK, HEADER_READ_MASK)  /*!< macro to build the read header byte*/
 #define COMMAND_HEADER  BUILT_HEADER(HEADER_COMMAND_MASK, HEADER_WRITE_MASK) /*!< macro to build the command header byte*/
 
-#define SPI_ENTER_CRITICAL()           //__disable_irq()
-#define SPI_EXIT_CRITICAL()            //__enable_irq()
+#define SPI_ENTER_CRITICAL()           __disable_irq()
+#define SPI_EXIT_CRITICAL()            __enable_irq()
 static SPI_HandleTypeDef *pSpiHandle;
 
 static GPIO_TypeDef* gpioCSnPort;
