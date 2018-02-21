@@ -574,7 +574,7 @@ uint8_t S2LPRadioInit(SRadioInit* pxSRadioInitStruct)
   if(((s_lXtalFrequency<DIG_DOMAIN_XTAL_THRESH) && (xState==S_ENABLE)) || ((s_lXtalFrequency>DIG_DOMAIN_XTAL_THRESH) && (xState==S_DISABLE))) {
     S2LPSpiCommandStrobes(CMD_STANDBY);    
     do{
-      for(volatile uint8_t i=0; i!=0xFF; i++);
+      for(volatile uint8_t i=0; i!=0xFF; i++); //-V529
       S2LPRefreshStatus();      // add a timer expiration callback
     }while(g_xStatus.MC_STATE!=MC_STATE_STANDBY);
     
@@ -583,7 +583,7 @@ uint8_t S2LPRadioInit(SRadioInit* pxSRadioInitStruct)
     
     S2LPSpiCommandStrobes(CMD_READY);
     do{
-      for(volatile uint8_t i=0; i!=0xFF; i++);
+      for(volatile uint8_t i=0; i!=0xFF; i++); //-V529
       S2LPRefreshStatus();      // add a timer expiration callback
     }while(g_xStatus.MC_STATE!=MC_STATE_READY);
   }  

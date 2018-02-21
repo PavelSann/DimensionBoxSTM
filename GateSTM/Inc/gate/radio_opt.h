@@ -75,8 +75,8 @@ extern "C" {
 #define WAKEUP_TIMER                100/*.0*/
 
 
-#define PREAMBLE_BYTE(v)        (4*v)
-#define SYNC_BYTE(v)            (8*v)
+#define PREAMBLE_BYTE(v)        (4*(v))
+#define SYNC_BYTE(v)            (8*(v))
 
 
 #ifndef MEMCPY

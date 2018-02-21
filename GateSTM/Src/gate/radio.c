@@ -1,3 +1,5 @@
+// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "radio.h"
 #include <stdint.h>
 #include "xprint.h"
@@ -48,7 +50,7 @@ static uint16_t rxDataLen;
 static RADIO_InitStruct init;
 extern volatile S2LPStatus g_xStatus;
 #define radioStatus g_xStatus
-#define IsRadioState(radioStatus,MC_STATE_VAL) (radioStatus.MC_STATE==MC_STATE_VAL)
+#define IsRadioState(radioStatus,MC_STATE_VAL) ((radioStatus).MC_STATE==MC_STATE_VAL)
 
 static void WriteReg(uint8_t regAddress, uint8_t bufLen, uint8_t *pBuf) {
   radioStatus = S2LPSpiWriteRegisters(regAddress, bufLen, pBuf);
@@ -361,9 +363,9 @@ void RADIO_Init(RADIO_InitStruct *pInit) {
 
   /* S2LP IRQs enable */
   S2LPIrqs irqInit = {0};
-  irqInit.IRQ_TX_DATA_SENT = S_ENABLE;
-  irqInit.IRQ_RX_DATA_READY = S_ENABLE;
-  irqInit.IRQ_RX_DATA_DISC = S_ENABLE;
+  irqInit.IRQ_TX_DATA_SENT = S_SET;
+  irqInit.IRQ_RX_DATA_READY = S_SET;
+  irqInit.IRQ_RX_DATA_DISC = S_SET;
 
   //  irqInit.IRQ_READY = S_ENABLE;
   //  irqInit.IRQ_RX_FIFO_ERROR = S_ENABLE;

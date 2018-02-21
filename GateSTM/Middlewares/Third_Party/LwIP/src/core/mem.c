@@ -402,7 +402,7 @@ mem_init(void)
 
   MEM_STATS_AVAIL(avail, MEM_SIZE_ALIGNED);
 
-  if (sys_mutex_new(&mem_mutex) != ERR_OK) {
+  if (sys_mutex_new(&mem_mutex) != ERR_OK) { //-V501
     LWIP_ASSERT("failed to create mem_mutex", 0);
   }
 }
