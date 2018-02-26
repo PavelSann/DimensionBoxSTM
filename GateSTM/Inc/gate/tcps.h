@@ -14,7 +14,7 @@ extern "C" {
 #endif
 #include <stdint.h>
 #include "netif.h"
-#include "srv_packet.h"
+#include "gate_packet.h"
 
   typedef enum {
     /** Operation in progress    */

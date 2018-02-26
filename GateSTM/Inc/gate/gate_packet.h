@@ -11,8 +11,8 @@
  * Created on 19 января 2018 г., 19:12
  */
 
-#ifndef SRV_PACKET_H
-#define SRV_PACKET_H
+#ifndef GATE_PACKET_H
+#define GATE_PACKET_H
 
 #ifdef __cplusplus
 extern "C" {

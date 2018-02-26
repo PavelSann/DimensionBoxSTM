@@ -437,11 +437,11 @@
       </df>
       <df name="Inc">
         <df name="gate">
+          <in>gate_packet.h</in>
           <in>messages_helper.h</in>
           <in>radio.h</in>
           <in>radio_opt.h</in>
           <in>radio_packet.h</in>
-          <in>srv_packet.h</in>
           <in>tcps.h</in>
           <in>tcps_crypt.h</in>
           <in>tcps_packet_queue.h</in>
@@ -763,8 +763,6 @@
         <gdb_interceptlist>
           <gdbinterceptoptions gdb_all="false" gdb_unhandled="true" gdb_unexpected="true"/>
         </gdb_interceptlist>
-        <gdb_signals>
-        </gdb_signals>
         <gdb_options>
           <DebugOptions>
             <option name="gdb_init_file" value="gdbinit"/>

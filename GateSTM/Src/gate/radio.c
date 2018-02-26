@@ -33,7 +33,7 @@ typedef enum {
 #define MSG_OPT_MSG_TYPE Message
 #define MSG_OPT_SAFE_ENUM 1
 #include "messages_helper.h"
-#include "srv_packet.h"
+#include "gate_packet.h"
 
 typedef enum {
   STATE_NONE,
