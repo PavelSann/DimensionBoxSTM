@@ -1,11 +1,6 @@
 echo Executing GDB with gdbinit to connect to OpenOCD.\n
 set remotetimeout 10
 
-# Start to OpenOCD
-# target extended-remote | C:/msys64/mingw64/bin/openocd.exe -f st_board/nucleo_f207zg.cfg -c "gdb_port pipe; log_output openocd.log"
-
-#shel OpenOCD.cmd
-
 shell start "OpenOCD" openocd
 shell start "OpenOCD telnet" telnet localhost 4444
 #shell sleep 1
@@ -21,6 +16,8 @@ monitor reset init
 file build/GateSTM.elf
 load
 monitor reset halt
+# disabled watchdog and timers
+#monitor mww 0xE0042000U  0x0000
 
 
 #set breakpoints

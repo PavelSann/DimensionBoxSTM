@@ -416,7 +416,7 @@ static err_t addSendPacket(Session *session, SRV_PacketType type, void *pData, u
   }
 }
 
-static void sendAsk(Session *session, uint8_t code) {
+static void sendAck(Session *session, uint8_t code) {
   SRV_PacketACK ask;
   ask.code = code;
   ask.sequenceNumber = session->rxSeqNumber;
@@ -631,7 +631,7 @@ static err_t receiveCallback(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, er
       }
       tcp_recved(tpcb, freePBuf->tot_len);
       pbuf_free(freePBuf);
-      sendAsk(session, result);
+      sendAck(session, result);
     }
   }
 

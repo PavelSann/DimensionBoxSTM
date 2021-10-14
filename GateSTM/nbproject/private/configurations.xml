@@ -6,6 +6,9 @@
       </df>
       <df name="build">
       </df>
+      <df name="doc">
+        <in>connection.puml</in>
+      </df>
       <df name="Drivers">
         <df name="CMSIS">
           <df name="Device">
