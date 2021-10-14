@@ -1,0 +1,88 @@
+@startuml
+
+init: готов к работе
+startSession:
+connectionIP:
+connectionErrorCallback:
+connectedCallback:
+closeConnection:
+state connect{
+	connect:Перед подключением к серверу, пробуем получить IP по DNS имени
+	WaitDNS:Ожидание ответа от сервера
+	ErrorDNS:Ошибка подключения или получения IP
+	IPFromDNS:Получен IP по dns имени
+	IPFromReserv:Взят резервный IP
+	lookupDNS:
+	[*]-->lookupDNS
+	lookupDNS-->WaitDNS :запрос к dns серверу
+	lookupDNS-->ErrorDNS :ошибка связи
+	lookupDNS-->IPFromDNS :из кэша
+	ErrorDNS-->IPFromReserv
+	WaitDNS-->ErrorDNS
+	WaitDNS-->IPFromDNS
+	'IPFromDNS-->[*]
+	'IPFromReserv-->[*]
+}
+
+
+state handshaking{
+	startHandshaking:
+	sendPacketID:
+	waitSessionKey:
+	sendHandshakingACK:
+	handshakingError:
+
+	[*]-->startHandshaking
+	startHandshaking-->sendPacketID
+	sendPacketID-->waitSessionKey
+	waitSessionKey-->sendHandshakingACK
+	sendHandshakingACK-->[*]
+	waitSessionKey-->handshakingError
+	note right of handshakingError: НЕ РЕАЛИЗОВАННО
+}
+
+state connected{
+	connected:
+	wait:
+	processPacket:
+	sendPacketACK:
+	errorPacket:
+	deliveredPacket:
+
+	[*]-->wait
+	wait-left->receiveCallback
+	receiveCallback-->errorPacket
+	errorPacket-->wait
+	receiveCallback-left->processPacket
+	processPacket-->sendPacketACK
+	sendPacketACK-up->wait
+
+	wait-right->sentCallback
+	sentCallback->deliveredPacket
+	deliveredPacket-left->wait
+	sentCallback-left->wait
+
+	wait-->errorCallback
+	errorCallback-up->wait:NO FATAL
+	errorCallback-up->closeConnection:FATAL
+}
+
+[*]-->init
+init-->startSession
+startSession-->connect
+connect-->connectionIP
+'handshakingError->closeConnection
+handshaking-->connected
+
+connectionIP-->connectionErrorCallback
+connectionErrorCallback-->closeConnection
+closeConnection-up->init
+connectionIP-->connectedCallback
+
+connectedCallback-->handshaking
+
+
+
+
+
+@enduml

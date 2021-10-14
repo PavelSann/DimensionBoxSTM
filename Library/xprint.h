@@ -30,7 +30,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include "stm32l1xx_hal.h"
+
+#if X_PRINT_UART
+#define HEADER_HAL_UART
+#endif
+#include "stm32_hal.h"
 #include "xprintf.h"
 	void xprint_init_SWO();
 	void xprintln(const char* str);
@@ -42,13 +46,25 @@ extern "C" {
 	 */
 	void xprintbt(const void* buff, int len);
 #if X_PRINT_UART
-#include "stm32l1xx_hal_uart.h"
 	void xprint_init_UART(UART_HandleTypeDef* huart);
 #endif
 
 
 #if X_PRINT_LOG
-
+	/**
+	 *Format support:<br>
+	 *LOG("%d", 1234);			"1234"<br>
+	 *LOG("%6d,%3d%%", -200, 5);	"  -200,  5%"<br>
+	 *LOG("%-6u", 100);			"100   "<br>
+	 *LOG("%ld", 12345678L);		"12345678"<br>
+	 *LOG("%04x", 0xA3);			"00a3"<br>
+	 *LOG("%08LX", 0x123ABC);		"00123ABC"<br>
+	 *LOG("%016b", 0x550F);		"0101010100001111"<br>
+	 *LOG("%s", "String");		"String"<br>
+	 *LOG("%-4s", "abc");			"abc "<br>
+	 *LOG("%4s", "abc");			" abc"<br>
+	 *LOG("%c", 'a');				"a"<br>
+	 */
 #define LOG(args...) xprintf(args);xputc('\n')
 #define LOGMEM(buff,buffLn) xprintbt(buff,buffLn)
 #define LOGERR(args...)xprintf("%d	%s:%d	",HAL_GetTick(),__FILE__, __LINE__); xprintf(args);xputc('\n')

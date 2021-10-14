@@ -1,0 +1,25 @@
+echo Executing GDB with gdbinit to connect to OpenOCD.\n
+set remotetimeout 10
+
+shell start "OpenOCD" openocd
+shell start "OpenOCD telnet" telnet localhost 4444
+#shell sleep 1
+target extended-remote localhost:3333
+
+# configure gdb
+set remote hardware-breakpoint-limit 6
+set remote hardware-watchpoint-limit 4
+
+# Reset the target and call its init script
+monitor reset init
+# load 
+file build/GateSTM.elf
+load
+monitor reset halt
+# disabled watchdog and timers
+#monitor mww 0xE0042000U  0x0000
+
+
+#set breakpoints
+tbreak main
+n

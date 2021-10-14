@@ -12,15 +12,16 @@
  */
 
 #ifndef TRANSCEIVER_H
-#define TRANSCEIVER_H
+	#define TRANSCEIVER_H
 
-#ifdef __cplusplus
+	#ifdef __cplusplus
 extern "C" {
-#endif
-#include "stm32l1xx_hal.h"
-#include "stm32l1xx_hal_uart.h"
-#include "trans_package.h"
-#include <stdbool.h>
+	#endif
+	#define HEADER_HAL_UART
+	#include "stm32_hal.h"
+
+	#include "trans_package.h"
+	#include <stdbool.h>
 
 	typedef struct {
 		UART_HandleTypeDef *hUART;
@@ -39,11 +40,12 @@ extern "C" {
 	} TRANSError;
 
 	typedef __IO struct {
-//		uint16_t overflowQueueCount;
+		//		uint16_t overflowQueueCount;
 		HAL_StatusTypeDef lastTransmitStatus;
 		TRANSError lastError;
 		uint32_t countGoodPackage;
 		uint32_t countBadPackage;
+		uint32_t countSkipPackage;
 	} TRANSStatus;
 
 	/**
@@ -98,11 +100,15 @@ extern "C" {
 	 * @return
 	 */
 	TRANSStatus TRANS_GetStatus();
+	/**
+	 * Вызывается при ошибке
+	 * @param status
+	 */
 	void TRANS_OnError(TRANSStatus status);
 
-#ifdef __cplusplus
+	#ifdef __cplusplus
 }
-#endif
+	#endif
 
 #endif /* TRANSCEIVER_H */
 

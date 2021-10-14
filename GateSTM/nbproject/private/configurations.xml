@@ -1,0 +1,857 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="100">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <df root="." name="0">
+      <df name=".dep">
+      </df>
+      <df name="build">
+      </df>
+      <df name="doc">
+        <in>connection.puml</in>
+      </df>
+      <df name="Drivers">
+        <df name="CMSIS">
+          <df name="Device">
+            <df name="ST">
+              <df name="STM32F2xx">
+                <df name="Include">
+                  <in>stm32f207xx.h</in>
+                  <in>stm32f2xx.h</in>
+                  <in>system_stm32f2xx.h</in>
+                </df>
+                <df name="Source">
+                  <df name="Templates">
+                  </df>
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="DSP_Lib">
+            <df name="Source">
+              <df name="BasicMathFunctions">
+                <in>arm_abs_f32.c</in>
+                <in>arm_abs_q15.c</in>
+                <in>arm_abs_q31.c</in>
+                <in>arm_abs_q7.c</in>
+                <in>arm_add_f32.c</in>
+                <in>arm_add_q15.c</in>
+                <in>arm_add_q31.c</in>
+                <in>arm_add_q7.c</in>
+                <in>arm_dot_prod_f32.c</in>
+                <in>arm_dot_prod_q15.c</in>
+                <in>arm_dot_prod_q31.c</in>
+                <in>arm_dot_prod_q7.c</in>
+                <in>arm_mult_f32.c</in>
+                <in>arm_mult_q15.c</in>
+                <in>arm_mult_q31.c</in>
+                <in>arm_mult_q7.c</in>
+                <in>arm_negate_f32.c</in>
+                <in>arm_negate_q15.c</in>
+                <in>arm_negate_q31.c</in>
+                <in>arm_negate_q7.c</in>
+                <in>arm_offset_f32.c</in>
+                <in>arm_offset_q15.c</in>
+                <in>arm_offset_q31.c</in>
+                <in>arm_offset_q7.c</in>
+                <in>arm_scale_f32.c</in>
+                <in>arm_scale_q15.c</in>
+                <in>arm_scale_q31.c</in>
+                <in>arm_scale_q7.c</in>
+                <in>arm_shift_q15.c</in>
+                <in>arm_shift_q31.c</in>
+                <in>arm_shift_q7.c</in>
+                <in>arm_sub_f32.c</in>
+                <in>arm_sub_q15.c</in>
+                <in>arm_sub_q31.c</in>
+                <in>arm_sub_q7.c</in>
+              </df>
+              <df name="CommonTables">
+                <in>arm_common_tables.c</in>
+                <in>arm_const_structs.c</in>
+              </df>
+              <df name="ComplexMathFunctions">
+                <in>arm_cmplx_conj_f32.c</in>
+                <in>arm_cmplx_conj_q15.c</in>
+                <in>arm_cmplx_conj_q31.c</in>
+                <in>arm_cmplx_dot_prod_f32.c</in>
+                <in>arm_cmplx_dot_prod_q15.c</in>
+                <in>arm_cmplx_dot_prod_q31.c</in>
+                <in>arm_cmplx_mag_f32.c</in>
+                <in>arm_cmplx_mag_q15.c</in>
+                <in>arm_cmplx_mag_q31.c</in>
+                <in>arm_cmplx_mag_squared_f32.c</in>
+                <in>arm_cmplx_mag_squared_q15.c</in>
+                <in>arm_cmplx_mag_squared_q31.c</in>
+                <in>arm_cmplx_mult_cmplx_f32.c</in>
+                <in>arm_cmplx_mult_cmplx_q15.c</in>
+                <in>arm_cmplx_mult_cmplx_q31.c</in>
+                <in>arm_cmplx_mult_real_f32.c</in>
+                <in>arm_cmplx_mult_real_q15.c</in>
+                <in>arm_cmplx_mult_real_q31.c</in>
+              </df>
+              <df name="ControllerFunctions">
+                <in>arm_pid_init_f32.c</in>
+                <in>arm_pid_init_q15.c</in>
+                <in>arm_pid_init_q31.c</in>
+                <in>arm_pid_reset_f32.c</in>
+                <in>arm_pid_reset_q15.c</in>
+                <in>arm_pid_reset_q31.c</in>
+                <in>arm_sin_cos_f32.c</in>
+                <in>arm_sin_cos_q31.c</in>
+              </df>
+              <df name="FastMathFunctions">
+                <in>arm_cos_f32.c</in>
+                <in>arm_cos_q15.c</in>
+                <in>arm_cos_q31.c</in>
+                <in>arm_sin_f32.c</in>
+                <in>arm_sin_q15.c</in>
+                <in>arm_sin_q31.c</in>
+                <in>arm_sqrt_q15.c</in>
+                <in>arm_sqrt_q31.c</in>
+              </df>
+              <df name="FilteringFunctions">
+                <in>arm_biquad_cascade_df1_32x64_init_q31.c</in>
+                <in>arm_biquad_cascade_df1_32x64_q31.c</in>
+                <in>arm_biquad_cascade_df1_f32.c</in>
+                <in>arm_biquad_cascade_df1_fast_q15.c</in>
+                <in>arm_biquad_cascade_df1_fast_q31.c</in>
+                <in>arm_biquad_cascade_df1_init_f32.c</in>
+                <in>arm_biquad_cascade_df1_init_q15.c</in>
+                <in>arm_biquad_cascade_df1_init_q31.c</in>
+                <in>arm_biquad_cascade_df1_q15.c</in>
+                <in>arm_biquad_cascade_df1_q31.c</in>
+                <in>arm_biquad_cascade_df2T_f32.c</in>
+                <in>arm_biquad_cascade_df2T_f64.c</in>
+                <in>arm_biquad_cascade_df2T_init_f32.c</in>
+                <in>arm_biquad_cascade_df2T_init_f64.c</in>
+                <in>arm_biquad_cascade_stereo_df2T_f32.c</in>
+                <in>arm_biquad_cascade_stereo_df2T_init_f32.c</in>
+                <in>arm_conv_f32.c</in>
+                <in>arm_conv_fast_opt_q15.c</in>
+                <in>arm_conv_fast_q15.c</in>
+                <in>arm_conv_fast_q31.c</in>
+                <in>arm_conv_opt_q15.c</in>
+                <in>arm_conv_opt_q7.c</in>
+                <in>arm_conv_partial_f32.c</in>
+                <in>arm_conv_partial_fast_opt_q15.c</in>
+                <in>arm_conv_partial_fast_q15.c</in>
+                <in>arm_conv_partial_fast_q31.c</in>
+                <in>arm_conv_partial_opt_q15.c</in>
+                <in>arm_conv_partial_opt_q7.c</in>
+                <in>arm_conv_partial_q15.c</in>
+                <in>arm_conv_partial_q31.c</in>
+                <in>arm_conv_partial_q7.c</in>
+                <in>arm_conv_q15.c</in>
+                <in>arm_conv_q31.c</in>
+                <in>arm_conv_q7.c</in>
+                <in>arm_correlate_f32.c</in>
+                <in>arm_correlate_fast_opt_q15.c</in>
+                <in>arm_correlate_fast_q15.c</in>
+                <in>arm_correlate_fast_q31.c</in>
+                <in>arm_correlate_opt_q15.c</in>
+                <in>arm_correlate_opt_q7.c</in>
+                <in>arm_correlate_q15.c</in>
+                <in>arm_correlate_q31.c</in>
+                <in>arm_correlate_q7.c</in>
+                <in>arm_fir_decimate_f32.c</in>
+                <in>arm_fir_decimate_fast_q15.c</in>
+                <in>arm_fir_decimate_fast_q31.c</in>
+                <in>arm_fir_decimate_init_f32.c</in>
+                <in>arm_fir_decimate_init_q15.c</in>
+                <in>arm_fir_decimate_init_q31.c</in>
+                <in>arm_fir_decimate_q15.c</in>
+                <in>arm_fir_decimate_q31.c</in>
+                <in>arm_fir_f32.c</in>
+                <in>arm_fir_fast_q15.c</in>
+                <in>arm_fir_fast_q31.c</in>
+                <in>arm_fir_init_f32.c</in>
+                <in>arm_fir_init_q15.c</in>
+                <in>arm_fir_init_q31.c</in>
+                <in>arm_fir_init_q7.c</in>
+                <in>arm_fir_interpolate_f32.c</in>
+                <in>arm_fir_interpolate_init_f32.c</in>
+                <in>arm_fir_interpolate_init_q15.c</in>
+                <in>arm_fir_interpolate_init_q31.c</in>
+                <in>arm_fir_interpolate_q15.c</in>
+                <in>arm_fir_interpolate_q31.c</in>
+                <in>arm_fir_lattice_f32.c</in>
+                <in>arm_fir_lattice_init_f32.c</in>
+                <in>arm_fir_lattice_init_q15.c</in>
+                <in>arm_fir_lattice_init_q31.c</in>
+                <in>arm_fir_lattice_q15.c</in>
+                <in>arm_fir_lattice_q31.c</in>
+                <in>arm_fir_q15.c</in>
+                <in>arm_fir_q31.c</in>
+                <in>arm_fir_q7.c</in>
+                <in>arm_fir_sparse_f32.c</in>
+                <in>arm_fir_sparse_init_f32.c</in>
+                <in>arm_fir_sparse_init_q15.c</in>
+                <in>arm_fir_sparse_init_q31.c</in>
+                <in>arm_fir_sparse_init_q7.c</in>
+                <in>arm_fir_sparse_q15.c</in>
+                <in>arm_fir_sparse_q31.c</in>
+                <in>arm_fir_sparse_q7.c</in>
+                <in>arm_iir_lattice_f32.c</in>
+                <in>arm_iir_lattice_init_f32.c</in>
+                <in>arm_iir_lattice_init_q15.c</in>
+                <in>arm_iir_lattice_init_q31.c</in>
+                <in>arm_iir_lattice_q15.c</in>
+                <in>arm_iir_lattice_q31.c</in>
+                <in>arm_lms_f32.c</in>
+                <in>arm_lms_init_f32.c</in>
+                <in>arm_lms_init_q15.c</in>
+                <in>arm_lms_init_q31.c</in>
+                <in>arm_lms_norm_f32.c</in>
+                <in>arm_lms_norm_init_f32.c</in>
+                <in>arm_lms_norm_init_q15.c</in>
+                <in>arm_lms_norm_init_q31.c</in>
+                <in>arm_lms_norm_q15.c</in>
+                <in>arm_lms_norm_q31.c</in>
+                <in>arm_lms_q15.c</in>
+                <in>arm_lms_q31.c</in>
+              </df>
+              <df name="MatrixFunctions">
+                <in>arm_mat_add_f32.c</in>
+                <in>arm_mat_add_q15.c</in>
+                <in>arm_mat_add_q31.c</in>
+                <in>arm_mat_cmplx_mult_f32.c</in>
+                <in>arm_mat_cmplx_mult_q15.c</in>
+                <in>arm_mat_cmplx_mult_q31.c</in>
+                <in>arm_mat_init_f32.c</in>
+                <in>arm_mat_init_q15.c</in>
+                <in>arm_mat_init_q31.c</in>
+                <in>arm_mat_inverse_f32.c</in>
+                <in>arm_mat_inverse_f64.c</in>
+                <in>arm_mat_mult_f32.c</in>
+                <in>arm_mat_mult_fast_q15.c</in>
+                <in>arm_mat_mult_fast_q31.c</in>
+                <in>arm_mat_mult_q15.c</in>
+                <in>arm_mat_mult_q31.c</in>
+                <in>arm_mat_scale_f32.c</in>
+                <in>arm_mat_scale_q15.c</in>
+                <in>arm_mat_scale_q31.c</in>
+                <in>arm_mat_sub_f32.c</in>
+                <in>arm_mat_sub_q15.c</in>
+                <in>arm_mat_sub_q31.c</in>
+                <in>arm_mat_trans_f32.c</in>
+                <in>arm_mat_trans_q15.c</in>
+                <in>arm_mat_trans_q31.c</in>
+              </df>
+              <df name="StatisticsFunctions">
+                <in>arm_max_f32.c</in>
+                <in>arm_max_q15.c</in>
+                <in>arm_max_q31.c</in>
+                <in>arm_max_q7.c</in>
+                <in>arm_mean_f32.c</in>
+                <in>arm_mean_q15.c</in>
+                <in>arm_mean_q31.c</in>
+                <in>arm_mean_q7.c</in>
+                <in>arm_min_f32.c</in>
+                <in>arm_min_q15.c</in>
+                <in>arm_min_q31.c</in>
+                <in>arm_min_q7.c</in>
+                <in>arm_power_f32.c</in>
+                <in>arm_power_q15.c</in>
+                <in>arm_power_q31.c</in>
+                <in>arm_power_q7.c</in>
+                <in>arm_rms_f32.c</in>
+                <in>arm_rms_q15.c</in>
+                <in>arm_rms_q31.c</in>
+                <in>arm_std_f32.c</in>
+                <in>arm_std_q15.c</in>
+                <in>arm_std_q31.c</in>
+                <in>arm_var_f32.c</in>
+                <in>arm_var_q15.c</in>
+                <in>arm_var_q31.c</in>
+              </df>
+              <df name="SupportFunctions">
+                <in>arm_copy_f32.c</in>
+                <in>arm_copy_q15.c</in>
+                <in>arm_copy_q31.c</in>
+                <in>arm_copy_q7.c</in>
+                <in>arm_fill_f32.c</in>
+                <in>arm_fill_q15.c</in>
+                <in>arm_fill_q31.c</in>
+                <in>arm_fill_q7.c</in>
+                <in>arm_float_to_q15.c</in>
+                <in>arm_float_to_q31.c</in>
+                <in>arm_float_to_q7.c</in>
+                <in>arm_q15_to_float.c</in>
+                <in>arm_q15_to_q31.c</in>
+                <in>arm_q15_to_q7.c</in>
+                <in>arm_q31_to_float.c</in>
+                <in>arm_q31_to_q15.c</in>
+                <in>arm_q31_to_q7.c</in>
+                <in>arm_q7_to_float.c</in>
+                <in>arm_q7_to_q15.c</in>
+                <in>arm_q7_to_q31.c</in>
+              </df>
+              <df name="TransformFunctions">
+                <in>arm_bitreversal.c</in>
+                <in>arm_cfft_f32.c</in>
+                <in>arm_cfft_q15.c</in>
+                <in>arm_cfft_q31.c</in>
+                <in>arm_cfft_radix2_f32.c</in>
+                <in>arm_cfft_radix2_init_f32.c</in>
+                <in>arm_cfft_radix2_init_q15.c</in>
+                <in>arm_cfft_radix2_init_q31.c</in>
+                <in>arm_cfft_radix2_q15.c</in>
+                <in>arm_cfft_radix2_q31.c</in>
+                <in>arm_cfft_radix4_f32.c</in>
+                <in>arm_cfft_radix4_init_f32.c</in>
+                <in>arm_cfft_radix4_init_q15.c</in>
+                <in>arm_cfft_radix4_init_q31.c</in>
+                <in>arm_cfft_radix4_q15.c</in>
+                <in>arm_cfft_radix4_q31.c</in>
+                <in>arm_cfft_radix8_f32.c</in>
+                <in>arm_dct4_f32.c</in>
+                <in>arm_dct4_init_f32.c</in>
+                <in>arm_dct4_init_q15.c</in>
+                <in>arm_dct4_init_q31.c</in>
+                <in>arm_dct4_q15.c</in>
+                <in>arm_dct4_q31.c</in>
+                <in>arm_rfft_f32.c</in>
+                <in>arm_rfft_fast_f32.c</in>
+                <in>arm_rfft_fast_init_f32.c</in>
+                <in>arm_rfft_init_f32.c</in>
+                <in>arm_rfft_init_q15.c</in>
+                <in>arm_rfft_init_q31.c</in>
+                <in>arm_rfft_q15.c</in>
+                <in>arm_rfft_q31.c</in>
+              </df>
+            </df>
+          </df>
+          <df name="Include">
+            <in>arm_common_tables.h</in>
+            <in>arm_const_structs.h</in>
+            <in>arm_math.h</in>
+            <in>cmsis_armcc.h</in>
+            <in>cmsis_armcc_V6.h</in>
+            <in>cmsis_gcc.h</in>
+            <in>core_cm0.h</in>
+            <in>core_cm0plus.h</in>
+            <in>core_cm3.h</in>
+            <in>core_cm4.h</in>
+            <in>core_cm7.h</in>
+            <in>core_cmFunc.h</in>
+            <in>core_cmInstr.h</in>
+            <in>core_cmSimd.h</in>
+            <in>core_sc000.h</in>
+            <in>core_sc300.h</in>
+          </df>
+          <df name="Lib">
+            <df name="ARM">
+            </df>
+            <df name="GCC">
+            </df>
+          </df>
+          <df name="RTOS">
+            <df name="Template">
+              <in>cmsis_os.h</in>
+            </df>
+          </df>
+        </df>
+        <df name="S2LP">
+          <df name="Inc">
+            <in>MCU_Interface_template.h</in>
+            <in>S2LP_Commands.h</in>
+            <in>S2LP_Config.h</in>
+            <in>S2LP_Csma.h</in>
+            <in>S2LP_Fifo.h</in>
+            <in>S2LP_General.h</in>
+            <in>S2LP_Gpio.h</in>
+            <in>S2LP_PacketHandler.h</in>
+            <in>S2LP_PktBasic.h</in>
+            <in>S2LP_PktStack.h</in>
+            <in>S2LP_PktWMbus.h</in>
+            <in>S2LP_Qi.h</in>
+            <in>S2LP_Radio.h</in>
+            <in>S2LP_Regs.h</in>
+            <in>S2LP_Timer.h</in>
+            <in>S2LP_Timer_ex.h</in>
+            <in>S2LP_Types.h</in>
+          </df>
+          <df name="Src">
+            <in>S2LP_Commands.c</in>
+            <in>S2LP_Csma.c</in>
+            <in>S2LP_Fifo.c</in>
+            <in>S2LP_General.c</in>
+            <in>S2LP_Gpio.c</in>
+            <in>S2LP_PacketHandler.c</in>
+            <in>S2LP_PktBasic.c</in>
+            <in>S2LP_PktStack.c</in>
+            <in>S2LP_PktWMbus.c</in>
+            <in>S2LP_Qi.c</in>
+            <in>S2LP_Radio.c</in>
+            <in>S2LP_Timer.c</in>
+            <in>S2LP_Timer_ex.c</in>
+            <in>S2LP_Types.c</in>
+          </df>
+        </df>
+        <df name="STM32F2xx_HAL_Driver">
+          <df name="Inc">
+            <df name="Legacy">
+              <in>stm32_hal_legacy.h</in>
+            </df>
+            <in>stm32f2xx_hal.h</in>
+            <in>stm32f2xx_hal_cortex.h</in>
+            <in>stm32f2xx_hal_crc.h</in>
+            <in>stm32f2xx_hal_def.h</in>
+            <in>stm32f2xx_hal_dma.h</in>
+            <in>stm32f2xx_hal_dma_ex.h</in>
+            <in>stm32f2xx_hal_eth.h</in>
+            <in>stm32f2xx_hal_flash.h</in>
+            <in>stm32f2xx_hal_flash_ex.h</in>
+            <in>stm32f2xx_hal_gpio.h</in>
+            <in>stm32f2xx_hal_gpio_ex.h</in>
+            <in>stm32f2xx_hal_iwdg.h</in>
+            <in>stm32f2xx_hal_pwr.h</in>
+            <in>stm32f2xx_hal_pwr_ex.h</in>
+            <in>stm32f2xx_hal_rcc.h</in>
+            <in>stm32f2xx_hal_rcc_ex.h</in>
+            <in>stm32f2xx_hal_rng.h</in>
+            <in>stm32f2xx_hal_spi.h</in>
+            <in>stm32f2xx_hal_tim.h</in>
+            <in>stm32f2xx_hal_tim_ex.h</in>
+            <in>stm32f2xx_hal_uart.h</in>
+          </df>
+          <df name="Src">
+            <in>stm32f2xx_hal.c</in>
+            <in>stm32f2xx_hal_cortex.c</in>
+            <in>stm32f2xx_hal_crc.c</in>
+            <in>stm32f2xx_hal_dma.c</in>
+            <in>stm32f2xx_hal_dma_ex.c</in>
+            <in>stm32f2xx_hal_eth.c</in>
+            <in>stm32f2xx_hal_flash.c</in>
+            <in>stm32f2xx_hal_flash_ex.c</in>
+            <in>stm32f2xx_hal_gpio.c</in>
+            <in>stm32f2xx_hal_iwdg.c</in>
+            <in>stm32f2xx_hal_pwr.c</in>
+            <in>stm32f2xx_hal_pwr_ex.c</in>
+            <in>stm32f2xx_hal_rcc.c</in>
+            <in>stm32f2xx_hal_rcc_ex.c</in>
+            <in>stm32f2xx_hal_rng.c</in>
+            <in>stm32f2xx_hal_spi.c</in>
+            <in>stm32f2xx_hal_tim.c</in>
+            <in>stm32f2xx_hal_tim_ex.c</in>
+            <in>stm32f2xx_hal_uart.c</in>
+          </df>
+        </df>
+      </df>
+      <df name="Inc">
+        <df name="gate">
+          <in>gate_packet.h</in>
+          <in>messages_helper.h</in>
+          <in>radio.h</in>
+          <in>radio_opt.h</in>
+          <in>radio_packet.h</in>
+          <in>tcps.h</in>
+          <in>tcps_crypt.h</in>
+          <in>tcps_packet_queue.h</in>
+        </df>
+        <in>MCU_Interface.h</in>
+        <in>crc.h</in>
+        <in>ethernetif.h</in>
+        <in>gpio.h</in>
+        <in>iwdg.h</in>
+        <in>lwip.h</in>
+        <in>lwipopts.h</in>
+        <in>main.h</in>
+        <in>rng.h</in>
+        <in>spi.h</in>
+        <in>stm32f2xx_hal_conf.h</in>
+        <in>stm32f2xx_it.h</in>
+        <in>tim.h</in>
+        <in>usart.h</in>
+      </df>
+      <df name="MDK-ARM">
+        <df name="GateSTM">
+        </df>
+        <df name="RTE">
+          <df name="_GateSTM">
+            <in>RTE_Components.h</in>
+          </df>
+        </df>
+        <in>startup_stm32f207xx.s</in>
+      </df>
+      <df name="Middlewares">
+        <df name="Third_Party">
+          <df name="LwIP">
+            <df name="src">
+              <df name="api">
+                <in>api_lib.c</in>
+                <in>api_msg.c</in>
+                <in>err.c</in>
+                <in>netbuf.c</in>
+                <in>netdb.c</in>
+                <in>netifapi.c</in>
+                <in>sockets.c</in>
+                <in>tcpip.c</in>
+              </df>
+              <df name="core">
+                <df name="ipv4">
+                  <in>autoip.c</in>
+                  <in>dhcp.c</in>
+                  <in>etharp.c</in>
+                  <in>icmp.c</in>
+                  <in>igmp.c</in>
+                  <in>ip4.c</in>
+                  <in>ip4_addr.c</in>
+                  <in>ip4_frag.c</in>
+                </df>
+                <df name="ipv6">
+                  <in>dhcp6.c</in>
+                  <in>ethip6.c</in>
+                  <in>icmp6.c</in>
+                  <in>inet6.c</in>
+                  <in>ip6.c</in>
+                  <in>ip6_addr.c</in>
+                  <in>ip6_frag.c</in>
+                  <in>mld6.c</in>
+                  <in>nd6.c</in>
+                </df>
+                <in>def.c</in>
+                <in>dns.c</in>
+                <in>inet_chksum.c</in>
+                <in>init.c</in>
+                <in>ip.c</in>
+                <in>mem.c</in>
+                <in>memp.c</in>
+                <in>netif.c</in>
+                <in>pbuf.c</in>
+                <in>raw.c</in>
+                <in>stats.c</in>
+                <in>sys.c</in>
+                <in>tcp.c</in>
+                <in>tcp_in.c</in>
+                <in>tcp_out.c</in>
+                <in>timeouts.c</in>
+                <in>udp.c</in>
+              </df>
+              <df name="include">
+                <df name="lwip">
+                  <df name="apps">
+                    <in>fs.h</in>
+                    <in>httpd.h</in>
+                    <in>httpd_opts.h</in>
+                    <in>lwiperf.h</in>
+                    <in>mdns.h</in>
+                    <in>mdns_opts.h</in>
+                    <in>mdns_priv.h</in>
+                    <in>netbiosns.h</in>
+                    <in>netbiosns_opts.h</in>
+                    <in>snmp.h</in>
+                    <in>snmp_core.h</in>
+                    <in>snmp_mib2.h</in>
+                    <in>snmp_opts.h</in>
+                    <in>snmp_scalar.h</in>
+                    <in>snmp_table.h</in>
+                    <in>snmp_threadsync.h</in>
+                    <in>snmpv3.h</in>
+                    <in>sntp.h</in>
+                    <in>sntp_opts.h</in>
+                    <in>tftp_opts.h</in>
+                    <in>tftp_server.h</in>
+                  </df>
+                  <df name="priv">
+                    <in>api_msg.h</in>
+                    <in>memp_priv.h</in>
+                    <in>memp_std.h</in>
+                    <in>tcp_priv.h</in>
+                    <in>tcpip_priv.h</in>
+                  </df>
+                  <df name="prot">
+                    <in>autoip.h</in>
+                    <in>dhcp.h</in>
+                    <in>dns.h</in>
+                    <in>etharp.h</in>
+                    <in>ethernet.h</in>
+                    <in>icmp.h</in>
+                    <in>icmp6.h</in>
+                    <in>igmp.h</in>
+                    <in>ip.h</in>
+                    <in>ip4.h</in>
+                    <in>ip6.h</in>
+                    <in>mld6.h</in>
+                    <in>nd6.h</in>
+                    <in>tcp.h</in>
+                    <in>udp.h</in>
+                  </df>
+                  <in>api.h</in>
+                  <in>arch.h</in>
+                  <in>autoip.h</in>
+                  <in>debug.h</in>
+                  <in>def.h</in>
+                  <in>dhcp.h</in>
+                  <in>dhcp6.h</in>
+                  <in>dns.h</in>
+                  <in>err.h</in>
+                  <in>errno.h</in>
+                  <in>etharp.h</in>
+                  <in>ethip6.h</in>
+                  <in>icmp.h</in>
+                  <in>icmp6.h</in>
+                  <in>igmp.h</in>
+                  <in>inet.h</in>
+                  <in>inet_chksum.h</in>
+                  <in>init.h</in>
+                  <in>ip.h</in>
+                  <in>ip4.h</in>
+                  <in>ip4_addr.h</in>
+                  <in>ip4_frag.h</in>
+                  <in>ip6.h</in>
+                  <in>ip6_addr.h</in>
+                  <in>ip6_frag.h</in>
+                  <in>ip_addr.h</in>
+                  <in>mem.h</in>
+                  <in>memp.h</in>
+                  <in>mld6.h</in>
+                  <in>nd6.h</in>
+                  <in>netbuf.h</in>
+                  <in>netdb.h</in>
+                  <in>netif.h</in>
+                  <in>netifapi.h</in>
+                  <in>opt.h</in>
+                  <in>pbuf.h</in>
+                  <in>raw.h</in>
+                  <in>sio.h</in>
+                  <in>snmp.h</in>
+                  <in>sockets.h</in>
+                  <in>stats.h</in>
+                  <in>sys.h</in>
+                  <in>tcp.h</in>
+                  <in>tcpip.h</in>
+                  <in>timeouts.h</in>
+                  <in>udp.h</in>
+                </df>
+                <df name="netif">
+                  <df name="ppp">
+                    <in>ccp.h</in>
+                    <in>chap-md5.h</in>
+                    <in>chap-new.h</in>
+                    <in>chap_ms.h</in>
+                    <in>eap.h</in>
+                    <in>ecp.h</in>
+                    <in>eui64.h</in>
+                    <in>fsm.h</in>
+                    <in>ipcp.h</in>
+                    <in>ipv6cp.h</in>
+                    <in>lcp.h</in>
+                    <in>magic.h</in>
+                    <in>mppe.h</in>
+                    <in>ppp.h</in>
+                    <in>ppp_impl.h</in>
+                    <in>ppp_opts.h</in>
+                    <in>pppapi.h</in>
+                    <in>pppcrypt.h</in>
+                    <in>pppdebug.h</in>
+                    <in>pppoe.h</in>
+                    <in>pppol2tp.h</in>
+                    <in>pppos.h</in>
+                    <in>upap.h</in>
+                    <in>vj.h</in>
+                  </df>
+                  <in>etharp.h</in>
+                  <in>ethernet.h</in>
+                  <in>lowpan6.h</in>
+                  <in>lowpan6_opts.h</in>
+                  <in>slipif.h</in>
+                </df>
+                <df name="posix">
+                  <df name="sys">
+                    <in>socket.h</in>
+                  </df>
+                  <in>errno.h</in>
+                  <in>netdb.h</in>
+                </df>
+              </df>
+              <df name="netif">
+                <df name="ppp">
+                  <in>auth.c</in>
+                  <in>ccp.c</in>
+                  <in>chap-md5.c</in>
+                  <in>chap-new.c</in>
+                  <in>chap_ms.c</in>
+                  <in>demand.c</in>
+                  <in>eap.c</in>
+                  <in>ecp.c</in>
+                  <in>eui64.c</in>
+                  <in>fsm.c</in>
+                  <in>ipcp.c</in>
+                  <in>ipv6cp.c</in>
+                  <in>lcp.c</in>
+                  <in>magic.c</in>
+                  <in>mppe.c</in>
+                  <in>multilink.c</in>
+                  <in>ppp.c</in>
+                  <in>pppapi.c</in>
+                  <in>pppcrypt.c</in>
+                  <in>pppoe.c</in>
+                  <in>pppol2tp.c</in>
+                  <in>pppos.c</in>
+                  <in>upap.c</in>
+                  <in>utils.c</in>
+                  <in>vj.c</in>
+                </df>
+                <in>ethernet.c</in>
+                <in>lowpan6.c</in>
+                <in>slipif.c</in>
+              </df>
+            </df>
+            <df name="system">
+              <df name="arch">
+                <in>bpstruct.h</in>
+                <in>cc.h</in>
+                <in>cpu.h</in>
+                <in>epstruct.h</in>
+                <in>init.h</in>
+                <in>lib.h</in>
+                <in>perf.h</in>
+                <in>sys_arch.h</in>
+              </df>
+            </df>
+          </df>
+        </df>
+      </df>
+      <df name="Src">
+        <df name="gate">
+          <in>radio.c</in>
+          <in>tcps.c</in>
+          <in>tcps_crypt.c</in>
+          <in>tcps_packet_queue.c</in>
+        </df>
+        <in>S2LP_Spi_Driver.c</in>
+        <in>S2LP_Spi_Driver_DMA.c</in>
+        <in>crc.c</in>
+        <in>ethernetif.c</in>
+        <in>gpio.c</in>
+        <in>iwdg.c</in>
+        <in>lwip.c</in>
+        <in>main.c</in>
+        <in>rng.c</in>
+        <in>spi.c</in>
+        <in>stm32f2xx_hal_msp.c</in>
+        <in>stm32f2xx_it.c</in>
+        <in>system_stm32f2xx.c</in>
+        <in>tim.c</in>
+        <in>usart.c</in>
+      </df>
+      <in>startup_stm32f207xx.s</in>
+    </df>
+  </logicalFolder>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="0">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <platform>3</platform>
+      </toolsSet>
+      <compile>
+        <compiledirpicklist>
+          <compiledirpicklistitem>.</compiledirpicklistitem>
+          <compiledirpicklistitem>${AUTO_FOLDER}</compiledirpicklistitem>
+        </compiledirpicklist>
+        <compiledir>${AUTO_FOLDER}</compiledir>
+        <compilecommandpicklist>
+          <compilecommandpicklistitem>${MAKE} $(BUILD_DIR)/${ITEM_NAME}.o</compilecommandpicklistitem>
+          <compilecommandpicklistitem>${MAKE} build/${ITEM_NAME}.o</compilecommandpicklistitem>
+          <compilecommandpicklistitem>${MAKE} ${ITEM_NAME}.o</compilecommandpicklistitem>
+          <compilecommandpicklistitem>${AUTO_COMPILE}</compilecommandpicklistitem>
+        </compilecommandpicklist>
+        <compilecommand>${AUTO_COMPILE}</compilecommand>
+      </compile>
+      <dbx_gdbdebugger version="1">
+        <gdb_pathmaps>
+        </gdb_pathmaps>
+        <gdb_interceptlist>
+          <gdbinterceptoptions gdb_all="false" gdb_unhandled="true" gdb_unexpected="true"/>
+        </gdb_interceptlist>
+        <gdb_options>
+          <DebugOptions>
+            <option name="gdb_init_file" value="gdbinit"/>
+            <option name="debug_command" value="${OUTPUT_PATH}"/>
+          </DebugOptions>
+        </gdb_options>
+        <gdb_buildfirst gdb_buildfirst_overriden="false" gdb_buildfirst_old="false"/>
+      </dbx_gdbdebugger>
+      <nativedebugger version="1">
+        <engine>gdb</engine>
+      </nativedebugger>
+      <runprofile version="9">
+        <runcommandpicklist>
+          <runcommandpicklistitem>"${OUTPUT_PATH}"</runcommandpicklistitem>
+          <runcommandpicklistitem>../OpenOCD/openocd.cmd -f st_board/nucleo_f207zg.cfg -c "program \"${OUTPUT_PATH}\" verify reset exit"</runcommandpicklistitem>
+          <runcommandpicklistitem>CMD /C ..\OpenOCD\openocd.cmd -f st_board\nucleo_f207zg.cfg -c "program \"${OUTPUT_PATH}\" verify reset exit"</runcommandpicklistitem>
+          <runcommandpicklistitem>CMD /C ../OpenOCD/openocd.cmd -f st_board/nucleo_f207zg.cfg -c "program \"${OUTPUT_PATH}\" verify reset exit"</runcommandpicklistitem>
+          <runcommandpicklistitem>CMD /C ../OpenOCD/openocd.cmd -c "program \"${OUTPUT_PATH}\" verify reset exit"</runcommandpicklistitem>
+          <runcommandpicklistitem>openocd -c "program \"${OUTPUT_PATH}\" verify reset exit"</runcommandpicklistitem>
+          <runcommandpicklistitem>openocd.cmd -c "program \"${OUTPUT_PATH}\" verify reset exit"</runcommandpicklistitem>
+          <runcommandpicklistitem>CMD /C openocd -c "program \"${OUTPUT_PATH}\" verify reset exit"</runcommandpicklistitem>
+          <runcommandpicklistitem>CMD /C openocd.cmd -c "program \"${OUTPUT_PATH}\" verify reset exit"</runcommandpicklistitem>
+        </runcommandpicklist>
+        <runcommand>CMD /C openocd.cmd -c "program \"${OUTPUT_PATH}\" verify reset exit"</runcommand>
+        <rundir>.</rundir>
+        <buildfirst>true</buildfirst>
+        <console-type>2</console-type>
+        <terminal-type>1</terminal-type>
+        <remove-instrumentation>0</remove-instrumentation>
+        <environment>
+        </environment>
+      </runprofile>
+    </conf>
+    <conf name="Optimized" type="0">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <platform>3</platform>
+      </toolsSet>
+      <compile>
+        <compiledirpicklist>
+          <compiledirpicklistitem>.</compiledirpicklistitem>
+          <compiledirpicklistitem>${AUTO_FOLDER}</compiledirpicklistitem>
+        </compiledirpicklist>
+        <compiledir>${AUTO_FOLDER}</compiledir>
+        <compilecommandpicklist>
+          <compilecommandpicklistitem>${MAKE} $(BUILD_DIR)/${ITEM_NAME}.o</compilecommandpicklistitem>
+          <compilecommandpicklistitem>${MAKE} build/${ITEM_NAME}.o</compilecommandpicklistitem>
+          <compilecommandpicklistitem>${MAKE} ${ITEM_NAME}.o</compilecommandpicklistitem>
+          <compilecommandpicklistitem>${AUTO_COMPILE}</compilecommandpicklistitem>
+        </compilecommandpicklist>
+        <compilecommand>${AUTO_COMPILE}</compilecommand>
+      </compile>
+      <dbx_gdbdebugger version="1">
+        <gdb_pathmaps>
+        </gdb_pathmaps>
+        <gdb_interceptlist>
+          <gdbinterceptoptions gdb_all="false" gdb_unhandled="true" gdb_unexpected="true"/>
+        </gdb_interceptlist>
+        <gdb_options>
+          <DebugOptions>
+            <option name="gdb_init_file" value="gdbinit"/>
+            <option name="debug_command" value="${OUTPUT_PATH}"/>
+          </DebugOptions>
+        </gdb_options>
+        <gdb_buildfirst gdb_buildfirst_overriden="false" gdb_buildfirst_old="false"/>
+      </dbx_gdbdebugger>
+      <nativedebugger version="1">
+        <engine>gdb</engine>
+      </nativedebugger>
+      <runprofile version="9">
+        <runcommandpicklist>
+          <runcommandpicklistitem>"${OUTPUT_PATH}"</runcommandpicklistitem>
+          <runcommandpicklistitem>../OpenOCD/openocd.cmd -f st_board/nucleo_f207zg.cfg -c "program \"${OUTPUT_PATH}\" verify reset exit"</runcommandpicklistitem>
+          <runcommandpicklistitem>CMD /C ..\OpenOCD\openocd.cmd -f st_board\nucleo_f207zg.cfg -c "program \"${OUTPUT_PATH}\" verify reset exit"</runcommandpicklistitem>
+          <runcommandpicklistitem>CMD /C ../OpenOCD/openocd.cmd -f st_board/nucleo_f207zg.cfg -c "program \"${OUTPUT_PATH}\" verify reset exit"</runcommandpicklistitem>
+          <runcommandpicklistitem>CMD /C openocd.cmd -c "program \"${OUTPUT_PATH}\" verify reset exit"</runcommandpicklistitem>
+        </runcommandpicklist>
+        <runcommand>CMD /C openocd.cmd -c "program \"${OUTPUT_PATH}\" verify reset exit"</runcommand>
+        <rundir>.</rundir>
+        <buildfirst>true</buildfirst>
+        <console-type>2</console-type>
+        <terminal-type>1</terminal-type>
+        <remove-instrumentation>0</remove-instrumentation>
+        <environment>
+        </environment>
+      </runprofile>
+    </conf>
+  </confs>
+</configurationDescriptor>

@@ -20,8 +20,9 @@ extern "C" {
 #include <stdint.h>
 #include <limits.h>
 #include <stdbool.h>
-#include "stm32l1xx_hal.h"
-#include "stm32l1xx_hal_crc.h"
+
+#define HEADER_HAL_CRC
+#include "stm32_hal.h"
 
 	typedef uint32_t TRANSAddress;
 
@@ -31,19 +32,35 @@ extern "C" {
 		TRANS_TYPE_COMMAND = 2,
 	} TRANSPackageType;
 
+	typedef enum {
+		TRANS_METER_TYPE_NONE = 0,
+		TRANS_METER_TYPE_WATER_IMPULS = 10,
+		TRANS_METER_TYPE_ELECTRO = 20,
+		TRANS_METER_TYPE_ELECTRO_T1 = 21,
+		TRANS_METER_TYPE_ELECTRO_T2 = 22,
+		TRANS_METER_TYPE_MAX = 0xFFFF,
+	} TRANSDataMeterType;
+
+	/**Показание с счётчика */
+	typedef struct __packed {
+		TRANSDataMeterType type;
+		uint16_t _reserv;
+		uint32_t value;
+	} TRANSDataMeterValue;
+
+	/**Показание с счётчика */
+	typedef struct __packed {//8 байт, как у TRANSDataMeterValue
+		uint8_t valve;
+		uint8_t _reserv[7];
+	} TRANSDataMeterStatus;
+
 	/** Пакет с измерениями со счётчиков	 */
 	typedef struct __packed {
-		uint32_t value0;
-		uint32_t value1;
-		uint32_t value2;
-		uint32_t value3;
-		uint32_t value4;
-		uint32_t value5;
-		uint32_t value6;
-		uint32_t value7;
+		TRANSDataMeterValue value0;
+		TRANSDataMeterValue value1;
+		TRANSDataMeterValue value2;
+		TRANSDataMeterStatus status;
 	} TRANSDataMeters;
-	/**Значение для не подключённого счётчика*/
-#define TRANS_DISCONNECT_METER_VALUE 0xFFFFFFFF
 
 	enum TRANSCommand {
 		TRANS_COMMAND_NOP = 0,
@@ -57,29 +74,30 @@ extern "C" {
 		uint32_t command;
 		uint32_t parametr1;
 		uint32_t parametr2;
+		uint32_t parametr3;
 	} TRANSDataCommand;
 
 	/**Пакет*/
 	typedef struct __packed {
 		uint16_t magicMark;
+		TRANSPackageType type; //размер который занимает enum не специфицировано, в trans_package.h есть assert
+		uint8_t _reserv; //зарезервировано,используется для выравнивания
 		TRANSAddress sourceAddress;
 		TRANSAddress targetAddress;
-		TRANSPackageType type; //размер который занимает enum не специфицированно, в trans_package.h есть assert
 
 		/**Данные, тип данных зависит от значения поля type*/
 		union {
 			TRANSDataMeters meters;
 			TRANSDataCommand command;
 		} data;
-		uint8_t end;
 		uint32_t crc;
 	} TRANSPackage;
 
 	typedef enum {
-		PACK_ERR_NONE=0,
-		PACK_ERR_BAD_MARK=1,
-		PACK_ERR_BAD_END_BYTE=2,
-		PACK_ERR_BAD_CRC=3,
+		PACK_ERR_NONE = 0,
+		PACK_ERR_BAD_MARK = 1,
+		PACK_ERR_BAD_END_BYTE = 2,
+		PACK_ERR_BAD_CRC = 3,
 	} PACKError;
 
 	void PACK_Init(CRC_HandleTypeDef *hcrc);

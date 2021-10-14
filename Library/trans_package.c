@@ -1,5 +1,7 @@
+// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "trans_package.h"
-#include "stm32l1xx_hal_conf.h"
+//#include "stm32l1xx_hal_conf.h"
 #include <assert.h>
 
 /**Маркер начала пакета*/
@@ -8,20 +10,22 @@
 #define TRANS_PACKAGE_MAGIC_FIRST_BYTE 0xFE
 /**второй байт маркера*/
 #define TRANS_PACKAGE_MAGIC_SECOND_BYTE 0xCA
-/**Маркер окончания данных в пакета, так же байт выравнивания*/
-#define TRANS_PACKAGE_END_BYTE 0xFF
 /**Длина поля с подписью или контрольной суммой*/
 #define TRANS_PACKAGE_CRC_SIZE 4
 /**Рзмер блока, для которого считается CRC*/
 #define TRANS_PACKAGE_CALC_CRC_DWORD_SIZE ((TRANS_PACKAGE_SIZE-TRANS_PACKAGE_CRC_SIZE)/4)
 #define TRANS_PACKAGE_CRC_DEFAULT 0xFFFFFFFF
 
+//защита от случайного изменения размера пакета
+static_assert((sizeof(TRANSPackage)) == 48, "Changed size TRANSPackage");
 //Проверим что поле  TRANS_PACKAGE.type занимает 1 байт, для протокола это важно
-static_assert((offsetof(TRANSPackage, data) - offsetof(TRANSPackage, type)) == 1, "Size field TRANS_PACKAGE.type NOT 1 byte");
+static_assert((offsetof(TRANSPackage, _reserv) - offsetof(TRANSPackage, type)) == 1, "Size field TRANS_PACKAGE.type NOT 1 byte");
 static_assert((TRANS_PACKAGE_SIZE % 4) == 0, "Size TRANS_PACKAGE not multiple of 4");
 static_assert(((TRANS_PACKAGE_SIZE - TRANS_PACKAGE_CRC_SIZE) % 4) == 0, "Size TRANS_PACKAGE_SIGNNED_BYTES_SIZE not multiple of 4");
-static_assert((offsetof(TRANSPackage, sourceAddress) - offsetof(TRANSPackage, magicMark)) == TRANS_PACKAGE_MARK_SIZE, "Invalid size field TRANS_PACKAGE.mark ");
+static_assert((offsetof(TRANSPackage, type) - offsetof(TRANSPackage, magicMark)) == TRANS_PACKAGE_MARK_SIZE, "Invalid size field TRANS_PACKAGE.mark ");
 static_assert((TRANS_PACKAGE_SIZE - offsetof(TRANSPackage, crc)) == TRANS_PACKAGE_CRC_SIZE, "Invalid size field TRANS_PACKAGE.crc ");
+//Проверим что TRANSDataMeterType занимает 2 байт
+static_assert((sizeof(TRANSDataMeterType)) == 2, "Size TRANSDataMeterType NOT 2 byte");
 
 /*Струтура для преобразования TRANS_PACKAGE в байты и обратно	*/
 typedef union {
@@ -66,7 +70,7 @@ inline TRANSPackage PACK_NewPackage(TRANSAddress sourceAddress, TRANSAddress tar
 		.sourceAddress = sourceAddress,
 		.targetAddress = targetAddress,
 		.type = type,
-		.end = TRANS_PACKAGE_END_BYTE,
+		._reserv = 0,
 		.crc = TRANS_PACKAGE_CRC_DEFAULT
 	};
 	return package;
@@ -80,8 +84,6 @@ PACKError PACK_ByteToPackage(uint8_t *bytes, TRANSPackage **pPackage) {
 
 	if (pack->magicMark != TRANS_PACKAGE_MAGIC) {
 		error = PACK_ERR_BAD_MARK;
-	} else if (pack->end != TRANS_PACKAGE_END_BYTE) {
-		error = PACK_ERR_BAD_END_BYTE;
 	} else {
 		uint32_t crcPack = calcCRC(&p2bytes);
 		if (pack->crc != crcPack) {

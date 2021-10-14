@@ -1,3 +1,5 @@
+// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 /*------------------------------------------------------------------------/
 /  Universal string handler for user console interface
 /-------------------------------------------------------------------------/
@@ -13,7 +15,7 @@
 
 #include "xprintf.h"
 //#include <stdint.h>
-#include "stm32l1xx_hal.h"
+#include "stm32_hal.h"
 
 
 #if _USE_XFUNC_OUT

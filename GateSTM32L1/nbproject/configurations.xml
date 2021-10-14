@@ -35,6 +35,7 @@
       </logicalFolder>
       <logicalFolder name="Library" displayName="Library" projectFiles="true">
         <itemPath>../Library/package_queue.c</itemPath>
+        <itemPath>../Library/storage.c</itemPath>
         <itemPath>../Library/trans_package.c</itemPath>
         <itemPath>../Library/transceiver.c</itemPath>
         <itemPath>../Library/xprint.c</itemPath>
@@ -107,6 +108,7 @@
       </logicalFolder>
       <logicalFolder name="Library" displayName="Library" projectFiles="true">
         <itemPath>../Library/package_queue.h</itemPath>
+        <itemPath>../Library/storage.h</itemPath>
         <itemPath>../Library/trans_package.h</itemPath>
         <itemPath>../Library/transceiver.h</itemPath>
         <itemPath>../Library/xprint.h</itemPath>
@@ -162,7 +164,7 @@
             <pElem>Drivers/CMSIS/Include</pElem>
             <pElem>../Library</pElem>
           </incDir>
-          <commandLine>-Og -ggdb3 -mcpu=cortex-m3 -mthumb -mfloat-abi=soft -fmessage-length=0 -ffunction-sections -c -fmessage-length=0 -MMD -MP</commandLine>
+          <commandLine>-Og -ggdb3 -mcpu=cortex-m3 -mthumb -mfloat-abi=soft -ffunction-sections -c -MMD -MP</commandLine>
           <preprocessorList>
             <Elem>ARM_MATH_CM3</Elem>
             <Elem>STM32L152xE</Elem>
@@ -190,6 +192,10 @@
       <item path="../Library/package_queue.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="../Library/package_queue.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../Library/storage.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../Library/storage.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../Library/trans_package.c" ex="false" tool="0" flavor2="0">
       </item>

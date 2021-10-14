@@ -1,0 +1,715 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="100">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <logicalFolder name="SourceFiles"
+                   displayName="Исходные файлы"
+                   projectFiles="true">
+      <logicalFolder name="Drivers" displayName="Drivers" projectFiles="true">
+        <logicalFolder name="CMSIS" displayName="CMSIS" projectFiles="true">
+          <logicalFolder name="Device" displayName="Device" projectFiles="true">
+            <logicalFolder name="ST" displayName="ST" projectFiles="true">
+              <logicalFolder name="STM32L1xx" displayName="STM32L1xx" projectFiles="true">
+              </logicalFolder>
+            </logicalFolder>
+          </logicalFolder>
+        </logicalFolder>
+        <logicalFolder name="STM32L1xx_HAL_Driver"
+                       displayName="STM32L1xx_HAL_Driver"
+                       projectFiles="true">
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal.c</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_cortex.c</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_crc.c</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_dma.c</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash.c</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ex.c</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ramfunc.c</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_gpio.c</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr.c</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr_ex.c</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc.c</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc_ex.c</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_spi.c</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_spi_ex.c</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_tim.c</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_tim_ex.c</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_uart.c</itemPath>
+        </logicalFolder>
+      </logicalFolder>
+      <logicalFolder name="f1" displayName="GateSTM" projectFiles="true">
+        <itemPath>../GateSTM/Src/gate/radio.c</itemPath>
+      </logicalFolder>
+      <logicalFolder name="Library" displayName="Library" projectFiles="true">
+        <logicalFolder name="S2LP_Library"
+                       displayName="S2LP_Library"
+                       projectFiles="true">
+          <itemPath>../Library/S2LP/S2LP_Library/Src/S2LP_Commands.c</itemPath>
+          <itemPath>../Library/S2LP/S2LP_Library/Src/S2LP_Csma.c</itemPath>
+          <itemPath>../Library/S2LP/S2LP_Library/Src/S2LP_Fifo.c</itemPath>
+          <itemPath>../Library/S2LP/S2LP_Library/Src/S2LP_General.c</itemPath>
+          <itemPath>../Library/S2LP/S2LP_Library/Src/S2LP_Gpio.c</itemPath>
+          <itemPath>../Library/S2LP/S2LP_Library/Src/S2LP_PacketHandler.c</itemPath>
+          <itemPath>../Library/S2LP/S2LP_Library/Src/S2LP_PktBasic.c</itemPath>
+          <itemPath>../Library/S2LP/S2LP_Library/Src/S2LP_PktStack.c</itemPath>
+          <itemPath>../Library/S2LP/S2LP_Library/Src/S2LP_PktWMbus.c</itemPath>
+          <itemPath>../Library/S2LP/S2LP_Library/Src/S2LP_Qi.c</itemPath>
+          <itemPath>../Library/S2LP/S2LP_Library/Src/S2LP_Radio.c</itemPath>
+          <itemPath>../Library/S2LP/S2LP_Library/Src/S2LP_Timer.c</itemPath>
+          <itemPath>../Library/S2LP/S2LP_Library/Src/S2LP_Timer_ex.c</itemPath>
+          <itemPath>../Library/S2LP/S2LP_Library/Src/S2LP_Types.c</itemPath>
+        </logicalFolder>
+        <itemPath>../Library/xprint.c</itemPath>
+        <itemPath>../Library/xprintf.c</itemPath>
+      </logicalFolder>
+      <itemPath>Src/S2LP_Spi_Driver.c</itemPath>
+      <itemPath>Src/S2LP_Spi_Driver_DMA.c</itemPath>
+      <itemPath>Src/main.c</itemPath>
+      <itemPath>startup/startup_stm32l152xe.s</itemPath>
+      <itemPath>Src/stm32l1xx_hal_msp.c</itemPath>
+      <itemPath>Src/stm32l1xx_it.c</itemPath>
+      <itemPath>Src/system_stm32l1xx.c</itemPath>
+    </logicalFolder>
+    <logicalFolder name="HeaderFiles"
+                   displayName="Файлы заголовков"
+                   projectFiles="true">
+      <logicalFolder name="Drivers" displayName="Drivers" projectFiles="true">
+        <logicalFolder name="CMSIS" displayName="CMSIS" projectFiles="true">
+          <logicalFolder name="Device" displayName="Device" projectFiles="true">
+            <logicalFolder name="ST" displayName="ST" projectFiles="true">
+              <logicalFolder name="STM32L1xx" displayName="STM32L1xx" projectFiles="true">
+                <itemPath>Drivers/CMSIS/Device/ST/STM32L1xx/Include/stm32l152xe.h</itemPath>
+                <itemPath>Drivers/CMSIS/Device/ST/STM32L1xx/Include/stm32l1xx.h</itemPath>
+                <itemPath>Drivers/CMSIS/Device/ST/STM32L1xx/Include/system_stm32l1xx.h</itemPath>
+              </logicalFolder>
+            </logicalFolder>
+          </logicalFolder>
+          <itemPath>Drivers/CMSIS/Include/arm_common_tables.h</itemPath>
+          <itemPath>Drivers/CMSIS/Include/arm_const_structs.h</itemPath>
+          <itemPath>Drivers/CMSIS/Include/arm_math.h</itemPath>
+          <itemPath>Drivers/CMSIS/Include/cmsis_armcc.h</itemPath>
+          <itemPath>Drivers/CMSIS/Include/cmsis_armcc_V6.h</itemPath>
+          <itemPath>Drivers/CMSIS/Include/cmsis_gcc.h</itemPath>
+          <itemPath>Drivers/CMSIS/Include/core_cm0.h</itemPath>
+          <itemPath>Drivers/CMSIS/Include/core_cm0plus.h</itemPath>
+          <itemPath>Drivers/CMSIS/Include/core_cm3.h</itemPath>
+          <itemPath>Drivers/CMSIS/Include/core_cm4.h</itemPath>
+          <itemPath>Drivers/CMSIS/Include/core_cm7.h</itemPath>
+          <itemPath>Drivers/CMSIS/Include/core_cmFunc.h</itemPath>
+          <itemPath>Drivers/CMSIS/Include/core_cmInstr.h</itemPath>
+          <itemPath>Drivers/CMSIS/Include/core_cmSimd.h</itemPath>
+          <itemPath>Drivers/CMSIS/Include/core_sc000.h</itemPath>
+          <itemPath>Drivers/CMSIS/Include/core_sc300.h</itemPath>
+        </logicalFolder>
+        <logicalFolder name="STM32L1xx_HAL_Driver"
+                       displayName="STM32L1xx_HAL_Driver"
+                       projectFiles="true">
+          <logicalFolder name="Legacy" displayName="Legacy" projectFiles="true">
+            <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h</itemPath>
+          </logicalFolder>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_cortex.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_crc.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_def.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_dma.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_flash.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_flash_ex.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_flash_ramfunc.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_gpio.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_gpio_ex.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_pwr.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_pwr_ex.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_rcc.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_rcc_ex.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_spi.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_spi_ex.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_tim.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_tim_ex.h</itemPath>
+          <itemPath>Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_uart.h</itemPath>
+        </logicalFolder>
+      </logicalFolder>
+      <logicalFolder name="f1" displayName="GateSTM" projectFiles="true">
+        <itemPath>../GateSTM/Inc/gate/radio.h</itemPath>
+        <itemPath>../GateSTM/Inc/gate/radio_opt.h</itemPath>
+        <itemPath>../GateSTM/Inc/gate/radio_packet.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="Library" displayName="Library" projectFiles="true">
+        <logicalFolder name="S2LP_Library"
+                       displayName="S2LP_Library"
+                       projectFiles="true">
+          <itemPath>../Library/S2LP/S2LP_Library/Inc/MCU_Interface_template.h</itemPath>
+          <itemPath>../Library/S2LP/S2LP_Library/Inc/S2LP_Commands.h</itemPath>
+          <itemPath>../Library/S2LP/S2LP_Library/Inc/S2LP_Config.h</itemPath>
+          <itemPath>../Library/S2LP/S2LP_Library/Inc/S2LP_Csma.h</itemPath>
+          <itemPath>../Library/S2LP/S2LP_Library/Inc/S2LP_Fifo.h</itemPath>
+          <itemPath>../Library/S2LP/S2LP_Library/Inc/S2LP_General.h</itemPath>
+          <itemPath>../Library/S2LP/S2LP_Library/Inc/S2LP_Gpio.h</itemPath>
+          <itemPath>../Library/S2LP/S2LP_Library/Inc/S2LP_PacketHandler.h</itemPath>
+          <itemPath>../Library/S2LP/S2LP_Library/Inc/S2LP_PktBasic.h</itemPath>
+          <itemPath>../Library/S2LP/S2LP_Library/Inc/S2LP_PktStack.h</itemPath>
+          <itemPath>../Library/S2LP/S2LP_Library/Inc/S2LP_PktWMbus.h</itemPath>
+          <itemPath>../Library/S2LP/S2LP_Library/Inc/S2LP_Qi.h</itemPath>
+          <itemPath>../Library/S2LP/S2LP_Library/Inc/S2LP_Radio.h</itemPath>
+          <itemPath>../Library/S2LP/S2LP_Library/Inc/S2LP_Regs.h</itemPath>
+          <itemPath>../Library/S2LP/S2LP_Library/Inc/S2LP_Timer.h</itemPath>
+          <itemPath>../Library/S2LP/S2LP_Library/Inc/S2LP_Timer_ex.h</itemPath>
+          <itemPath>../Library/S2LP/S2LP_Library/Inc/S2LP_Types.h</itemPath>
+        </logicalFolder>
+        <logicalFolder name="S2LP_Util" displayName="S2LP_Util" projectFiles="true">
+          <itemPath>../Library/S2LP/S2LP_Util/MCU_Interface.h</itemPath>
+          <itemPath>../Library/S2LP/S2LP_Util/cube_hal.h</itemPath>
+        </logicalFolder>
+        <itemPath>../Library/xprint.h</itemPath>
+        <itemPath>../Library/xprintf.h</itemPath>
+      </logicalFolder>
+      <itemPath>Inc/MCU_Interface.h</itemPath>
+      <itemPath>Inc/main.h</itemPath>
+      <itemPath>Inc/stm32l1xx_hal_conf.h</itemPath>
+      <itemPath>Inc/stm32l1xx_it.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ResourceFiles"
+                   displayName="Файлы ресурсов"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="TestFiles"
+                   displayName="Файлы тестов"
+                   projectFiles="false"
+                   kind="TEST_LOGICAL_FOLDER">
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Важные файлы"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+    <logicalFolder name="TestFiles"
+                   displayName="Файлы тестов"
+                   projectFiles="false"
+                   kind="TEST_LOGICAL_FOLDER">
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Важные файлы"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+    <logicalFolder name="TestFiles"
+                   displayName="Файлы тестов"
+                   projectFiles="false"
+                   kind="TEST_LOGICAL_FOLDER">
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Важные файлы"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <sourceRootList>
+    <Elem>Src</Elem>
+    <Elem>Inc</Elem>
+    <Elem>Drivers</Elem>
+    <Elem>../Library</Elem>
+    <Elem>Src</Elem>
+    <Elem>Inc</Elem>
+    <Elem>Drivers</Elem>
+    <Elem>../Library</Elem>
+    <Elem>Src</Elem>
+    <Elem>Inc</Elem>
+    <Elem>Drivers</Elem>
+    <Elem>../Library</Elem>
+  </sourceRootList>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="1">
+      <toolsSet>
+        <compilerSet>GNUToolsARMEmbedded|MinGW</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>true</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>0</developmentMode>
+          <incDir>
+            <pElem>Inc</pElem>
+            <pElem>Drivers/STM32L1xx_HAL_Driver/Inc</pElem>
+            <pElem>Drivers/STM32L1xx_HAL_Driver/Inc/Legacy</pElem>
+            <pElem>Drivers/CMSIS/Device/ST/STM32L1xx/Include</pElem>
+            <pElem>Drivers/CMSIS/Include</pElem>
+            <pElem>../Library</pElem>
+            <pElem>../Library/S2LP/S2LP_Library/Inc</pElem>
+            <pElem>../GateSTM/Inc/gate</pElem>
+          </incDir>
+          <commandLine>-Og -ggdb3 -mcpu=cortex-m3 -mthumb -mfloat-abi=soft -ffunction-sections -MMD -MP</commandLine>
+          <preprocessorList>
+            <Elem>ARM_MATH_CM3</Elem>
+            <Elem>STM32L152xE</Elem>
+            <Elem>USE_FULL_ASSERT</Elem>
+            <Elem>USE_HAL_DRIVER</Elem>
+          </preprocessorList>
+          <useLinkerLibraries>false</useLinkerLibraries>
+          <warningLevel>2</warningLevel>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <asmTool>
+          <developmentMode>5</developmentMode>
+        </asmTool>
+        <linkerTool>
+          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/stm32l1</output>
+          <commandlineTool>arm-none-eabi-gcc</commandlineTool>
+          <commandLine>-mcpu=cortex-m3 -mthumb -mfloat-abi=soft -specs=nosys.specs -specs=nano.specs -TSTM32L152RETx_FLASH.ld -Wl,-Map=output.map -Wl,--gc-sections -lm</commandLine>
+        </linkerTool>
+      </compileType>
+      <item path="../GateSTM/Inc/gate/radio.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../GateSTM/Inc/gate/radio_opt.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../GateSTM/Inc/gate/radio_packet.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../GateSTM/Src/gate/radio.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../Library/S2LP/S2LP_Library/Inc/MCU_Interface_template.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../Library/S2LP/S2LP_Library/Inc/S2LP_Commands.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../Library/S2LP/S2LP_Library/Inc/S2LP_Config.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../Library/S2LP/S2LP_Library/Inc/S2LP_Csma.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../Library/S2LP/S2LP_Library/Inc/S2LP_Fifo.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../Library/S2LP/S2LP_Library/Inc/S2LP_General.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../Library/S2LP/S2LP_Library/Inc/S2LP_Gpio.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../Library/S2LP/S2LP_Library/Inc/S2LP_PacketHandler.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../Library/S2LP/S2LP_Library/Inc/S2LP_PktBasic.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../Library/S2LP/S2LP_Library/Inc/S2LP_PktStack.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../Library/S2LP/S2LP_Library/Inc/S2LP_PktWMbus.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../Library/S2LP/S2LP_Library/Inc/S2LP_Qi.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../Library/S2LP/S2LP_Library/Inc/S2LP_Radio.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../Library/S2LP/S2LP_Library/Inc/S2LP_Regs.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../Library/S2LP/S2LP_Library/Inc/S2LP_Timer.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../Library/S2LP/S2LP_Library/Inc/S2LP_Timer_ex.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../Library/S2LP/S2LP_Library/Inc/S2LP_Types.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../Library/S2LP/S2LP_Library/Src/S2LP_Commands.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../Library/S2LP/S2LP_Library/Src/S2LP_Csma.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../Library/S2LP/S2LP_Library/Src/S2LP_Fifo.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../Library/S2LP/S2LP_Library/Src/S2LP_General.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../Library/S2LP/S2LP_Library/Src/S2LP_Gpio.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../Library/S2LP/S2LP_Library/Src/S2LP_PacketHandler.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../Library/S2LP/S2LP_Library/Src/S2LP_PktBasic.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../Library/S2LP/S2LP_Library/Src/S2LP_PktStack.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../Library/S2LP/S2LP_Library/Src/S2LP_PktWMbus.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../Library/S2LP/S2LP_Library/Src/S2LP_Qi.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../Library/S2LP/S2LP_Library/Src/S2LP_Radio.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../Library/S2LP/S2LP_Library/Src/S2LP_Timer.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../Library/S2LP/S2LP_Library/Src/S2LP_Timer_ex.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../Library/S2LP/S2LP_Library/Src/S2LP_Types.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="../Library/S2LP/S2LP_Util/MCU_Interface.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../Library/S2LP/S2LP_Util/cube_hal.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../Library/xprint.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../Library/xprint.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../Library/xprintf.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="../Library/xprintf.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Drivers/CMSIS/Device/ST/STM32L1xx/Include/stm32l152xe.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Drivers/CMSIS/Device/ST/STM32L1xx/Include/stm32l1xx.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Drivers/CMSIS/Device/ST/STM32L1xx/Include/system_stm32l1xx.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Drivers/CMSIS/Include/arm_common_tables.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Drivers/CMSIS/Include/arm_const_structs.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Drivers/CMSIS/Include/arm_math.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Drivers/CMSIS/Include/cmsis_armcc.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Drivers/CMSIS/Include/cmsis_armcc_V6.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Drivers/CMSIS/Include/cmsis_gcc.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Drivers/CMSIS/Include/core_cm0.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Drivers/CMSIS/Include/core_cm0plus.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Drivers/CMSIS/Include/core_cm3.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Drivers/CMSIS/Include/core_cm4.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Drivers/CMSIS/Include/core_cm7.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Drivers/CMSIS/Include/core_cmFunc.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Drivers/CMSIS/Include/core_cmInstr.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Drivers/CMSIS/Include/core_cmSimd.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Drivers/CMSIS/Include/core_sc000.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Drivers/CMSIS/Include/core_sc300.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_cortex.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_def.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_dma.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_flash.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_flash_ex.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_flash_ramfunc.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_gpio.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_gpio_ex.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_pwr.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_pwr_ex.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_rcc.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_rcc_ex.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_spi.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_spi_ex.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_tim.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_tim_ex.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_uart.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_cortex.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_dma.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ex.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ramfunc.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_gpio.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr_ex.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc_ex.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_spi.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_spi_ex.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_tim.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_tim_ex.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_uart.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
+      <item path="Inc/MCU_Interface.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Inc/main.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Inc/stm32l1xx_hal_conf.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Inc/stm32l1xx_it.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Src/S2LP_Spi_Driver.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="Src/main.c" ex="false" tool="0" flavor2="3">
+      </item>
+      <item path="Src/stm32l1xx_hal_msp.c" ex="false" tool="0" flavor2="3">
+      </item>
+      <item path="Src/stm32l1xx_it.c" ex="false" tool="0" flavor2="3">
+      </item>
+      <item path="Src/system_stm32l1xx.c" ex="false" tool="0" flavor2="3">
+      </item>
+      <item path="startup/startup_stm32l152xe.s" ex="false" tool="4" flavor2="0">
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>

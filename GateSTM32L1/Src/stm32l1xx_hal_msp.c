@@ -4,6 +4,11 @@
   * Description        : This file provides code for the MSP Initialization 
   *                      and de-Initialization codes.
   ******************************************************************************
+  ** This notice applies to any and all portions of this file
+  * that are not between comment pairs USER CODE BEGIN and
+  * USER CODE END. Other portions of this file, whether 
+  * inserted by the user or by software development tools
+  * are owned by their respective copyright owners.
   *
   * COPYRIGHT(c) 2017 STMicroelectronics
   *
@@ -38,7 +43,7 @@ extern DMA_HandleTypeDef hdma_uart4_rx;
 
 extern DMA_HandleTypeDef hdma_uart5_rx;
 
-extern void Error_Handler(void);
+extern void _Error_Handler(char *, int);
 /* USER CODE BEGIN 0 */
 
 /* USER CODE END 0 */
@@ -105,10 +110,10 @@ void HAL_CRC_MspDeInit(CRC_HandleTypeDef* hcrc)
   /* USER CODE END CRC_MspDeInit 0 */
     /* Peripheral clock disable */
     __HAL_RCC_CRC_CLK_DISABLE();
-  }
   /* USER CODE BEGIN CRC_MspDeInit 1 */
 
   /* USER CODE END CRC_MspDeInit 1 */
+  }
 
 }
 
@@ -135,8 +140,8 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
     GPIO_InitStruct.Alternate = GPIO_AF8_UART4;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    /* Peripheral DMA init*/
-  
+    /* UART4 DMA Init */
+    /* UART4_RX Init */
     hdma_uart4_rx.Instance = DMA2_Channel3;
     hdma_uart4_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
     hdma_uart4_rx.Init.PeriphInc = DMA_PINC_DISABLE;
@@ -147,12 +152,12 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
     hdma_uart4_rx.Init.Priority = DMA_PRIORITY_LOW;
     if (HAL_DMA_Init(&hdma_uart4_rx) != HAL_OK)
     {
-      Error_Handler();
+      _Error_Handler(__FILE__, __LINE__);
     }
 
     __HAL_LINKDMA(huart,hdmarx,hdma_uart4_rx);
 
-    /* Peripheral interrupt init */
+    /* UART4 interrupt Init */
     HAL_NVIC_SetPriority(UART4_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(UART4_IRQn);
   /* USER CODE BEGIN UART4_MspInit 1 */
@@ -185,8 +190,8 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
     GPIO_InitStruct.Alternate = GPIO_AF8_UART5;
     HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
-    /* Peripheral DMA init*/
-  
+    /* UART5 DMA Init */
+    /* UART5_RX Init */
     hdma_uart5_rx.Instance = DMA2_Channel2;
     hdma_uart5_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
     hdma_uart5_rx.Init.PeriphInc = DMA_PINC_DISABLE;
@@ -197,12 +202,12 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
     hdma_uart5_rx.Init.Priority = DMA_PRIORITY_MEDIUM;
     if (HAL_DMA_Init(&hdma_uart5_rx) != HAL_OK)
     {
-      Error_Handler();
+      _Error_Handler(__FILE__, __LINE__);
     }
 
     __HAL_LINKDMA(huart,hdmarx,hdma_uart5_rx);
 
-    /* Peripheral interrupt init */
+    /* UART5 interrupt Init */
     HAL_NVIC_SetPriority(UART5_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(UART5_IRQn);
   /* USER CODE BEGIN UART5_MspInit 1 */
@@ -252,12 +257,11 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
     */
     HAL_GPIO_DeInit(GPIOC, UART_SP1ML_TX_Pin|UART_SP1ML_RX_Pin);
 
-    /* Peripheral DMA DeInit*/
+    /* UART4 DMA DeInit */
     HAL_DMA_DeInit(huart->hdmarx);
 
-    /* Peripheral interrupt DeInit*/
+    /* UART4 interrupt DeInit */
     HAL_NVIC_DisableIRQ(UART4_IRQn);
-
   /* USER CODE BEGIN UART4_MspDeInit 1 */
 
   /* USER CODE END UART4_MspDeInit 1 */
@@ -278,12 +282,11 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
 
     HAL_GPIO_DeInit(GPIOD, GPIO_PIN_2);
 
-    /* Peripheral DMA DeInit*/
+    /* UART5 DMA DeInit */
     HAL_DMA_DeInit(huart->hdmarx);
 
-    /* Peripheral interrupt DeInit*/
+    /* UART5 interrupt DeInit */
     HAL_NVIC_DisableIRQ(UART5_IRQn);
-
   /* USER CODE BEGIN UART5_MspDeInit 1 */
 
   /* USER CODE END UART5_MspDeInit 1 */

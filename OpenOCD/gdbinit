@@ -1,30 +1,22 @@
+echo Executing GDB with gdbinit to connect to OpenOCD.\n
+# Start to OpenOCD
+#target extended-remote | C:/msys64/mingw64/bin/openocd.exe -f st_board/nucleo_l152re.cfg -c "gdb_port pipe; log_output openocd.log"
+
+shell start "OpenOCD" C:/msys64/mingw64/bin/openocd.exe -f st_board/nucleo_l152re.cfg
+#shell sleep 1
+target extended-remote localhost:3333
+
+# configure gdb
 set remote hardware-breakpoint-limit 6
 set remote hardware-watchpoint-limit 4
-define hook-step
-mon cortex_m maskisr on
-end
-define hookpost-step
-mon cortex_m maskisr off
-end
 
-list-features
-info signals
-gdb-set print repeat 0
-gdb-set backtrace limit 1024
-gdb-set print elements 400
-gdb-set follow-fork-mode parent
-gdb-set detach-on-fork on
-enable-pretty-printing
-file-symbol-file "dist/Debug/GNUToolsARMEmbedded-Windows/stm32l1"
-file-exec-file  "dist/Debug/GNUToolsARMEmbedded-Windows/stm32l1"
-file-list-exec-source-file
-environment-cd E:\NetBeansProject\NewDimensionARM\STM32L152RE
-exec-arguments 
+# Reset the target and call its init script
+monitor reset init
 
-target remote | openocd -c "gdb_port pipe;" -f st_board/nucleo_l152re.cfg
+# load 
+file dist/Debug/GNUToolsARMEmbedded-Windows/stm32l1
+load
 
-stack-list-frames --thread 1
-exec-continue
-gdb-set record stop-at-limit off
-record
-stack-list-arguments 1
+#set breakpoints
+tbreak main
+n

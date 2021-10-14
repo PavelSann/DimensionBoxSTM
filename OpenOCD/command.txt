@@ -1,0 +1,4 @@
+../OpenOCD/openocd.cmd -f st_board/nucleo_l152re.cfg
+
+../OpenOCD/openocd.cmd -f st_board/nucleo_l152re.cfg -c "program \"${OUTPUT_PATH}\" verify reset exit"
+

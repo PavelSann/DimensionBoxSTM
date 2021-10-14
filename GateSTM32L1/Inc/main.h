@@ -3,6 +3,11 @@
   * File Name          : main.h
   * Description        : This file contains the common defines of the application
   ******************************************************************************
+  ** This notice applies to any and all portions of this file
+  * that are not between comment pairs USER CODE BEGIN and
+  * USER CODE END. Other portions of this file, whether 
+  * inserted by the user or by software development tools
+  * are owned by their respective copyright owners.
   *
   * COPYRIGHT(c) 2017 STMicroelectronics
   *
@@ -43,6 +48,7 @@
 
 #define ButtonBlue_Pin GPIO_PIN_13
 #define ButtonBlue_GPIO_Port GPIOC
+#define ButtonBlue_EXTI_IRQn EXTI15_10_IRQn
 #define TCPConfig_Pin GPIO_PIN_0
 #define TCPConfig_GPIO_Port GPIOC
 #define TCPNotConnect_Pin GPIO_PIN_1
@@ -55,6 +61,8 @@
 #define LedErr_GPIO_Port GPIOA
 #define ConnectLED_Pin GPIO_PIN_0
 #define ConnectLED_GPIO_Port GPIOB
+#define LedConnServ_Pin GPIO_PIN_9
+#define LedConnServ_GPIO_Port GPIOC
 #define TMS_Pin GPIO_PIN_13
 #define TMS_GPIO_Port GPIOA
 #define TCK_Pin GPIO_PIN_14
@@ -65,12 +73,20 @@
 #define UART_SP1ML_RX_GPIO_Port GPIOC
 #define SWO_Pin GPIO_PIN_3
 #define SWO_GPIO_Port GPIOB
+#define LedConnBox2_Pin GPIO_PIN_8
+#define LedConnBox2_GPIO_Port GPIOB
+#define LedConnBox3_Pin GPIO_PIN_9
+#define LedConnBox3_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 void LedErrorSet();
 void LedErrorSoftWhile();
 void LedErrorHardWhile();
 /* USER CODE END Private defines */
+
+void _Error_Handler(char *, int);
+
+#define Error_Handler() _Error_Handler(__FILE__, __LINE__)
 
 /**
   * @}

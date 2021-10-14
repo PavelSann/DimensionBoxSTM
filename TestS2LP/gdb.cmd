@@ -1,0 +1,1 @@
+start "GDB OpenOCD" C:\GNUToolsARMEmbedded\bin\arm-none-eabi-gdb.exe -x gdbinit -nx

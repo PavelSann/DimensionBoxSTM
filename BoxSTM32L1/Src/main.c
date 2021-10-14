@@ -1,8 +1,16 @@
+// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
 /**
  ******************************************************************************
  * File Name          : main.c
  * Description        : Main program body
  ******************************************************************************
+ ** This notice applies to any and all portions of this file
+ * that are not between comment pairs USER CODE BEGIN and
+ * USER CODE END. Other portions of this file, whether
+ * inserted by the user or by software development tools
+ * are owned by their respective copyright owners.
  *
  * COPYRIGHT(c) 2017 STMicroelectronics
  *
@@ -35,17 +43,20 @@
 #include "stm32l1xx_hal.h"
 
 /* USER CODE BEGIN Includes */
+
 #include "stm32l1xx_hal_uart.h"
 #include "config.h"
 #include "transceiver.h"
 #include "xprint.h"
-#include "meters/water_meter.h"
-#include "meters/electro_meter.h"
-#include <stdbool.h>
-#define TEST 0
-#if TEST
-	#include "../Test/sp1ml_uart_test.h"
+#if WATER_METER
+	#include "meters/water_meter.h"
 #endif
+#if ELECTRO_METER
+	#include "meters/electro_meter.h"
+#endif
+#include "storage.h"
+#include <stdbool.h>
+
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -56,32 +67,51 @@ CRC_HandleTypeDef hcrc;
 
 TIM_HandleTypeDef htim2;
 
-UART_HandleTypeDef huart4;
 UART_HandleTypeDef huart5;
+UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
-DMA_HandleTypeDef hdma_uart4_rx;
+DMA_HandleTypeDef hdma_usart1_rx;
+
+static bool valveOpen; // текущее состояние вентеля
+#define STORAGE_SIZE 32
+#define STORAGE_WATER_COUNTER 0
+#define STORAGE_VALVE_STATUS 4
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-static volatile bool readMeters = 0;
+static volatile bool sendMeterData = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-void Error_Handler(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_TIM2_Init(void);
-static void MX_UART4_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_UART5_Init(void);
 static void MX_COMP2_Init(void);
 static void MX_COMP1_Init(void);
 static void MX_CRC_Init(void);
+static void MX_USART1_UART_Init(void);
 
 /* USER CODE BEGIN PFP */
-/* Private function prototypes -----------------------------------------------*/
 
+/* Private function prototypes -----------------------------------------------*/
+static void setValveOpen(bool open) {
+	if (open) {
+		LOG("Open the valve");
+		HAL_GPIO_WritePin(Valve1Close_GPIO_Port, Valve1Close_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(Valve1Open_GPIO_Port, Valve1Open_Pin, GPIO_PIN_SET);
+
+	} else {
+		LOG("Close the valve");
+		HAL_GPIO_WritePin(Valve1Open_GPIO_Port, Valve1Open_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(Valve1Close_GPIO_Port, Valve1Close_Pin, GPIO_PIN_SET);
+	}
+	valveOpen = open;
+	STORAGE_WriteWord(STORAGE_VALVE_STATUS, valveOpen);
+
+}
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -99,19 +129,27 @@ int main(void) {
 	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
 	HAL_Init();
 
+	/* USER CODE BEGIN Init */
+
+	/* USER CODE END Init */
+
 	/* Configure the system clock */
 	SystemClock_Config();
+
+	/* USER CODE BEGIN SysInit */
+
+	/* USER CODE END SysInit */
 
 	/* Initialize all configured peripherals */
 	MX_GPIO_Init();
 	MX_DMA_Init();
 	MX_TIM2_Init();
-	MX_UART4_Init();
 	MX_USART2_UART_Init();
 	MX_UART5_Init();
 	MX_COMP2_Init();
 	MX_COMP1_Init();
 	MX_CRC_Init();
+	MX_USART1_UART_Init();
 
 	/* USER CODE BEGIN 2 */
 #if X_PRINT_LOG
@@ -120,21 +158,30 @@ int main(void) {
 	LOG("Start Box ID:0x%x DEVID:0x%x REVID:0x%x HAL:0x%x", CONFIG_ID, HAL_GetDEVID(), HAL_GetREVID(), HAL_GetHalVersion());
 #endif
 
-
-#if TEST
-	SP1MLTest();
-#endif
+	STORAGE_Init(32);
 	PACK_Init(&hcrc);
-	//запускаем таймер 2
-	HAL_TIM_Base_Start_IT(&htim2);
 
 	//Инициализируем радио модуль
 	TRANSConfig transConf = {
-		.hUART = &huart4,
+		.hUART = &huart1,
 		.localAddress = CONFIG_LOCAL_ADDRESS,
 	};
 	TRANS_Init(transConf);
 
+	valveOpen = STORAGE_ReadWord(STORAGE_VALVE_STATUS);
+	setValveOpen(valveOpen);
+#if WATER_METER
+	uint32_t storedWaterCounter = STORAGE_ReadWord(STORAGE_WATER_COUNTER);
+	//Инициализируем счётчик воды
+	WaterMeterConfig wmConf = {
+		.pComp1 = &hcomp1,
+		.pComp2 = &hcomp2,
+		.beginValue = storedWaterCounter
+	};
+	WaterMeter_Init(wmConf);
+#endif
+
+#if ELECTRO_METER
 	//Инициализируем счётчик электричества
 	ElectroMeterConfig emConf = {
 		.hUART = &huart5,
@@ -143,13 +190,11 @@ int main(void) {
 		.password = "777777"
 	};
 	ElectroMeter_Init(emConf);
+#endif
 
-	//Инициализируем счётчик воды
-	WaterMeterConfig wmConf = {
-		.pComp1 = &hcomp1,
-		.pComp2 = &hcomp2
-	};
-	WaterMeter_Init(wmConf);
+	//запускаем таймер
+	HAL_TIM_Base_Start_IT(&htim2);
+
 
 	/* USER CODE END 2 */
 
@@ -159,40 +204,49 @@ int main(void) {
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
-
+		//обрабатываем принятые по сети пакеты
 		TRANS_ProcessPackage();
-		if (readMeters == true) {
-			//			HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_SET);
-			uint32_t waterValue = TRANS_DISCONNECT_METER_VALUE;
+
+		if (sendMeterData == true) { // нужно отправить показания
+			TRANSDataMeters meters = {
+				{.type = TRANS_METER_TYPE_NONE, .value = 0},
+				{.type = TRANS_METER_TYPE_NONE, .value = 0},
+				{.type = TRANS_METER_TYPE_NONE, .value = 0},
+				{.valve = valveOpen}
+			};
+
+#if WATER_METER
 			if (!WaterMeter_getError()) {
-				waterValue = WaterMeter_getValue();
-				//				LOG("Water value: %d ", waterValue);
+				uint32_t waterValue = WaterMeter_getValue();
+				meters.value2 = (TRANSDataMeterValue){.type = TRANS_METER_TYPE_WATER_IMPULS, .value = waterValue};
+				uint32_t storedValue = STORAGE_ReadWord(STORAGE_WATER_COUNTER);
+				if (waterValue > storedValue) {
+					LOG("STORAGE save water value: %d ", waterValue);
+					STORAGE_WriteWord(STORAGE_WATER_COUNTER, waterValue);
+				}
 			} else {
 				LOG("Water meter not connect");
 			}
+#endif
 
+#if ELECTRO_METER
 			ElectroMeterValues values = ElectroMeter_GetValues();
 			if (!values.error) {
 				//LOG("Electro values: t1=%d t2=%d t3=%d t4=%d ", values.tariff1, values.tariff2, values.tariff3, values.tariff4);
+				meters.value0 = (TRANSDataMeterValue){.type = TRANS_METER_TYPE_ELECTRO_T1, .value = values.tariff1};
+				meters.value1 = (TRANSDataMeterValue){.type = TRANS_METER_TYPE_ELECTRO_T2, .value = values.tariff2};
 			} else {
-				//				LOG("Electro meter not connect");
-				values.tariff1 = TRANS_DISCONNECT_METER_VALUE;
-				values.tariff2 = TRANS_DISCONNECT_METER_VALUE;
-				values.tariff3 = TRANS_DISCONNECT_METER_VALUE;
-				values.tariff4 = TRANS_DISCONNECT_METER_VALUE;
+				LOG("Electro meter not connect");
 			}
+#endif
 
-			TRANSDataMeters meters = {
-				values.tariff1, values.tariff2, values.tariff3, values.tariff4,
-				waterValue
-			};
 
 			TRANS_SendDataMeters(CONFIG_GATE_ADDRESS, &meters);
-
-			//HAL_GPIO_WritePin(LedGreen_GPIO_Port, LedGreen_Pin, GPIO_PIN_RESET);
-			readMeters = false;
+			sendMeterData = false;
 		}
-		//		__WFI;
+		//		HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+		//		HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+
 	}
 	/* USER CODE END 3 */
 
@@ -219,7 +273,7 @@ void SystemClock_Config(void) {
 	RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL4;
 	RCC_OscInitStruct.PLL.PLLDIV = RCC_PLL_DIV2;
 	if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
-		Error_Handler();
+		_Error_Handler(__FILE__, __LINE__);
 	}
 
 	/**Initializes the CPU, AHB and APB busses clocks
@@ -232,7 +286,7 @@ void SystemClock_Config(void) {
 	RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
 	if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK) {
-		Error_Handler();
+		_Error_Handler(__FILE__, __LINE__);
 	}
 
 	/**Configure the Systick interrupt time
@@ -255,7 +309,7 @@ static void MX_COMP1_Init(void) {
 	hcomp1.Init.TriggerMode = COMP_TRIGGERMODE_IT_RISING;
 	hcomp1.Init.NonInvertingInputPull = COMP_NONINVERTINGINPUT_NOPULL;
 	if (HAL_COMP_Init(&hcomp1) != HAL_OK) {
-		Error_Handler();
+		_Error_Handler(__FILE__, __LINE__);
 	}
 
 }
@@ -271,7 +325,7 @@ static void MX_COMP2_Init(void) {
 	hcomp2.Init.WindowMode = COMP_WINDOWMODE_ENABLE;
 	hcomp2.Init.TriggerMode = COMP_TRIGGERMODE_IT_RISING_FALLING;
 	if (HAL_COMP_Init(&hcomp2) != HAL_OK) {
-		Error_Handler();
+		_Error_Handler(__FILE__, __LINE__);
 	}
 
 }
@@ -281,7 +335,7 @@ static void MX_CRC_Init(void) {
 
 	hcrc.Instance = CRC;
 	if (HAL_CRC_Init(&hcrc) != HAL_OK) {
-		Error_Handler();
+		_Error_Handler(__FILE__, __LINE__);
 	}
 
 }
@@ -298,35 +352,18 @@ static void MX_TIM2_Init(void) {
 	htim2.Init.Period = 5000;
 	htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
 	if (HAL_TIM_Base_Init(&htim2) != HAL_OK) {
-		Error_Handler();
+		_Error_Handler(__FILE__, __LINE__);
 	}
 
 	sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
 	if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK) {
-		Error_Handler();
+		_Error_Handler(__FILE__, __LINE__);
 	}
 
 	sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
 	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
 	if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK) {
-		Error_Handler();
-	}
-
-}
-
-/* UART4 init function */
-static void MX_UART4_Init(void) {
-
-	huart4.Instance = UART4;
-	huart4.Init.BaudRate = 115200;
-	huart4.Init.WordLength = UART_WORDLENGTH_8B;
-	huart4.Init.StopBits = UART_STOPBITS_1;
-	huart4.Init.Parity = UART_PARITY_NONE;
-	huart4.Init.Mode = UART_MODE_TX_RX;
-	huart4.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-	huart4.Init.OverSampling = UART_OVERSAMPLING_16;
-	if (HAL_UART_Init(&huart4) != HAL_OK) {
-		Error_Handler();
+		_Error_Handler(__FILE__, __LINE__);
 	}
 
 }
@@ -343,7 +380,24 @@ static void MX_UART5_Init(void) {
 	huart5.Init.HwFlowCtl = UART_HWCONTROL_NONE;
 	huart5.Init.OverSampling = UART_OVERSAMPLING_16;
 	if (HAL_UART_Init(&huart5) != HAL_OK) {
-		Error_Handler();
+		_Error_Handler(__FILE__, __LINE__);
+	}
+
+}
+
+/* USART1 init function */
+static void MX_USART1_UART_Init(void) {
+
+	huart1.Instance = USART1;
+	huart1.Init.BaudRate = 115200;
+	huart1.Init.WordLength = UART_WORDLENGTH_8B;
+	huart1.Init.StopBits = UART_STOPBITS_1;
+	huart1.Init.Parity = UART_PARITY_NONE;
+	huart1.Init.Mode = UART_MODE_TX_RX;
+	huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+	huart1.Init.OverSampling = UART_OVERSAMPLING_16;
+	if (HAL_UART_Init(&huart1) != HAL_OK) {
+		_Error_Handler(__FILE__, __LINE__);
 	}
 
 }
@@ -360,7 +414,7 @@ static void MX_USART2_UART_Init(void) {
 	huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
 	huart2.Init.OverSampling = UART_OVERSAMPLING_16;
 	if (HAL_UART_Init(&huart2) != HAL_OK) {
-		Error_Handler();
+		_Error_Handler(__FILE__, __LINE__);
 	}
 
 }
@@ -370,12 +424,12 @@ static void MX_USART2_UART_Init(void) {
  */
 static void MX_DMA_Init(void) {
 	/* DMA controller clock enable */
-	__HAL_RCC_DMA2_CLK_ENABLE();
+	__HAL_RCC_DMA1_CLK_ENABLE();
 
 	/* DMA interrupt init */
-	/* DMA2_Channel3_IRQn interrupt configuration */
-	HAL_NVIC_SetPriority(DMA2_Channel3_IRQn, 1, 0);
-	HAL_NVIC_EnableIRQ(DMA2_Channel3_IRQn);
+	/* DMA1_Channel5_IRQn interrupt configuration */
+	HAL_NVIC_SetPriority(DMA1_Channel5_IRQn, 0, 0);
+	HAL_NVIC_EnableIRQ(DMA1_Channel5_IRQn);
 
 }
 
@@ -398,7 +452,10 @@ static void MX_GPIO_Init(void) {
 	__HAL_RCC_GPIOB_CLK_ENABLE();
 
 	/*Configure GPIO pin Output Level */
-	HAL_GPIO_WritePin(GPIOA, Valve1_Pin | Valve2_Pin | LedErr_Pin | MAX484RD_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GPIOA, Valve1Open_Pin | Valve1Close_Pin | LedErr_Pin, GPIO_PIN_RESET);
+
+	/*Configure GPIO pin Output Level */
+	HAL_GPIO_WritePin(MAX484RD_GPIO_Port, MAX484RD_Pin, GPIO_PIN_RESET);
 
 	/*Configure GPIO pin : ButtonBlue_Pin */
 	GPIO_InitStruct.Pin = ButtonBlue_Pin;
@@ -406,8 +463,8 @@ static void MX_GPIO_Init(void) {
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	HAL_GPIO_Init(ButtonBlue_GPIO_Port, &GPIO_InitStruct);
 
-	/*Configure GPIO pins : Valve1_Pin Valve2_Pin MAX484RD_Pin */
-	GPIO_InitStruct.Pin = Valve1_Pin | Valve2_Pin | MAX484RD_Pin;
+	/*Configure GPIO pins : Valve1Open_Pin Valve1Close_Pin */
+	GPIO_InitStruct.Pin = Valve1Open_Pin | Valve1Close_Pin;
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Pull = GPIO_PULLDOWN;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -420,6 +477,13 @@ static void MX_GPIO_Init(void) {
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 	HAL_GPIO_Init(LedErr_GPIO_Port, &GPIO_InitStruct);
 
+	/*Configure GPIO pin : MAX484RD_Pin */
+	GPIO_InitStruct.Pin = MAX484RD_Pin;
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	HAL_GPIO_Init(MAX484RD_GPIO_Port, &GPIO_InitStruct);
+
 	/* EXTI interrupt init*/
 	HAL_NVIC_SetPriority(EXTI15_10_IRQn, 4, 0);
 	HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
@@ -427,8 +491,6 @@ static void MX_GPIO_Init(void) {
 }
 
 /* USER CODE BEGIN 4 */
-
-#if !TEST
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
 	TRANS_UART_RxCpltCallback(huart);
@@ -439,7 +501,7 @@ void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef* huart) {
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-	readMeters = true;
+	sendMeterData = true;
 
 }
 
@@ -447,33 +509,24 @@ void TRANS_OnProcessPackage(TRANSPackage* pPackage) {
 	//	LOG("OnReceivePackage: source:0x%x type:%d", pPackage->sourceAddress, pPackage->type);
 	if (pPackage->type == TRANS_TYPE_COMMAND) {
 		uint32_t command = pPackage->data.command.command;
-		uint32_t p1 = pPackage->data.command.parametr1;
+		uint32_t valve = pPackage->data.command.parametr1;
 		//		uint32_t p2 = pPackage->data.command.parametr2;
-		uint8_t valve = 0;
-		GPIO_PinState state = GPIO_PIN_RESET;
-		switch (command) {
-			case TRANS_COMMAND_VALVE_OPEN:
-				valve = p1;
-				state = GPIO_PIN_RESET;
-				LOG("Open the valve %d", valve);
-				break;
-			case TRANS_COMMAND_VALVE_CLOSE:
-				state = GPIO_PIN_SET;
-				valve = p1;
-				LOG("Close the valve %d", valve);
-				break;
-			case TRANS_COMMAND_RESET:
-				LOG("System reset");
-				HAL_NVIC_SystemReset();
-			default:
-				break;
-		}
 		if (valve == 1) {
-			HAL_GPIO_WritePin(Valve1_GPIO_Port, Valve1_Pin, state);
+			switch (command) {
+				case TRANS_COMMAND_VALVE_OPEN:
+					setValveOpen(true);
+					break;
+				case TRANS_COMMAND_VALVE_CLOSE:
+					setValveOpen(false);
+					break;
+				case TRANS_COMMAND_RESET:
+					LOG("System reset");
+					HAL_NVIC_SystemReset();
+				default:
+					break;
+			}
 		}
-		if (valve == 2) {
-			HAL_GPIO_WritePin(Valve2_GPIO_Port, Valve2_Pin, state);
-		}
+
 
 	}
 }
@@ -487,7 +540,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		LOG("TRANSStatus: good:%d bad:%d", status.countGoodPackage, status.countBadPackage);
 	}
 }
-#endif
 
 void inline LedErrorSet() {
 	HAL_GPIO_WritePin(LedErr_GPIO_Port, LedErr_Pin, GPIO_PIN_SET);
@@ -537,12 +589,14 @@ void TRANS_OnError(TRANSStatus status) {
  * @param  None
  * @retval None
  */
-void Error_Handler(void) {
-	/* USER CODE BEGIN Error_Handler */
-	/* User can add his own implementation to report the HAL error return state */
-	LOGERR("HAL Error_Handler");
+void _Error_Handler(char * file, int line) {
+	/* USER CODE BEGIN Error_Handler_Debug */
+	LOGERR("HAL Error_Handler %s:%d", file, line);
 	LedErrorSoftWhile();
-	/* USER CODE END Error_Handler */
+	/* User can add his own implementation to report the HAL error return state */
+	while (1) {
+	}
+	/* USER CODE END Error_Handler_Debug */
 }
 
 #ifdef USE_FULL_ASSERT
